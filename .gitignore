@@ -1,0 +1,16 @@
+# dependencies
+node_modules/
+
+# third-party cloned repos (see skills/INDEX.md for sources)
+engines/motion-canvas/
+skills/remotion-official/
+skills/remotion-koubo/
+skills/remotion-best-practices-cn/
+
+# screencast frame temp output
+tools/out/
+webrec/out/
+
+# misc
+.DS_Store
+*.log
