@@ -72,6 +72,13 @@
   .badge.published { background: #E4E4E4; color: #44403C; }
   .badge.rejected  { background: #FBE9E7; color: var(--bad); }
   .badge.expiring  { background: #FDF1E3; color: var(--warn); }
+  .badge.review-pass     { background: #E4F0E8; color: var(--ok); }
+  .badge.review-warning  { background: #FDF1E3; color: var(--warn); }
+  .badge.review-fail     { background: #FBE9E7; color: var(--bad); }
+  .review-issues { font-size: 12px; color: var(--ink-soft); display: flex; flex-direction: column; gap: 3px; }
+  .review-issues .rv-item { display: flex; gap: 6px; align-items: baseline; }
+  .review-issues .rv-item .rv-time { color: var(--accent); cursor: pointer; font-variant-numeric: tabular-nums; }
+  .review-issues .rv-item .rv-time:hover { text-decoration: underline; }
   .card .actions { display: flex; gap: 6px; flex-wrap: wrap; }
   .card .actions button {
     border: 1px solid var(--line); background: #FAFAF8; border-radius: 8px;
@@ -168,6 +175,14 @@ function card(item) {
     : item.expiredSoon ? '<span class="badge expiring">7天内到期</span>' : "";
   const accounts = (item.targetAccounts ?? []).join(" / ");
   const scheduled = item.scheduledFor ? ` · 定时 ${new Date(item.scheduledFor).toLocaleString("zh-CN")}` : "";
+  const reviewBadge = item.review
+    ? `<span class="badge review-${item.review.verdict === "pass" ? "pass" : item.review.verdict === "warning" ? "warning" : "fail"}">审查${item.review.verdict === "pass" ? "通过" : item.review.verdict === "warning" ? "警告" : "未过"}${item.review.copyrightRisk ? "·版权" + item.review.copyrightRisk : ""}</span>`
+    : "";
+  const reviewIssues = item.review && item.review.issues.length
+    ? `<div class="review-issues">${item.review.issues.map((i) =>
+        `<div class="rv-item"><span class="rv-time" onclick="seek('${item.id}', ${i.timestampSec})">${fmtTime(i.timestampSec)}</span><span>[${i.severity}] ${escapeHtml(i.description)}</span></div>`
+      ).join("")}${item.review.issueCount > 5 ? `<div class="rv-item">…共 ${item.review.issueCount} 条问题，完整报告见 out/review-report.json</div>` : ""}</div>`
+    : "";
   const buttons = [
     item.status !== "approved" ? `<button onclick="setStatus('${item.id}','approved')">批准</button>` : "",
     item.status !== "drafted" ? `<button onclick="setStatus('${item.id}','drafted')">已发草稿</button>` : "",
@@ -175,13 +190,14 @@ function card(item) {
     item.status !== "rejected" ? `<button onclick="setStatus('${item.id}','rejected')">拒绝</button>` : "",
   ].join("");
   el.innerHTML = `
-    <video controls preload="metadata" src="/media?path=${encodeURIComponent(item.videoPath)}"></video>
+    <video controls preload="metadata" data-id="${item.id}" src="/media?path=${encodeURIComponent(item.videoPath)}"></video>
     <div class="title">${escapeHtml(item.title)}</div>
     <div class="sub">
       <span>${item.date}</span>
-      <span class="badge ${st.cls}">${st.label}</span>${expiringBadge}
+      <span class="badge ${st.cls}">${st.label}</span>${expiringBadge}${reviewBadge}
       <span>${escapeHtml(accounts)}</span><span>${scheduled}</span>
     </div>
+    ${reviewIssues}
     <div class="actions">${buttons}</div>`;
   return el;
 }
@@ -194,6 +210,21 @@ async function setStatus(id, status) {
   });
   toast(`已更新为 ${STATUS_META[status].label}`);
   load();
+}
+
+function fmtTime(sec) {
+  sec = Math.max(0, Math.round(Number(sec) || 0));
+  const m = Math.floor(sec / 60), s = sec % 60;
+  return `${m}:${String(s).padStart(2, "0")}`;
+}
+
+async function seek(id, sec) {
+  const el = document.querySelector(`.card video[data-id="${id}"]`);
+  if (el) {
+    el.currentTime = sec;
+    el.play();
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
 }
 
 function toast(msg) {

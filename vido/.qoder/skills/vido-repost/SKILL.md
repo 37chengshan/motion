@@ -20,6 +20,17 @@ node scripts/repost-download.ts --dry-run  # （可选）确认采集层无新�
 
 ### 2. 逐条包装（核心：真实信息 + 合规标注）
 
+**先跑整视频合规预审（必做，替代只看元数据）**：
+
+```bash
+npm run review:video -- repost/inbox/<videoId>/<视频文件> --kind repost --effort low
+```
+
+模型完整观看视频（gemini-3.7-flash），输出 `repost/inbox/<videoId>/review-report.json`：
+- `verdict=fail`（版权风险 high/敏感内容）→ 直接 rejected，history 注明原因，不再包装
+- `copyrightRisk=medium` → warning，标题/简介必须标注来源与原作者后再继续
+- 报告 `summary`/`domain` 作为中文标题与账号路由的依据
+
 对每条 `repost/inbox/<videoId>/`：
 
 1. **读源信息**：`<videoId>.info.json`（标题/作者/频道/描述/时长/上传日期）+ 字幕 srt（有则读内容判断主题）

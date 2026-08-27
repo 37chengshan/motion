@@ -125,8 +125,12 @@ BGM：today.json 加 `"bgm": "bgm/bgm.mp3"`（素材放 public/bgm/）→ 生成
 
 ### 7. 审查与交付
 
-- 看 snapshots/*.png + contact-sheet.jpg（AI 审查：文字溢出/数字正确/无空白帧）
-- 渲染后按 timeline proofTimestamps 抽帧终审（见 docs/workflow.md 第七节）
+- 看 snapshots/*.png + contact-sheet.jpg（AI 快筛：文字溢出/数字正确/无空白帧）
+- **整视频终审（必做，替代单帧抽查）**：
+  ```bash
+  npm run review:video -- out/<场次>/ai_news_short.mp4 --kind render --effort high --config src/data/today.<场次>.json --timeline out/<场次>/timeline.json
+  ```
+  模型完整观看整段视频（gemini-3.7-flash），核对数据快照/文字溢出/动画冻结/黑帧/时序错位，输出 out/review-report.json；verdict=fail 时退出码 1 → 必须修复重渲
 - 交付 out/<场次>/ai_news_short.mp4；横屏版可改 data-width/height 为 1920×1080 重渲
 - 发布需用户确认（docs/workflow.md 第八节）
 

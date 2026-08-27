@@ -17,6 +17,7 @@
     "dashboard": "node dashboard/server.ts",
     "dashboard:add": "node scripts/dashboard-add.ts",
     "accounts": "node scripts/account-list.ts",
+    "review:video": "node scripts/review-video.ts",
     "research": "node scripts/daily-research.ts",
     "score": "node scripts/score-and-rank.ts",
     "tts": "python scripts/tts-cosyvoice.py",

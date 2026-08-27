@@ -71,11 +71,36 @@ function expiryState(item: RegistryItem): { expiredSoon: boolean; expired: boole
 }
 
 async function enhance(items: RegistryItem[]) {
-  return items.map((item) => {
-    const full = path.resolve(ROOT, item.videoPath);
-    const exists = full.startsWith(ROOT) && existsSync(full);
-    return { ...item, videoExists: exists, ...expiryState(item) };
-  });
+  return Promise.all(
+    items.map(async (item) => {
+      const full = path.resolve(ROOT, item.videoPath);
+      const exists = full.startsWith(ROOT) && existsSync(full);
+      // 审查报告摘要（reviewReportPath 指向 review-video.ts 的输出）
+      let review: Record<string, unknown> | null = null;
+      if (item.reviewReportPath) {
+        const rp = path.resolve(ROOT, item.reviewReportPath);
+        if (rp.startsWith(ROOT) && existsSync(rp)) {
+          try {
+            const raw = JSON.parse(await readFile(rp, "utf-8"));
+            review = {
+              verdict: raw.verdict,
+              summary: raw.summary,
+              copyrightRisk: raw.copyrightRisk,
+              issueCount: Array.isArray(raw.issues) ? raw.issues.length : 0,
+              issues: Array.isArray(raw.issues) ? raw.issues.slice(0, 5).map((i: any) => ({
+                timestampSec: i.timestampSec,
+                severity: i.severity,
+                description: i.description,
+              })) : [],
+            };
+          } catch {
+            /* 报告损坏时忽略 */
+          }
+        }
+      }
+      return { ...item, videoExists: exists, review, ...expiryState(item) };
+    })
+  );
 }
 
 function sendJson(res: http.ServerResponse, code: number, body: unknown) {

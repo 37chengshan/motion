@@ -84,9 +84,13 @@ VidoShort/VidoLong 按 targetFrames 播 Sequence 并挂对应旁白 Audio。
 
 ### 6. 审查与交付
 
-- 渲染后按 timeline proofTimestamps 抽帧 + contact sheet 审查（docs/workflow.md 第七节）
-- 重点检查：star 数字与 GitHub API 一致、终端命令与 README 一致、文字无溢出
-- 不合格：改 today.json 对应 block（时间轴不动）→ 重跑 tts/timeline（如 narration 变了）→ render:all
+- 渲染后按 timeline proofTimestamps 抽帧快筛（docs/workflow.md 第七节）
+- **整视频终审（必做，替代单帧抽查）**：
+  ```bash
+  npm run review:video -- out/video_short.mp4 --kind render --effort high --config src/data/today.json --timeline out/timeline.json
+  ```
+  模型完整观看整段视频（gemini-3.7-flash），重点核对：star 数字与 GitHub API 一致、终端命令与 README 一致、文字无溢出/黑帧/动画冻结；verdict=fail → 修复重渲
+- 不合格：改 today.json 对应 block（时间轴不动）→ 重跑 tts/timeline（如 narration 变了）→ render:all → 重新 review
 - 交付 out/video_short.mp4（竖屏）+ video_long.mp4（横屏）+ subtitle.srt
 
 ### 7. 登记预览台 → 停在草稿（流程必做）

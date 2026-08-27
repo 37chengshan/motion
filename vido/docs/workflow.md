@@ -119,17 +119,33 @@ gen-hyperframes.ts 也可用 `--style dark` 强制覆盖：
 node scripts/style-check.ts   # 每风格渲染一帧 → out/styles/<style>.png × 5
 ```
 
-## 七、强审查清单（渲染后必做，proof frames 模式）
+## 六-E、整视频理解（agy gemini-3.7-flash，替代单帧抽查）
+
+成片终审与搬运合规预审都用**完整视频理解**：本机 agy CLI（Antigravity，Google Gemini 的终端 Agent）`--print` 模式直接 `@视频文件` 引用，Gemini 原生多模态完整观看（服务端 1fps 采样 + 时间轴原生对齐），无需本地拆帧。
+
+```bash
+# 成片终审（默认 high 档）：核对数据快照/文字溢出/动画冻结/黑帧/时序错位
+npm run review:video -- out/ai_news_short.mp4 --kind render --effort high --config src/data/today.json --timeline out/timeline.json
+# 搬运合规预审（low 档）：版权素材/敏感内容/违规词 + 摘要/领域
+npm run review:video -- repost/inbox/<id>/<视频> --kind repost --effort low
+```
+
+- 输出：`out/review-report.json` 或 `repost/inbox/<id>/review-report.json`（verdict pass/warning/fail + issues 带时间戳）
+- `verdict=fail` 退出码 1（流程闸口）；模型链：high→medium→low 三档，429 限流自动降档重试
+- 报告经 dashboard-add 的 `--review` 参数挂到预览台卡片（徽章 + 问题时间戳可点击跳转）
+- 限制：1fps 采样对高速运动可能丢细节（我们的幻灯片式成片无此问题）；单请求一个视频
+
+## 七、强审查清单（渲染后必做：快筛 + 整视频终审）
 
 1. `npx tsc --noEmit` 0 错误（Remotion 侧）；hyperframes lint 0 errors（HyperFrames 侧）
-2. 渲染后用 timeline.json 的 proofTimestamps 抽帧（ffmpeg -ss T -i xxx.mp4 -frames:v 1）
-3. 拼贴 contact sheet（ffmpeg xstack 3x2）后 AI 审查：
-   - 文字溢出/截断/换行错误
-   - 动画完整（入场到位、无中途冻结）
-   - 关键数字正确（star 数/百分比与调研数据一致）
-   - 无空白帧/黑帧/意外内容
+2. 快筛：渲染后用 timeline.json 的 proofTimestamps 抽帧（ffmpeg -ss T -i xxx.mp4 -frames:v 1）拼贴 contact sheet，看文字溢出/空白帧等明显问题
+3. **整视频终审（必做）**：`npm run review:video -- <成片> --kind render --effort high [--config ...] [--timeline ...]`，gemini-3.7-flash 完整观看，核对：
+   - 关键数字与 today.json 数据快照一致（star 数/百分比/金额）
+   - 文字溢出/截断/换行错误/乱码
+   - 动画完整（入场到位、无中途冻结）、无黑帧/白帧/花屏
+   - 时序对照：画面与 timeline 段落表不错位
    - 旁白与画面同步（成片 duration ≈ timeline totalDurationSec）
-4. 不合格 → 外科手术式修复（只改出错 block，时间轴不动）→ 重渲 → 重审
+4. verdict=fail → 外科手术式修复（只改出错 block，时间轴不动）→ 重渲 → 重新 review
 5. 全部通过才算完成；发布需用户明确同意
 
 ## 八、发布（草稿闸口，默认停在草稿）

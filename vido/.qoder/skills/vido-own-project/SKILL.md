@@ -67,6 +67,7 @@ node scripts/stage.ts done <key> render
 - 品牌名/链接拼写正确（官网 URL 逐字核对）
 - 卖点数字与用户提供的一致
 - CTA 清晰可见
+- **整视频终审（必做）**：`npm run review:video -- out/video_short.mp4 --kind render --effort high --config src/data/today.json --timeline out/timeline.json`，模型完整观看成片核对上述项；verdict=fail → 修复重渲
 
 ### 5. 交付与发布
 

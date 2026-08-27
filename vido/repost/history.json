@@ -1,1 +1,82 @@
-[]
+[
+  {
+    "videoId": "L9mMfAFwbl4",
+    "url": "https://www.youtube.com/watch?v=L9mMfAFwbl4",
+    "source": "Two Minute Papers",
+    "domain": "ai",
+    "title": "DeepSeek��s New AI System Shouldn��t Be Possible",
+    "downloadedAt": "2026-08-27T06:00:13.179Z",
+    "status": "inbox",
+    "publishedAt": "2026-08-26"
+  },
+  {
+    "videoId": "wMl6c_r0ubw",
+    "url": "https://www.youtube.com/watch?v=wMl6c_r0ubw",
+    "source": "Two Minute Papers",
+    "domain": "ai",
+    "title": "This Small AI Will Change Everything",
+    "downloadedAt": "2026-08-27T06:00:20.152Z",
+    "status": "inbox",
+    "publishedAt": "2026-08-24"
+  },
+  {
+    "videoId": "wzY2fV4Mp3U",
+    "url": "https://www.youtube.com/watch?v=wzY2fV4Mp3U",
+    "source": "AI Explained",
+    "domain": "ai",
+    "title": "GPT-6 Goes Rogue? The HuggingFace Incident, Sans Hype",
+    "downloadedAt": "2026-08-27T06:00:38.076Z",
+    "status": "inbox",
+    "publishedAt": "2026-07-22"
+  },
+  {
+    "videoId": "Qj71N0tBzRo",
+    "url": "https://www.youtube.com/watch?v=Qj71N0tBzRo",
+    "source": "AI Explained",
+    "domain": "ai",
+    "title": "Claude Fable Blocked - 11 Quiet Details on What��s Next",
+    "downloadedAt": "2026-08-27T06:00:56.695Z",
+    "status": "inbox",
+    "publishedAt": "2026-06-14"
+  },
+  {
+    "videoId": "xBByvFrqmWU",
+    "url": "https://www.youtube.com/watch?v=xBByvFrqmWU",
+    "source": "Fireship",
+    "domain": "编程",
+    "title": "DeepSeek is back... and Silicon Valley is terrified",
+    "downloadedAt": "2026-08-27T06:01:28.531Z",
+    "status": "inbox",
+    "publishedAt": "2026-08-20"
+  },
+  {
+    "videoId": "iuZPTE5qsJY",
+    "url": "https://www.youtube.com/watch?v=iuZPTE5qsJY",
+    "source": "Fireship",
+    "domain": "编程",
+    "title": "The summer Math fell to the machines...",
+    "downloadedAt": "2026-08-27T06:01:59.510Z",
+    "status": "inbox",
+    "publishedAt": "2026-08-19"
+  },
+  {
+    "videoId": "ngPkbaZliaU",
+    "url": "https://www.youtube.com/watch?v=ngPkbaZliaU",
+    "source": "MKBHD",
+    "domain": "数码",
+    "title": "The Truth About the Bezelless Concept Phone",
+    "downloadedAt": "2026-08-27T06:02:12.641Z",
+    "status": "inbox",
+    "publishedAt": "2026-08-24"
+  },
+  {
+    "videoId": "o4SSoURPODY",
+    "url": "https://www.youtube.com/watch?v=o4SSoURPODY",
+    "source": "MKBHD",
+    "domain": "数码",
+    "title": "Google Pixel 11/Pro/Fold Impressions: It Is What It Is",
+    "downloadedAt": "2026-08-27T06:02:31.601Z",
+    "status": "inbox",
+    "publishedAt": "2026-08-12"
+  }
+]
