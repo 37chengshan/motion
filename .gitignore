@@ -46,3 +46,7 @@ vido/dashboard/registry.json
 cookies/
 dist/
 .vite/
+
+# EduEvidence 独立项目（用户工作区，不入库）
+projects/
+test_tts.mp3
