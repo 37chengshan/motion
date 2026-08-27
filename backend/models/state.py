@@ -1,0 +1,61 @@
+from enum import Enum
+
+class TaskStatus(str, Enum):
+    RECEIVED = "RECEIVED"
+    VALIDATING = "VALIDATING"
+    VALIDATED = "VALIDATED"
+    CLAIMED = "CLAIMED"
+    PROCESSING = "PROCESSING"
+    PARTIAL_SUCCESS = "PARTIAL_SUCCESS"
+    COMPLETED = "COMPLETED"
+    FAILED = "FAILED"
+    CANCELLED = "CANCELLED"
+
+class TargetStatus(str, Enum):
+    # 摄取与预检阶段
+    DISCOVERED = "DISCOVERED"
+    CLAIMED = "CLAIMED"
+    DOWNLOADING = "DOWNLOADING"
+    VALIDATING = "VALIDATING"
+    PREFLIGHT = "PREFLIGHT"
+
+    # 上传与填表阶段 (准备阶段)
+    UPLOADING = "UPLOADING"
+    MUTATING = "MUTATING"
+    DRAFT_READY = "DRAFT_READY"
+    VERIFYING_DRAFT = "VERIFYING_DRAFT"
+    DRAFT_VERIFIED = "DRAFT_VERIFIED"
+    READY_TO_REVIEW = "READY_TO_REVIEW" # 停在发布前，供人工或进一步授权
+
+    # 授权与正式发布阶段
+    AUTHORIZED = "AUTHORIZED"
+    PUBLISHING = "PUBLISHING"
+    SUBMIT_ACCEPTED = "SUBMIT_ACCEPTED"
+    PUBLISH_PROCESSING = "PUBLISH_PROCESSING"
+    CONFIRMING = "CONFIRMING"
+    CONFIRMED = "CONFIRMED"             # 终态：具备 Post ID / URL / 视觉凭证
+
+    # 异常、调和与熔断分支
+    UNKNOWN_OUTCOME = "UNKNOWN_OUTCOME" # 关键状态：提交中途断网/崩溃/未定
+    RECONCILING = "RECONCILING"         # 调和器接管对账中
+    NOT_PUBLISHED = "NOT_PUBLISHED"     # 经调和确认未发布
+    RETRY_WAIT = "RETRY_WAIT"
+    AUTHORIZATION_EXPIRED = "AUTHORIZATION_EXPIRED"
+    BLOCKED = "BLOCKED"                 # 人工介入锁定
+    FAILED = "FAILED"
+    CANCELLED = "CANCELLED"
+
+class SessionHealth(str, Enum):
+    SESSION_VALID = "SESSION_VALID"
+    SESSION_EXPIRED = "SESSION_EXPIRED"
+    LOGIN_REQUIRED = "LOGIN_REQUIRED"
+
+class AccountCapability(str, Enum):
+    PUBLISH_ALLOWED = "PUBLISH_ALLOWED"
+    PUBLISH_RESTRICTED = "PUBLISH_RESTRICTED" # 禁言/限流/功能降级
+    ACCOUNT_BLOCKED = "ACCOUNT_BLOCKED"       # 封号/违规下线
+
+class PlatformAvailability(str, Enum):
+    AVAILABLE = "AVAILABLE"
+    DEGRADED = "DEGRADED"
+    OUTAGE = "OUTAGE"
