@@ -36,6 +36,7 @@ vido/hyperframes/*/snapshots/
 vido/repost/inbox/
 vido/public/voiceover/
 vido/public/timeline.json
+vido/dashboard/registry.json
 
 # 大文件/临时
 *.mp4

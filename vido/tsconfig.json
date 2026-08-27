@@ -13,5 +13,5 @@
     "noEmit": true,
     "lib": ["DOM", "DOM.Iterable", "ES2022"]
   },
-  "include": ["src", "scripts", "remotion.config.ts"]
+  "include": ["src", "scripts", "dashboard", "remotion.config.ts"]
 }

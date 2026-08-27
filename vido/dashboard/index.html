@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vido 预览台</title>
+<style>
+  :root {
+    --bg: #F5F4EF;
+    --card: #FFFFFF;
+    --ink: #292524;
+    --ink-soft: #78716C;
+    --accent: #D97757;
+    --accent-soft: #F5E5DD;
+    --line: #E7E5E4;
+    --ok: #3F8C5F;
+    --warn: #B45309;
+    --bad: #B91C1C;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    line-height: 1.5;
+    padding: 24px 32px 60px;
+  }
+  header.topbar {
+    display: flex; align-items: baseline; gap: 16px;
+    padding-bottom: 16px; margin-bottom: 20px;
+    border-bottom: 1px solid var(--line);
+  }
+  header.topbar h1 {
+    font-family: Georgia, "Songti SC", serif;
+    font-weight: 600; font-size: 26px; letter-spacing: 0.5px;
+  }
+  header.topbar h1 .dot { color: var(--accent); }
+  header.topbar .meta { color: var(--ink-soft); font-size: 13px; margin-left: auto; }
+  .toolbar { display: flex; gap: 8px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
+  .toolbar button, .toolbar select {
+    background: var(--card); border: 1px solid var(--line); border-radius: 8px;
+    padding: 6px 14px; font-size: 13px; color: var(--ink); cursor: pointer;
+  }
+  .toolbar button:hover { border-color: var(--accent); color: var(--accent); }
+  section.group { margin-bottom: 28px; }
+  section.group h2 {
+    font-family: Georgia, "Songti SC", serif;
+    font-size: 17px; font-weight: 600; margin-bottom: 12px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  section.group h2 .count {
+    font-size: 12px; color: var(--ink-soft); font-family: sans-serif; font-weight: 400;
+    background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 1px 10px;
+  }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+    padding: 14px; display: flex; flex-direction: column; gap: 10px;
+    box-shadow: 0 1px 2px rgba(41,37,36,0.04);
+  }
+  .card.warn-expiring { border-color: var(--warn); }
+  .card video { width: 100%; border-radius: 10px; background: #000; max-height: 240px; }
+  .card .title { font-size: 14px; font-weight: 600; line-height: 1.4; }
+  .card .sub { font-size: 12px; color: var(--ink-soft); display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .badge {
+    display: inline-block; font-size: 11px; border-radius: 999px; padding: 2px 10px;
+    font-weight: 500; white-space: nowrap;
+  }
+  .badge.pending   { background: #F0EEEA; color: var(--ink-soft); }
+  .badge.approved  { background: #E4F0E8; color: var(--ok); }
+  .badge.drafted   { background: #E6EEF5; color: #2C6E9E; }
+  .badge.published { background: #E4E4E4; color: #44403C; }
+  .badge.rejected  { background: #FBE9E7; color: var(--bad); }
+  .badge.expiring  { background: #FDF1E3; color: var(--warn); }
+  .card .actions { display: flex; gap: 6px; flex-wrap: wrap; }
+  .card .actions button {
+    border: 1px solid var(--line); background: #FAFAF8; border-radius: 8px;
+    font-size: 12px; padding: 4px 12px; cursor: pointer; color: var(--ink);
+  }
+  .card .actions button:hover { border-color: var(--accent); color: var(--accent); }
+  .empty { color: var(--ink-soft); font-size: 13px; padding: 20px; text-align: center; }
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: var(--ink); color: #FAFAF8; font-size: 13px; border-radius: 10px;
+    padding: 10px 20px; opacity: 0; pointer-events: none; transition: opacity .25s;
+  }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <h1>Vido<span class="dot">·</span>预览台</h1>
+  <span class="meta" id="date-meta"></span>
+</header>
+
+<div class="toolbar">
+  <button onclick="load()">刷新</button>
+  <label style="font-size:13px;color:var(--ink-soft)">只看</label>
+  <select id="filter-status" onchange="load()">
+    <option value="all">全部状态</option>
+    <option value="pending">待审</option>
+    <option value="approved">已批准</option>
+    <option value="drafted">已发草稿</option>
+    <option value="published">已发布</option>
+    <option value="expiring">即将到期</option>
+  </select>
+  <span style="font-size:12px;color:var(--ink-soft);margin-left:auto" id="expire-note"></span>
+</div>
+
+<main id="main"></main>
+<div class="toast" id="toast"></div>
+
+<script>
+const GROUPS = [
+  { key: "morning",  label: "早场日报",  filter: (i) => i.type === "ai-news" && i.edition === "morning" },
+  { key: "evening", label: "晚场日报",  filter: (i) => i.type === "ai-news" && i.edition === "evening" },
+  { key: "github",  label: "GitHub 项目", filter: (i) => i.type === "github" },
+  { key: "repost",  label: "搬运",      filter: (i) => i.type === "repost" },
+];
+const STATUS_META = {
+  pending:   { label: "待审",   cls: "pending" },
+  approved:  { label: "已批准", cls: "approved" },
+  drafted:   { label: "已发草稿", cls: "drafted" },
+  published: { label: "已发布", cls: "published" },
+  rejected:  { label: "已拒绝", cls: "rejected" },
+};
+
+let items = [];
+
+async function load() {
+  const res = await fetch("/api/items");
+  items = await res.json();
+  const filter = document.getElementById("filter-status").value;
+  let filtered = items;
+  if (filter === "expiring") filtered = items.filter((i) => i.expiredSoon || i.expired);
+  else if (filter !== "all") filtered = items.filter((i) => i.status === filter);
+  render(filtered);
+  document.getElementById("date-meta").textContent = new Date().toLocaleDateString("zh-CN", { year: "numeric", month: "long", day: "numeric", weekday: "long" });
+  const expiring = items.filter((i) => i.expiredSoon || i.expired);
+  document.getElementById("expire-note").textContent = expiring.length ? `⚠️ ${expiring.length} 条草稿即将到期，请尽快处理` : "";
+}
+
+function render(filtered) {
+  const main = document.getElementById("main");
+  main.innerHTML = "";
+  const sorted = [...filtered].sort((a, b) => b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt));
+  for (const g of GROUPS) {
+    const list = sorted.filter(g.filter);
+    if (!list.length) continue;
+    const sec = document.createElement("section");
+    sec.className = "group";
+    sec.innerHTML = `<h2>${g.label}<span class="count">${list.length}</span></h2><div class="grid"></div>`;
+    const grid = sec.querySelector(".grid");
+    for (const item of list) grid.appendChild(card(item));
+    main.appendChild(sec);
+  }
+  if (!main.children.length) {
+    main.innerHTML = '<div class="empty">暂无内容。跑完工作流后用 dashboard:add 登记产物。</div>';
+  }
+}
+
+function card(item) {
+  const el = document.createElement("div");
+  const warn = item.expiredSoon || item.expired;
+  el.className = "card" + (warn ? " warn-expiring" : "");
+  const st = STATUS_META[item.status] ?? STATUS_META.pending;
+  const expiringBadge = item.expired ? '<span class="badge expiring">已过期</span>'
+    : item.expiredSoon ? '<span class="badge expiring">7天内到期</span>' : "";
+  const accounts = (item.targetAccounts ?? []).join(" / ");
+  const scheduled = item.scheduledFor ? ` · 定时 ${new Date(item.scheduledFor).toLocaleString("zh-CN")}` : "";
+  const buttons = [
+    item.status !== "approved" ? `<button onclick="setStatus('${item.id}','approved')">批准</button>` : "",
+    item.status !== "drafted" ? `<button onclick="setStatus('${item.id}','drafted')">已发草稿</button>` : "",
+    item.status !== "published" ? `<button onclick="setStatus('${item.id}','published')">已发布</button>` : "",
+    item.status !== "rejected" ? `<button onclick="setStatus('${item.id}','rejected')">拒绝</button>` : "",
+  ].join("");
+  el.innerHTML = `
+    <video controls preload="metadata" src="/media?path=${encodeURIComponent(item.videoPath)}"></video>
+    <div class="title">${escapeHtml(item.title)}</div>
+    <div class="sub">
+      <span>${item.date}</span>
+      <span class="badge ${st.cls}">${st.label}</span>${expiringBadge}
+      <span>${escapeHtml(accounts)}</span><span>${scheduled}</span>
+    </div>
+    <div class="actions">${buttons}</div>`;
+  return el;
+}
+
+async function setStatus(id, status) {
+  await fetch(`/api/items/${id}/status`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ status }),
+  });
+  toast(`已更新为 ${STATUS_META[status].label}`);
+  load();
+}
+
+function toast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 1800);
+}
+
+function escapeHtml(s) {
+  return String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+load();
+</script>
+</body>
+</html>

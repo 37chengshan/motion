@@ -1,0 +1,29 @@
+[
+  {
+    "platform": "bilibili",
+    "account": "creator",
+    "domains": ["AI", "科技", "开源"],
+    "purpose": "creator",
+    "status": "active",
+    "registeredAt": "",
+    "notes": "主创号（已有登录态，用于日报/项目介绍）"
+  },
+  {
+    "platform": "douyin",
+    "account": "creator",
+    "domains": ["AI", "科技", "开源"],
+    "purpose": "creator",
+    "status": "active",
+    "registeredAt": "",
+    "notes": "主创号（已有登录态）"
+  },
+  {
+    "platform": "xiaohongshu",
+    "account": "creator",
+    "domains": ["AI", "科技", "开源"],
+    "purpose": "creator",
+    "status": "active",
+    "registeredAt": "",
+    "notes": "主创号（已有登录态）"
+  }
+]
