@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>风格 03 - 白板笔记 Whiteboard Notes</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #333; display: flex; flex-direction: column; align-items: center; padding: 40px; font-family: 'Comic Sans MS', 'Segoe Print', cursive, sans-serif; }
+  .toggle { position: fixed; top: 20px; right: 20px; z-index: 100; background: #fff; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-size: 14px; }
+  .label { color: #fff; margin-bottom: 16px; font-size: 18px; }
+  .frames { display: flex; gap: 40px; flex-wrap: wrap; justify-content: center; }
+  .portrait { width: 270px; height: 480px; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.3); position: relative; border: 3px solid #e0e0e0; }
+  .portrait .wb { padding: 24px 20px; height: 100%; position: relative; background-image: radial-gradient(circle, #ddd 1px, transparent 1px); background-size: 20px 20px; }
+  .portrait .wb-title { font-size: 24px; color: #2c3e50; font-weight: 700; border-bottom: 3px solid #e74c3c; display: inline-block; padding-bottom: 4px; }
+  .portrait .wb-sub { font-size: 13px; color: #7f8c8d; margin-top: 10px; }
+  .portrait .wb-box { margin-top: 18px; border: 2px dashed #3498db; border-radius: 8px; padding: 12px; background: rgba(52,152,219,0.05); }
+  .portrait .wb-box-title { font-size: 12px; color: #3498db; font-weight: 700; margin-bottom: 6px; }
+  .portrait .wb-item { font-size: 11px; color: #2c3e50; padding: 4px 0; display: flex; align-items: center; gap: 6px; }
+  .portrait .wb-item .check { width: 14px; height: 14px; border: 2px solid #27ae60; border-radius: 3px; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; color: #27ae60; }
+  .portrait .arrow { position: absolute; right: 20px; top: 100px; font-size: 28px; color: #e74c3c; transform: rotate(-15deg); }
+  .portrait .note { margin-top: 16px; background: #fff9c4; padding: 10px; border-radius: 4px; font-size: 10px; color: #5d4037; transform: rotate(-1deg); box-shadow: 2px 2px 8px rgba(0,0,0,0.1); }
+  .portrait .wb-footer { position: absolute; bottom: 16px; left: 20px; right: 20px; font-size: 9px; color: #bbb; display: flex; justify-content: space-between; }
+  .landscape { width: 480px; height: 270px; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.3); border: 3px solid #e0e0e0; }
+  .landscape .wb { padding: 20px 24px; height: 100%; background-image: radial-gradient(circle, #ddd 1px, transparent 1px); background-size: 20px 20px; display: flex; gap: 20px; }
+  .landscape .wb-left { flex: 1; }
+  .landscape .wb-right { width: 160px; display: flex; flex-direction: column; gap: 10px; }
+  .landscape .wb-title { font-size: 20px; color: #2c3e50; font-weight: 700; border-bottom: 3px solid #e74c3c; display: inline-block; padding-bottom: 3px; }
+  .landscape .wb-sub { font-size: 11px; color: #7f8c8d; margin-top: 6px; }
+  .landscape .wb-box { border: 2px dashed #3498db; border-radius: 8px; padding: 10px; background: rgba(52,152,219,0.05); }
+  .landscape .wb-item { font-size: 10px; color: #2c3e50; padding: 3px 0; }
+  .landscape .note { background: #fff9c4; padding: 8px; border-radius: 4px; font-size: 9px; color: #5d4037; transform: rotate(1deg); box-shadow: 2px 2px 8px rgba(0,0,0,0.1); }
+  .landscape .note2 { background: #e8f5e9; padding: 8px; border-radius: 4px; font-size: 9px; color: #2e7d32; transform: rotate(-2deg); box-shadow: 2px 2px 8px rgba(0,0,0,0.1); }
+  @keyframes drawLine { from { stroke-dashoffset: 200; } to { stroke-dashoffset: 0; } }
+  @keyframes popIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .portrait .wb-box { animation: popIn 0.5s ease 0.3s both; }
+  .portrait .note { animation: popIn 0.4s ease 0.6s both; }
+</style>
+</head>
+<body>
+<button class="toggle" onclick="document.querySelectorAll('.landscape').forEach(e=>e.style.display=e.style.display==='none'?'block':'none')">切换横屏/竖屏</button>
+<div class="label">风格 03 — 白板笔记 Whiteboard Notes</div>
+<div class="frames">
+  <div class="portrait">
+    <div class="wb">
+      <div class="wb-title">LangChain</div>
+      <div class="wb-sub">LLM 应用开发框架</div>
+      <div class="arrow">→</div>
+      <div class="wb-box">
+        <div class="wb-box-title">核心特性</div>
+        <div class="wb-item"><span class="check">✓</span> 链式调用设计</div>
+        <div class="wb-item"><span class="check">✓</span> 50+ LLM 集成</div>
+        <div class="wb-item"><span class="check">✓</span> 向量数据库</div>
+        <div class="wb-item"><span class="check">✓</span> Agent 框架</div>
+      </div>
+      <div class="note">💡 适合快速原型开发，社区非常活跃！每周都有重大更新。</div>
+      <div class="wb-footer"><span>每日AI笔记</span><span>#042</span></div>
+    </div>
+  </div>
+  <div class="landscape">
+    <div class="wb">
+      <div class="wb-left">
+        <div class="wb-title">LangChain</div>
+        <div class="wb-sub">LLM 应用开发框架 · 核心特性</div>
+        <div class="wb-box" style="margin-top:10px">
+          <div class="wb-item">✓ 链式调用设计</div>
+          <div class="wb-item">✓ 50+ LLM 集成</div>
+          <div class="wb-item">✓ 向量数据库</div>
+          <div class="wb-item">✓ Agent 框架</div>
+          <div class="wb-item">✓ Memory 管理</div>
+        </div>
+      </div>
+      <div class="wb-right">
+        <div class="note">💡 适合快速原型开发！社区非常活跃</div>
+        <div class="note2">⭐ GitHub 50K+ Stars</div>
+        <div class="note" style="background:#e3f2fd;color:#1565c0">🔗 python.langchain.com</div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

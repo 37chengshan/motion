@@ -1,0 +1,338 @@
+{
+  "type": "ai-news",
+  "engine": "hyperframes",
+  "template": "news-slideshow",
+  "style": "claude",
+  "title": "今日 AI 速报",
+  "subtitle": "2026-08-25 · AI 与世界新闻日报",
+  "character": "cat",
+  "bgm": "bgm/bgm.mp3",
+  "footer": "Vido · 每日 AI 日报 · 数据来自 Hacker News / ZDNET / IT之家等公开信源",
+  "chapters": [
+    {
+      "start": "00:00",
+      "title": "今日总评"
+    },
+    {
+      "start": "00:20",
+      "title": "AI 新闻"
+    },
+    {
+      "start": "02:10",
+      "title": "世界新闻"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "title",
+      "content": "今日 AI 速报",
+      "effect": "stagger",
+      "section": "review-ai",
+      "narration": "今日 AI 速报，先看今天最重要的 AI 四件事，再看世界四件事。"
+    },
+    {
+      "type": "list",
+      "content": "今日 AI 四件事",
+      "effect": "stagger",
+      "source": "Hacker News / ZDNET",
+      "section": "review-ai",
+      "items": [
+        "80% 开发者认为 AI 编程上瘾但没用",
+        "Agent Skills 非英语占比半年涨 3 个百分点",
+        "Supermicro 发布单机 20 PFLOPS AI 工作站",
+        "Nvidia 投 60 亿美元建美国本土 AI 算力"
+      ],
+      "narration": "AI 四件事：开发者对 AI 编程又爱又恨；Agent Skills 非英语占比快速上升；Supermicro 发布超强工作站；Nvidia 花六十亿美元建美国本土算力。"
+    },
+    {
+      "type": "list",
+      "content": "今日世界四件事",
+      "effect": "stagger",
+      "source": "IT之家",
+      "section": "review-other",
+      "items": [
+        "中国商业航天首次整星出口东南亚",
+        "长征六号丙一箭七星发射成功",
+        "微软 WebView2 更新周期缩短一半",
+        "工信部通报 26 款侵权 App"
+      ],
+      "narration": "世界四件事：银河航天整星出口东南亚；长征六号丙一箭七星；微软更新周期缩到两周；工信部通报二十六款侵权应用。"
+    },
+    {
+      "type": "text",
+      "content": "AI 新闻",
+      "effect": "blur",
+      "section": "review-other",
+      "narration": "进入 AI 新闻详情。"
+    },
+    {
+      "type": "text",
+      "content": "80% 开发者认为 AI 编程「上瘾但没用」",
+      "summary": "ZDNET 报道：多数程序员承认 AI 编程工具让人上瘾但同样令人精疲力竭——生成代码变快了，但修复 AI 写错代码的时间也在增加，甚至出现「编程工作狂」与职业倦怠。",
+      "points": [
+        "GitHub Copilot、Claude Code、Cursor 等工具普及后效率提升明显",
+        "但 AI 生成代码的修复成本正在吃掉提速收益",
+        "研究警示：AI 编程可能诱发过度工作与 burnout",
+        "Hacker News 社区热议持续升温"
+      ],
+      "stats": [
+        {
+          "label": "开发者占比",
+          "value": "80%"
+        },
+        {
+          "label": "发布媒体",
+          "value": "ZDNET"
+        },
+        {
+          "label": "HN 热度",
+          "value": "13 pts"
+        },
+        {
+          "label": "讨论主题",
+          "value": "AI 倦怠"
+        }
+      ],
+      "source": "ZDNET / Hacker News",
+      "url": "https://www.zdnet.com/article/i-cant-stop-80-of-developers-find-ai-coding-more-addictive-than-helpful/",
+      "highlight": "80% · ZDNET 调查",
+      "section": "ai-news",
+      "narration": "ZDNET 调查显示，八成开发者觉得 AI 编程像上瘾：停不下来，但真正提升有限，修复 AI 写的代码反而更累。这条在 Hacker News 引发热议。"
+    },
+    {
+      "type": "text",
+      "content": "Agent Skills 非英语占比半年涨 3 个百分点",
+      "summary": "Plicara 对 255,068 个 Agent Skills 的分析：2026 年 Q1 非英语 Skill 占 13.0%，Q2 升至 16.3%——三个月涨 3 个百分点，而 GitHub 全站非英语文档从 3.7% 到 13.0% 用了整整十年。",
+      "points": [
+        "Skill = 文件夹里的 SKILL.md，用纯文字给 AI Agent 写操作说明",
+        "Anthropic 2025 年 10 月发布规范后像菜谱一样快速传播",
+        "印度、尼日利亚、新加坡是增长最快的开发者群体",
+        "非英语占比只是「下限」，实际国际化程度更高"
+      ],
+      "stats": [
+        {
+          "label": "分析样本",
+          "value": "255,068"
+        },
+        {
+          "label": "Q1 非英语",
+          "value": "13.0%"
+        },
+        {
+          "label": "Q2 非英语",
+          "value": "16.3%"
+        },
+        {
+          "label": "对比 GitHub",
+          "value": "10 年 9.3%"
+        }
+      ],
+      "source": "Plicara / Hacker News",
+      "url": "https://plicara.ai/research/agent-skill-languages/",
+      "highlight": "255,068 个 Skills",
+      "section": "ai-news",
+      "narration": "Plicara 分析了二十五万个 Agent Skills：非英语内容三个月从百分之十三涨到百分之十六，而 GitHub 全站花了十年才走完同样的路。"
+    },
+    {
+      "type": "text",
+      "content": "Supermicro 超级 AI 工作站：单机 20 PFLOPS",
+      "summary": "Supermicro 发布 Super AI Station：搭载英伟达 GB300 超级芯片，FP4 精度算力 20 PFLOPS，配备 748GB 一致性内存——单台工作站即可本地运行大型 AI 模型训练与推理。",
+      "points": [
+        "面向本地大模型开发，无需数据中心即可部署",
+        "GB300 平台 + 748GB 一致性内存（Coherent Memory）",
+        "20 PFLOPS FP4 算力对标小型集群",
+        "Hacker News 关注其「桌面级 AI 基础设施」定位"
+      ],
+      "stats": [
+        {
+          "label": "算力",
+          "value": "20 PFLOPS"
+        },
+        {
+          "label": "内存",
+          "value": "748 GB"
+        },
+        {
+          "label": "平台",
+          "value": "NVIDIA GB300"
+        },
+        {
+          "label": "形态",
+          "value": "桌面工作站"
+        }
+      ],
+      "source": "Supermicro",
+      "url": "https://www.supermicro.com/en/accelerators/nvidia/super-ai-station",
+      "highlight": "GB300 · 20 PFLOPS",
+      "section": "ai-news",
+      "narration": "Supermicro 发布 Super AI Station：GB300 芯片，二十 PFLOPS FP4 算力，七百四十八 GB 一致性内存，一台工作站顶一个小集群。"
+    },
+    {
+      "type": "text",
+      "content": "Nvidia 投 60 亿美元建美国本土 AI 算力",
+      "summary": "据 WSJ 报道，Nvidia 将投入 60 亿美元建设美国本土高性能 AI 算力设施，作为中国 AI 生态的替代方案，强化美国在基础算力上的自给能力。",
+      "points": [
+        "60 亿美元规模，面向美国本土算力供给",
+        "应对中国 AI 算力生态快速崛起的战略动作",
+        "WSJ 独家报道，Nvidia 未公开确认具体细节",
+        "业内解读：算力主权竞争进入新阶段"
+      ],
+      "stats": [
+        {
+          "label": "投资规模",
+          "value": "$6B"
+        },
+        {
+          "label": "方向",
+          "value": "美国本土"
+        },
+        {
+          "label": "媒体",
+          "value": "WSJ"
+        },
+        {
+          "label": "背景",
+          "value": "对华竞争"
+        }
+      ],
+      "source": "Wall Street Journal",
+      "url": "https://www.wsj.com/tech/ai/nvidia-is-spending-6-billion-to-",
+      "highlight": "$6B · 美国本土算力",
+      "section": "ai-news",
+      "narration": "华尔街日报报道，Nvidia 花六十亿美元建美国本土 AI 算力，作为中国 AI 生态的替代方案。"
+    },
+    {
+      "type": "text",
+      "content": "世界新闻",
+      "effect": "blur",
+      "section": "ai-news",
+      "narration": "接下来是世界新闻。"
+    },
+    {
+      "type": "text",
+      "content": "中国商业航天首次向东南亚整星出口",
+      "summary": "银河航天完成中国商业航天企业首次面向东南亚的整星出口——中国商业卫星首次整星交付海外客户，标志中国商业航天从「卖服务」走向「卖卫星」。",
+      "points": [
+        "中国商业航天企业首次整星出口东南亚",
+        "银河航天承担交付，覆盖设计到在轨交付全流程",
+        "此前中国卫星以整星出口为主，商业航天首次突破",
+        "海外客户可通过本国卫星获得通信/遥感能力"
+      ],
+      "stats": [
+        {
+          "label": "企业",
+          "value": "银河航天"
+        },
+        {
+          "label": "突破",
+          "value": "整星出口"
+        },
+        {
+          "label": "区域",
+          "value": "东南亚"
+        },
+        {
+          "label": "性质",
+          "value": "首次"
+        }
+      ],
+      "source": "IT之家",
+      "url": "https://www.ithome.com/0/993/946.htm",
+      "highlight": "银河航天 · 首次整星出口",
+      "section": "other-news",
+      "narration": "银河航天完成中国商业航天首次整星出口东南亚，从卖服务走向卖卫星。"
+    },
+    {
+      "type": "text",
+      "content": "长征六号丙遥一火箭一箭七星发射成功",
+      "summary": "长征六号丙遥一运载火箭成功实施一箭七星发射，任务取得圆满成功。",
+      "points": [
+        "一箭七星，多星部署一次完成",
+        "长征六号丙系列为新一代小型液体运载火箭",
+        "发射任务取得圆满成功"
+      ],
+      "stats": [
+        {
+          "label": "任务",
+          "value": "一箭七星"
+        },
+        {
+          "label": "火箭",
+          "value": "长征六号丙"
+        },
+        {
+          "label": "状态",
+          "value": "圆满成功"
+        }
+      ],
+      "source": "IT之家",
+      "url": "https://www.ithome.com/0/993/944.htm",
+      "highlight": "一箭七星",
+      "section": "other-news",
+      "narration": "长征六号丙遥一一箭七星发射圆满成功。"
+    },
+    {
+      "type": "text",
+      "content": "微软 WebView2 更新周期：4 周缩短到 2 周",
+      "summary": "微软宣布 WebView2 Runtime 更新间隔从 4 周缩短到 2 周，与 Edge 浏览器同步更新，让嵌入 WebView2 的应用更快获得安全修复与特性更新。",
+      "points": [
+        "更新周期从 4 周缩短为 2 周",
+        "与 Edge 浏览器更新节奏保持一致",
+        "嵌入应用可更快获得安全修复与新特性",
+        "开发者需关注频繁更新带来的兼容测试负担"
+      ],
+      "stats": [
+        {
+          "label": "原周期",
+          "value": "4 周"
+        },
+        {
+          "label": "新周期",
+          "value": "2 周"
+        },
+        {
+          "label": "同步对象",
+          "value": "Edge 浏览器"
+        },
+        {
+          "label": "意义",
+          "value": "更快安全修复"
+        }
+      ],
+      "source": "IT之家",
+      "url": "https://www.ithome.com/0/993/945.htm",
+      "highlight": "4 周 → 2 周",
+      "section": "other-news",
+      "narration": "微软把 WebView2 更新周期从四周缩到两周，和 Edge 浏览器同步。"
+    },
+    {
+      "type": "text",
+      "content": "工信部通报 26 款侵害用户权益 App",
+      "summary": "工信部通报 26 款存在侵害用户权益行为的 App 及 SDK，涉及违规收集个人信息、强制索取权限等问题，要求相关企业限期整改。",
+      "points": [
+        "涉及违规收集个人信息、强制授权等问题",
+        "点名 26 款 App 及 SDK",
+        "要求相关企业限期整改"
+      ],
+      "stats": [
+        {
+          "label": "通报数量",
+          "value": "26 款"
+        },
+        {
+          "label": "问题",
+          "value": "违规收集信息"
+        },
+        {
+          "label": "要求",
+          "value": "限期整改"
+        }
+      ],
+      "source": "IT之家",
+      "url": "https://www.ithome.com/0/993/943.htm",
+      "highlight": "26 款 App 被通报",
+      "section": "other-news",
+      "narration": "工信部通报二十六款侵害用户权益的 App，要求限期整改。"
+    }
+  ]
+}

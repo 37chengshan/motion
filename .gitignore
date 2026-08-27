@@ -23,3 +23,25 @@ __pycache__/
 .venv/
 publisher/data/
 *.db
+
+# ===== vido 视频生产流水线 =====
+# 本地工具与账号凭据（绝不提交 Cookie/登录态）
+tools/
+
+# 渲染产物与工作目录（out/research/hyperframes 生成物）
+vido/out/
+vido/research/
+vido/hyperframes/*/assets/
+vido/hyperframes/*/snapshots/
+vido/repost/inbox/
+vido/public/voiceover/
+vido/public/timeline.json
+
+# 大文件/临时
+*.mp4
+*.wav
+*.srt
+.env
+cookies/
+dist/
+.vite/

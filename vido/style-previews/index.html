@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>10 种视频风格预览 - Vido</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0a0a0a; color: #fff; font-family: -apple-system, 'Segoe UI', sans-serif; padding: 40px; }
+  h1 { font-size: 28px; margin-bottom: 8px; }
+  .sub { color: #888; font-size: 14px; margin-bottom: 32px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+  .card { background: #1a1a1a; border-radius: 12px; padding: 20px; text-decoration: none; color: #fff; transition: transform 0.2s, box-shadow 0.2s; display: block; }
+  .card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
+  .card-num { font-size: 36px; font-weight: 900; opacity: 0.15; }
+  .card-name { font-size: 18px; font-weight: 700; margin-top: -10px; }
+  .card-desc { font-size: 12px; color: #888; margin-top: 8px; line-height: 1.6; }
+  .card-tags { display: flex; gap: 6px; margin-top: 12px; flex-wrap: wrap; }
+  .tag { background: #333; padding: 3px 8px; border-radius: 4px; font-size: 10px; color: #aaa; }
+  .section { margin-top: 48px; }
+  .section h2 { font-size: 20px; margin-bottom: 16px; }
+  .tts-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .tts-table th { text-align: left; padding: 10px 12px; background: #1a1a1a; color: #888; font-weight: 600; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; }
+  .tts-table td { padding: 10px 12px; border-bottom: 1px solid #222; color: #ccc; }
+  .tts-table tr:hover td { background: #1a1a1a; }
+  .badge-rec { background: #22c55e; color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: 600; }
+  .badge-alt { background: #3b82f6; color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 9px; }
+  .note { background: #1a1a1a; border-left: 3px solid #3b82f6; padding: 16px; margin-top: 20px; border-radius: 0 8px 8px 0; font-size: 13px; color: #aaa; line-height: 1.8; }
+</style>
+</head>
+<body>
+<h1>Vido 视频风格预览</h1>
+<p class="sub">10 种风格 × 竖屏/横屏 · 点击打开预览 · 选择你喜欢的风格</p>
+
+<div class="grid">
+  <a class="card" href="01-minimal-tech.html">
+    <div class="card-num">01</div>
+    <div class="card-name">极简科技</div>
+    <div class="card-desc">Apple 风极简白底，大量留白，蓝色强调。干净、专业、高级感。</div>
+    <div class="card-tags"><span class="tag">白底</span><span class="tag">专业</span><span class="tag">Apple风</span></div>
+  </a>
+  <a class="card" href="02-magazine-editorial.html">
+    <div class="card-num">02</div>
+    <div class="card-name">杂志排版</div>
+    <div class="card-desc">仿杂志/刊物排版，衬线字体，双栏文字，引文高亮。有文化感。</div>
+    <div class="card-tags"><span class="tag">衬线体</span><span class="tag">刊物</span><span class="tag">叙事</span></div>
+  </a>
+  <a class="card" href="03-whiteboard-notes.html">
+    <div class="card-num">03</div>
+    <div class="card-name">白板笔记</div>
+    <div class="card-desc">白板+马克笔质感，点阵背景，便签纸，手绘箭头。教学感强。</div>
+    <div class="card-tags"><span class="tag">手绘</span><span class="tag">教学</span><span class="tag">轻松</span></div>
+  </a>
+  <a class="card" href="04-terminal-hacker.html">
+    <div class="card-num">04</div>
+    <div class="card-name">终端黑客</div>
+    <div class="card-desc">暗色终端界面，绿色代码高亮，命令行风格。极客/开发者最爱。</div>
+    <div class="card-tags"><span class="tag">暗色</span><span class="tag">代码</span><span class="tag">极客</span></div>
+  </a>
+  <a class="card" href="05-sticky-notes.html">
+    <div class="card-num">05</div>
+    <div class="card-name">便利贴墙</div>
+    <div class="card-desc">彩色便利贴随意贴在墙上，胶带固定，轻微倾斜。轻松活泼。</div>
+    <div class="card-tags"><span class="tag">彩色</span><span class="tag">活泼</span><span class="tag">信息卡</span></div>
+  </a>
+  <a class="card" href="06-newspaper.html">
+    <div class="card-num">06</div>
+    <div class="card-name">报纸头条</div>
+    <div class="card-desc">复古报纸排版，双线边框，多栏文字，旧纸质感。新闻/资讯调性。</div>
+    <div class="card-tags"><span class="tag">复古</span><span class="tag">新闻</span><span class="tag">衬线</span></div>
+  </a>
+  <a class="card" href="07-pixel-retro.html">
+    <div class="card-num">07</div>
+    <div class="card-name">像素复古</div>
+    <div class="card-desc">8-bit 像素风，扫描线效果，霓虹配色，游戏 HUD 界面。独特有趣。</div>
+    <div class="card-tags"><span class="tag">像素</span><span class="tag">游戏</span><span class="tag">霓虹</span></div>
+  </a>
+  <a class="card" href="08-gradient-cards.html">
+    <div class="card-num">08</div>
+    <div class="card-name">渐变卡片</div>
+    <div class="card-desc">暗底+毛玻璃卡片+渐变图标，现代 App 风格。潮流、科技感。</div>
+    <div class="card-tags"><span class="tag">暗色</span><span class="tag">渐变</span><span class="tag">毛玻璃</span></div>
+  </a>
+  <a class="card" href="09-journal.html">
+    <div class="card-num">09</div>
+    <div class="card-name">手账日记</div>
+    <div class="card-desc">横线信纸背景，手写字体，胶带/贴纸装饰，荧光笔标注。温暖有个人感。</div>
+    <div class="card-tags"><span class="tag">手写</span><span class="tag">温暖</span><span class="tag">个人</span></div>
+  </a>
+  <a class="card" href="10-infographic.html">
+    <div class="card-num">10</div>
+    <div class="card-name">信息图表</div>
+    <div class="card-desc">深色数据面板，柱状图/环形图/大数字，数据可视化驱动。理性/专业。</div>
+    <div class="card-tags"><span class="tag">数据</span><span class="tag">图表</span><span class="tag">暗色</span></div>
+  </a>
+</div>
+
+<div class="section">
+  <h2>本地 TTS 配音方案（可自定义音色）</h2>
+  <table class="tts-table">
+    <thead>
+      <tr><th>项目</th><th>GitHub</th><th>克隆样本</th><th>中文效果</th><th>硬件要求</th><th>推荐</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>GPT-SoVITS</strong></td>
+        <td>RVC-Boss/GPT-SoVITS</td>
+        <td>5秒零样本 / 1分钟微调</td>
+        <td>极佳，支持方言</td>
+        <td>6G+ 显存</td>
+        <td><span class="badge-rec">首选</span></td>
+      </tr>
+      <tr>
+        <td><strong>Fish Speech</strong></td>
+        <td>fishaudio/fish-speech</td>
+        <td>10-30秒</td>
+        <td>优秀，80+语言</td>
+        <td>4G+ 显存</td>
+        <td><span class="badge-rec">推荐</span></td>
+      </tr>
+      <tr>
+        <td><strong>CosyVoice 3</strong></td>
+        <td>FunAudioLLM/CosyVoice</td>
+        <td>3秒克隆 + 7种情感</td>
+        <td>极佳，18+方言</td>
+        <td>6G+ 显存</td>
+        <td><span class="badge-alt">备选</span></td>
+      </tr>
+      <tr>
+        <td><strong>ChatTTS</strong></td>
+        <td>2noise/ChatTTS</td>
+        <td>轻量零样本</td>
+        <td>好，对话感强</td>
+        <td>4G+ 显存</td>
+        <td><span class="badge-alt">轻量</span></td>
+      </tr>
+      <tr>
+        <td><strong>Qwen3-TTS</strong></td>
+        <td>QwenLM/Qwen3-TTS</td>
+        <td>支持声音克隆+设计</td>
+        <td>极佳，33语言</td>
+        <td>8G+ 显存</td>
+        <td><span class="badge-alt">新锐</span></td>
+      </tr>
+      <tr>
+        <td><strong>VoxCPM 2</strong></td>
+        <td>OpenBMB/VoxCPM</td>
+        <td>支持克隆</td>
+        <td>好，多语言</td>
+        <td>8G+ 显存</td>
+        <td><span class="badge-alt">备选</span></td>
+      </tr>
+      <tr>
+        <td><strong>Kokoro</strong></td>
+        <td>hexgrad/kokoro</td>
+        <td>50+预设音色</td>
+        <td>好</td>
+        <td>CPU 可跑</td>
+        <td><span class="badge-alt">低配</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="note">
+    <strong>推荐方案：</strong><br>
+    • <strong>首选 GPT-SoVITS</strong>：中文效果最好，社区最成熟，5秒即可克隆，有一键整合包。适合做固定栏目配音。<br>
+    • <strong>备选 Fish Speech</strong>：多语言效果突出，生态好，适合中英混合内容。<br>
+    • <strong>低配方案 ChatTTS / Kokoro</strong>：硬件要求低，CPU 也能跑，适合入门。<br>
+    • <strong>综合工作台 xinjimsh</strong>：集成 7 种 TTS 引擎 + 声音克隆 + Stories 编辑器，一站式解决方案。<br><br>
+    <strong>工作流建议：</strong>录制 20-60 秒干净人声 → 训练专属音色 → 每日自动将文案转为配音音频 → 合入视频。
+  </div>
+</div>
+</body>
+</html>

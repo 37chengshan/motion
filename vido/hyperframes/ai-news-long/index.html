@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>今日 AI 速报</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      body { margin: 0; background: #FAF9F5; font-family: sans-serif; }
+      #root { position: relative; width: 1920px; height: 1080px; overflow: hidden; background: #FAF9F5; }
+      .bg { position: absolute; inset: 0; }
+      .bg-grid { background-image: linear-gradient(#E7E5E455 1px, transparent 1px), linear-gradient(90deg, #E7E5E455 1px, transparent 1px); background-size: 36px 36px; opacity: 0.6; }
+      .bg-glow { background: radial-gradient(ellipse 70% 30% at 50% -5%, rgba(217,119,87,0.10), transparent 70%); }
+      .clip { position: absolute; inset: 0; display: grid; place-items: center; padding: 29px 22px; }
+      /* 开场 */
+      .hero { text-align: center; }
+      .hero h1 { font-size: 55px; font-weight: 800; color: #292524; margin: 0; letter-spacing: 3px; }
+      .hero-sub { font-size: 20px; color: #78716C; margin-top: 14px; letter-spacing: 1px; }
+      .hero-line { width: 173px; height: 4px; border-radius: 2px; background: linear-gradient(90deg, transparent, #D97757, transparent); margin: 22px auto 0; transform-origin: center; }
+      /* 总评 */
+      .review { width: 100%; }
+      .rev-title { font-size: 32px; font-weight: 800; color: #292524; margin: 0 0 19px; text-align: center; }
+      .rev-item { display: flex; align-items: center; gap: 12px; background: #FFFFFF; border: 1px solid #E7E5E4; border-radius: 10px; padding: 12px 14px; margin-bottom: 9px; }
+      .rev-num { width: 27px; height: 27px; border-radius: 50%; background: #D97757; color: #FFFFFF; font-size: 14px; font-weight: 700; display: grid; place-items: center; flex-shrink: 0; }
+      .rev-txt { font-size: 19px; color: #292524; line-height: 1.4; }
+      .rev-src { text-align: center; font-size: 14px; color: #78716C; margin-top: 10px; letter-spacing: 2px; }
+      /* 分区 */
+      .divider { text-align: center; }
+      .divider h1 { font-size: 60px; font-weight: 800; color: #292524; margin: 0; letter-spacing: 8px; }
+      .div-line { width: 202px; height: 5px; border-radius: 3px; background: linear-gradient(90deg, transparent, #D97757, transparent); margin: 23px auto 0; transform-origin: center; }
+      /* 新闻卡（多模块：标题/摘要/数据卡/要点/来源） */
+      .news-card { width: 100%; max-width: 1400px; background: #FFFFFF; border: 1px solid #E7E5E4; border-radius: 13px; padding: 19px 20px; display: flex; flex-direction: column; gap: 9px; max-height: 100%; overflow: hidden; }
+      .nc-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+      .nc-progress { font-size: 14px; color: #78716C; font-weight: 600; }
+      .nc-highlight { background: #D97757; color: #FFFFFF; font-size: 17px; font-weight: 700; padding: 6px 13px; border-radius: 17px; }
+      .nc-title { font-size: 27px; font-weight: 800; color: #292524; margin: 0; line-height: 1.25; }
+      .nc-summary { font-size: 16px; color: #292524; line-height: 1.5; background: #FAF9F5; border-radius: 7px; padding: 9px 12px; }
+      .nc-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+      .st-card { background: #FAF9F5; border: 1px solid #E7E5E4; border-radius: 7px; padding: 7px 9px; text-align: center; }
+      .st-val { font-size: 19px; font-weight: 800; color: #D97757; font-family: monospace; }
+      .st-label { font-size: 11px; color: #78716C; margin-top: 3px; }
+      .nc-points { display: flex; flex-direction: column; gap: 4px; }
+      .pt-item { display: flex; align-items: flex-start; gap: 6px; font-size: 15px; color: #292524; line-height: 1.45; }
+      .pt-dot { width: 5px; height: 5px; border-radius: 50%; background: #D97757; flex-shrink: 0; margin-top: 7px; }
+      .nc-meta { display: flex; gap: 10px; align-items: center; }
+      .nc-src { font-size: 14px; color: #78716C; }
+      .nc-url { font-size: 12px; color: #D97757; word-break: break-all; font-family: monospace; opacity: 0.9; }
+      /* 普通文本 */
+      .plain { text-align: center; }
+      .plain h2 { font-size: 32px; font-weight: 700; color: #292524; margin: 0; line-height: 1.4; }
+      /* 顶部全局进度条 */
+      .gprog { position: absolute; top: 0; left: 0; height: 6px; width: 1920px; background: #E7E5E4; z-index: 50; }
+      .gprog-fill { height: 100%; width: 0; background: #D97757; border-radius: 0 3px 3px 0; }
+      /* 页脚 */
+      .footer { position: absolute; bottom: 13px; left: 0; right: 0; text-align: center; font-size: 12px; color: #78716C; letter-spacing: 1px; z-index: 40; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="ai-news" data-start="0" data-width="1920" data-height="1080" data-duration="106.50" data-fps="30">
+      <div class="bg bg-grid"></div>
+      <div class="bg bg-glow"></div>
+  <section id="p0" class="clip" data-start="0.00" data-duration="7.12" data-track-index="1"><div class="hero"> <h1 id="p0-h">今日 AI 速报</h1> <div class="hero-sub" id="p0-s">2026-08-25 · AI 与世界新闻日报</div> <div class="hero-line" id="p0-l"></div> </div>
+  </section>
+  <section id="p1" class="clip" data-start="7.13" data-duration="13.36" data-track-index="2"><div class="review"> <h2 class="rev-title" id="p1-t">今日 AI 四件事</h2> <div class="rev-item" id="p1-i0"> <div class="rev-num">1</div> <div class="rev-txt">80% 开发者认为 AI 编程上瘾但没用</div> </div> <div class="rev-item" id="p1-i1"> <div class="rev-num">2</div> <div class="rev-txt">Agent Skills 非英语占比半年涨 3 个百分点</div> </div> <div class="rev-item" id="p1-i2"> <div class="rev-num">3</div> <div class="rev-txt">Supermicro 发布单机 20 PFLOPS AI 工作站</div> </div> <div class="rev-item" id="p1-i3"> <div class="rev-num">4</div> <div class="rev-txt">Nvidia 投 60 亿美元建美国本土 AI 算力</div> </div> <div class="rev-src" id="p1-src">Hacker News / ZDNET</div> </div>
+  </section>
+  <section id="p2" class="clip" data-start="20.50" data-duration="11.19" data-track-index="3"><div class="review"> <h2 class="rev-title" id="p2-t">今日世界四件事</h2> <div class="rev-item" id="p2-i0"> <div class="rev-num">1</div> <div class="rev-txt">中国商业航天首次整星出口东南亚</div> </div> <div class="rev-item" id="p2-i1"> <div class="rev-num">2</div> <div class="rev-txt">长征六号丙一箭七星发射成功</div> </div> <div class="rev-item" id="p2-i2"> <div class="rev-num">3</div> <div class="rev-txt">微软 WebView2 更新周期缩短一半</div> </div> <div class="rev-item" id="p2-i3"> <div class="rev-num">4</div> <div class="rev-txt">工信部通报 26 款侵权 App</div> </div> <div class="rev-src" id="p2-src">IT之家</div> </div>
+  </section>
+  <section id="p3" class="clip" data-start="31.70" data-duration="3.29" data-track-index="1"><div class="divider"> <h1 id="p3-h">AI 新闻</h1> <div class="div-line" id="p3-l"></div> </div>
+  </section>
+  <section id="p4" class="clip" data-start="35.00" data-duration="12.89" data-track-index="2"><div class="news-card" id="p4-card"> <div class="nc-head"> <div class="nc-progress" id="p4-prog">1 / 4</div> <div class="nc-highlight" id="p4-hl">80% · ZDNET 调查</div> </div> <h2 class="nc-title" id="p4-t">80% 开发者认为 AI 编程「上瘾但没用」</h2> <div class="nc-summary" id="p4-sum">ZDNET 报道：多数程序员承认 AI 编程工具让人上瘾但同样令人精疲力竭——生成代码变快了，但修复 AI 写错代码的时间也在增加，甚至出现「编程工作狂」与职业倦怠。</div> <div class="nc-stats" id="p4-stats"> <div class="st-card" id="p4-st0"><div class="st-val">80%</div><div class="st-label">开发者占比</div></div> <div class="st-card" id="p4-st1"><div class="st-val">ZDNET</div><div class="st-label">发布媒体</div></div> <div class="st-card" id="p4-st2"><div class="st-val">13 pts</div><div class="st-label">HN 热度</div></div> <div class="st-card" id="p4-st3"><div class="st-val">AI 倦怠</div><div class="st-label">讨论主题</div></div></div> <div class="nc-points" id="p4-pts"> <div class="pt-item" id="p4-pt0"><span class="pt-dot"></span><span class="pt-txt">GitHub Copilot、Claude Code、Cursor 等工具普及后效率提升明显</span></div> <div class="pt-item" id="p4-pt1"><span class="pt-dot"></span><span class="pt-txt">但 AI 生成代码的修复成本正在吃掉提速收益</span></div> <div class="pt-item" id="p4-pt2"><span class="pt-dot"></span><span class="pt-txt">研究警示：AI 编程可能诱发过度工作与 burnout</span></div> <div class="pt-item" id="p4-pt3"><span class="pt-dot"></span><span class="pt-txt">Hacker News 社区热议持续升温</span></div></div> <div class="nc-meta" id="p4-m"> <span class="nc-src">来源：ZDNET / Hacker News</span> </div> <div class="nc-url" id="p4-u">https://www.zdnet.com/article/i-cant-stop-80-of-developers-find-ai-coding-more-addictive-than-helpful/</div> </div>
+  </section>
+  <section id="p5" class="clip" data-start="47.90" data-duration="11.59" data-track-index="3"><div class="news-card" id="p5-card"> <div class="nc-head"> <div class="nc-progress" id="p5-prog">2 / 4</div> <div class="nc-highlight" id="p5-hl">255,068 个 Skills</div> </div> <h2 class="nc-title" id="p5-t">Agent Skills 非英语占比半年涨 3 个百分点</h2> <div class="nc-summary" id="p5-sum">Plicara 对 255,068 个 Agent Skills 的分析：2026 年 Q1 非英语 Skill 占 13.0%，Q2 升至 16.3%——三个月涨 3 个百分点，而 GitHub 全站非英语文档从 3.7% 到 13.0% 用了整整十年。</div> <div class="nc-stats" id="p5-stats"> <div class="st-card" id="p5-st0"><div class="st-val">255,068</div><div class="st-label">分析样本</div></div> <div class="st-card" id="p5-st1"><div class="st-val">13.0%</div><div class="st-label">Q1 非英语</div></div> <div class="st-card" id="p5-st2"><div class="st-val">16.3%</div><div class="st-label">Q2 非英语</div></div> <div class="st-card" id="p5-st3"><div class="st-val">10 年 9.3%</div><div class="st-label">对比 GitHub</div></div></div> <div class="nc-points" id="p5-pts"> <div class="pt-item" id="p5-pt0"><span class="pt-dot"></span><span class="pt-txt">Skill = 文件夹里的 SKILL.md，用纯文字给 AI Agent 写操作说明</span></div> <div class="pt-item" id="p5-pt1"><span class="pt-dot"></span><span class="pt-txt">Anthropic 2025 年 10 月发布规范后像菜谱一样快速传播</span></div> <div class="pt-item" id="p5-pt2"><span class="pt-dot"></span><span class="pt-txt">印度、尼日利亚、新加坡是增长最快的开发者群体</span></div> <div class="pt-item" id="p5-pt3"><span class="pt-dot"></span><span class="pt-txt">非英语占比只是「下限」，实际国际化程度更高</span></div></div> <div class="nc-meta" id="p5-m"> <span class="nc-src">来源：Plicara / Hacker News</span> </div> <div class="nc-url" id="p5-u">https://plicara.ai/research/agent-skill-languages/</div> </div>
+  </section>
+  <section id="p6" class="clip" data-start="59.50" data-duration="11.52" data-track-index="1"><div class="news-card" id="p6-card"> <div class="nc-head"> <div class="nc-progress" id="p6-prog">3 / 4</div> <div class="nc-highlight" id="p6-hl">GB300 · 20 PFLOPS</div> </div> <h2 class="nc-title" id="p6-t">Supermicro 超级 AI 工作站：单机 20 PFLOPS</h2> <div class="nc-summary" id="p6-sum">Supermicro 发布 Super AI Station：搭载英伟达 GB300 超级芯片，FP4 精度算力 20 PFLOPS，配备 748GB 一致性内存——单台工作站即可本地运行大型 AI 模型训练与推理。</div> <div class="nc-stats" id="p6-stats"> <div class="st-card" id="p6-st0"><div class="st-val">20 PFLOPS</div><div class="st-label">算力</div></div> <div class="st-card" id="p6-st1"><div class="st-val">748 GB</div><div class="st-label">内存</div></div> <div class="st-card" id="p6-st2"><div class="st-val">NVIDIA GB300</div><div class="st-label">平台</div></div> <div class="st-card" id="p6-st3"><div class="st-val">桌面工作站</div><div class="st-label">形态</div></div></div> <div class="nc-points" id="p6-pts"> <div class="pt-item" id="p6-pt0"><span class="pt-dot"></span><span class="pt-txt">面向本地大模型开发，无需数据中心即可部署</span></div> <div class="pt-item" id="p6-pt1"><span class="pt-dot"></span><span class="pt-txt">GB300 平台 + 748GB 一致性内存（Coherent Memory）</span></div> <div class="pt-item" id="p6-pt2"><span class="pt-dot"></span><span class="pt-txt">20 PFLOPS FP4 算力对标小型集群</span></div> <div class="pt-item" id="p6-pt3"><span class="pt-dot"></span><span class="pt-txt">Hacker News 关注其「桌面级 AI 基础设施」定位</span></div></div> <div class="nc-meta" id="p6-m"> <span class="nc-src">来源：Supermicro</span> </div> <div class="nc-url" id="p6-u">https://www.supermicro.com/en/accelerators/nvidia/super-ai-station</div> </div>
+  </section>
+  <section id="p7" class="clip" data-start="71.03" data-duration="8.49" data-track-index="2"><div class="news-card" id="p7-card"> <div class="nc-head"> <div class="nc-progress" id="p7-prog">4 / 4</div> <div class="nc-highlight" id="p7-hl">$6B · 美国本土算力</div> </div> <h2 class="nc-title" id="p7-t">Nvidia 投 60 亿美元建美国本土 AI 算力</h2> <div class="nc-summary" id="p7-sum">据 WSJ 报道，Nvidia 将投入 60 亿美元建设美国本土高性能 AI 算力设施，作为中国 AI 生态的替代方案，强化美国在基础算力上的自给能力。</div> <div class="nc-stats" id="p7-stats"> <div class="st-card" id="p7-st0"><div class="st-val">$6B</div><div class="st-label">投资规模</div></div> <div class="st-card" id="p7-st1"><div class="st-val">美国本土</div><div class="st-label">方向</div></div> <div class="st-card" id="p7-st2"><div class="st-val">WSJ</div><div class="st-label">媒体</div></div> <div class="st-card" id="p7-st3"><div class="st-val">对华竞争</div><div class="st-label">背景</div></div></div> <div class="nc-points" id="p7-pts"> <div class="pt-item" id="p7-pt0"><span class="pt-dot"></span><span class="pt-txt">60 亿美元规模，面向美国本土算力供给</span></div> <div class="pt-item" id="p7-pt1"><span class="pt-dot"></span><span class="pt-txt">应对中国 AI 算力生态快速崛起的战略动作</span></div> <div class="pt-item" id="p7-pt2"><span class="pt-dot"></span><span class="pt-txt">WSJ 独家报道，Nvidia 未公开确认具体细节</span></div> <div class="pt-item" id="p7-pt3"><span class="pt-dot"></span><span class="pt-txt">业内解读：算力主权竞争进入新阶段</span></div></div> <div class="nc-meta" id="p7-m"> <span class="nc-src">来源：Wall Street Journal</span> </div> <div class="nc-url" id="p7-u">https://www.wsj.com/tech/ai/nvidia-is-spending-6-billion-to-</div> </div>
+  </section>
+  <section id="p8" class="clip" data-start="79.53" data-duration="2.79" data-track-index="3"><div class="divider"> <h1 id="p8-h">世界新闻</h1> <div class="div-line" id="p8-l"></div> </div>
+  </section>
+  <section id="p9" class="clip" data-start="82.33" data-duration="7.69" data-track-index="1"><div class="news-card" id="p9-card"> <div class="nc-head"> <div class="nc-progress" id="p9-prog">1 / 4</div> <div class="nc-highlight" id="p9-hl">银河航天 · 首次整星出口</div> </div> <h2 class="nc-title" id="p9-t">中国商业航天首次向东南亚整星出口</h2> <div class="nc-summary" id="p9-sum">银河航天完成中国商业航天企业首次面向东南亚的整星出口——中国商业卫星首次整星交付海外客户，标志中国商业航天从「卖服务」走向「卖卫星」。</div> <div class="nc-stats" id="p9-stats"> <div class="st-card" id="p9-st0"><div class="st-val">银河航天</div><div class="st-label">企业</div></div> <div class="st-card" id="p9-st1"><div class="st-val">整星出口</div><div class="st-label">突破</div></div> <div class="st-card" id="p9-st2"><div class="st-val">东南亚</div><div class="st-label">区域</div></div> <div class="st-card" id="p9-st3"><div class="st-val">首次</div><div class="st-label">性质</div></div></div> <div class="nc-points" id="p9-pts"> <div class="pt-item" id="p9-pt0"><span class="pt-dot"></span><span class="pt-txt">中国商业航天企业首次整星出口东南亚</span></div> <div class="pt-item" id="p9-pt1"><span class="pt-dot"></span><span class="pt-txt">银河航天承担交付，覆盖设计到在轨交付全流程</span></div> <div class="pt-item" id="p9-pt2"><span class="pt-dot"></span><span class="pt-txt">此前中国卫星以整星出口为主，商业航天首次突破</span></div> <div class="pt-item" id="p9-pt3"><span class="pt-dot"></span><span class="pt-txt">海外客户可通过本国卫星获得通信/遥感能力</span></div></div> <div class="nc-meta" id="p9-m"> <span class="nc-src">来源：IT之家</span> </div> <div class="nc-url" id="p9-u">https://www.ithome.com/0/993/946.htm</div> </div>
+  </section>
+  <section id="p10" class="clip" data-start="90.03" data-duration="4.56" data-track-index="2"><div class="news-card" id="p10-card"> <div class="nc-head"> <div class="nc-progress" id="p10-prog">2 / 4</div> <div class="nc-highlight" id="p10-hl">一箭七星</div> </div> <h2 class="nc-title" id="p10-t">长征六号丙遥一火箭一箭七星发射成功</h2> <div class="nc-summary" id="p10-sum">长征六号丙遥一运载火箭成功实施一箭七星发射，任务取得圆满成功。</div> <div class="nc-stats" id="p10-stats"> <div class="st-card" id="p10-st0"><div class="st-val">一箭七星</div><div class="st-label">任务</div></div> <div class="st-card" id="p10-st1"><div class="st-val">长征六号丙</div><div class="st-label">火箭</div></div> <div class="st-card" id="p10-st2"><div class="st-val">圆满成功</div><div class="st-label">状态</div></div></div> <div class="nc-points" id="p10-pts"> <div class="pt-item" id="p10-pt0"><span class="pt-dot"></span><span class="pt-txt">一箭七星，多星部署一次完成</span></div> <div class="pt-item" id="p10-pt1"><span class="pt-dot"></span><span class="pt-txt">长征六号丙系列为新一代小型液体运载火箭</span></div> <div class="pt-item" id="p10-pt2"><span class="pt-dot"></span><span class="pt-txt">发射任务取得圆满成功</span></div></div> <div class="nc-meta" id="p10-m"> <span class="nc-src">来源：IT之家</span> </div> <div class="nc-url" id="p10-u">https://www.ithome.com/0/993/944.htm</div> </div>
+  </section>
+  <section id="p11" class="clip" data-start="94.60" data-duration="6.06" data-track-index="3"><div class="news-card" id="p11-card"> <div class="nc-head"> <div class="nc-progress" id="p11-prog">3 / 4</div> <div class="nc-highlight" id="p11-hl">4 周 → 2 周</div> </div> <h2 class="nc-title" id="p11-t">微软 WebView2 更新周期：4 周缩短到 2 周</h2> <div class="nc-summary" id="p11-sum">微软宣布 WebView2 Runtime 更新间隔从 4 周缩短到 2 周，与 Edge 浏览器同步更新，让嵌入 WebView2 的应用更快获得安全修复与特性更新。</div> <div class="nc-stats" id="p11-stats"> <div class="st-card" id="p11-st0"><div class="st-val">4 周</div><div class="st-label">原周期</div></div> <div class="st-card" id="p11-st1"><div class="st-val">2 周</div><div class="st-label">新周期</div></div> <div class="st-card" id="p11-st2"><div class="st-val">Edge 浏览器</div><div class="st-label">同步对象</div></div> <div class="st-card" id="p11-st3"><div class="st-val">更快安全修复</div><div class="st-label">意义</div></div></div> <div class="nc-points" id="p11-pts"> <div class="pt-item" id="p11-pt0"><span class="pt-dot"></span><span class="pt-txt">更新周期从 4 周缩短为 2 周</span></div> <div class="pt-item" id="p11-pt1"><span class="pt-dot"></span><span class="pt-txt">与 Edge 浏览器更新节奏保持一致</span></div> <div class="pt-item" id="p11-pt2"><span class="pt-dot"></span><span class="pt-txt">嵌入应用可更快获得安全修复与新特性</span></div> <div class="pt-item" id="p11-pt3"><span class="pt-dot"></span><span class="pt-txt">开发者需关注频繁更新带来的兼容测试负担</span></div></div> <div class="nc-meta" id="p11-m"> <span class="nc-src">来源：IT之家</span> </div> <div class="nc-url" id="p11-u">https://www.ithome.com/0/993/945.htm</div> </div>
+  </section>
+  <section id="p12" class="clip" data-start="100.67" data-duration="5.82" data-track-index="1"><div class="news-card" id="p12-card"> <div class="nc-head"> <div class="nc-progress" id="p12-prog">4 / 4</div> <div class="nc-highlight" id="p12-hl">26 款 App 被通报</div> </div> <h2 class="nc-title" id="p12-t">工信部通报 26 款侵害用户权益 App</h2> <div class="nc-summary" id="p12-sum">工信部通报 26 款存在侵害用户权益行为的 App 及 SDK，涉及违规收集个人信息、强制索取权限等问题，要求相关企业限期整改。</div> <div class="nc-stats" id="p12-stats"> <div class="st-card" id="p12-st0"><div class="st-val">26 款</div><div class="st-label">通报数量</div></div> <div class="st-card" id="p12-st1"><div class="st-val">违规收集信息</div><div class="st-label">问题</div></div> <div class="st-card" id="p12-st2"><div class="st-val">限期整改</div><div class="st-label">要求</div></div></div> <div class="nc-points" id="p12-pts"> <div class="pt-item" id="p12-pt0"><span class="pt-dot"></span><span class="pt-txt">涉及违规收集个人信息、强制授权等问题</span></div> <div class="pt-item" id="p12-pt1"><span class="pt-dot"></span><span class="pt-txt">点名 26 款 App 及 SDK</span></div> <div class="pt-item" id="p12-pt2"><span class="pt-dot"></span><span class="pt-txt">要求相关企业限期整改</span></div></div> <div class="nc-meta" id="p12-m"> <span class="nc-src">来源：IT之家</span> </div> <div class="nc-url" id="p12-u">https://www.ithome.com/0/993/943.htm</div> </div>
+  </section>
+  <audio id="vo-0" src="assets/voiceover/0.wav" data-start="0.00" data-duration="7.12" data-track-index="10" data-volume="1"></audio>
+  <audio id="vo-1" src="assets/voiceover/1.wav" data-start="7.13" data-duration="13.36" data-track-index="10" data-volume="1"></audio>
+  <audio id="vo-2" src="assets/voiceover/2.wav" data-start="20.50" data-duration="11.19" data-track-index="10" data-volume="1"></audio>
+  <audio id="vo-3" src="assets/voiceover/3.wav" data-start="31.70" data-duration="3.29" data-track-index="10" data-volume="1"></audio>
+  <audio id="vo-4" src="assets/voiceover/4.wav" data-start="35.00" data-duration="12.89" data-track-index="10" data-volume="1"></audio>
+  <audio id="vo-5" src="assets/voiceover/5.wav" data-start="47.90" data-duration="11.59" data-track-index="10" data-volume="1"></audio>
+  <audio id="vo-6" src="assets/voiceover/6.wav" data-start="59.50" data-duration="11.52" data-track-index="10" data-volume="1"></audio>
+  <audio id="vo-7" src="assets/voiceover/7.wav" data-start="71.03" data-duration="8.49" data-track-index="10" data-volume="1"></audio>
+  <audio id="vo-8" src="assets/voiceover/8.wav" data-start="79.53" data-duration="2.79" data-track-index="10" data-volume="1"></audio>
+  <audio id="vo-9" src="assets/voiceover/9.wav" data-start="82.33" data-duration="7.69" data-track-index="10" data-volume="1"></audio>
+  <audio id="vo-10" src="assets/voiceover/10.wav" data-start="90.03" data-duration="4.56" data-track-index="10" data-volume="1"></audio>
+  <audio id="vo-11" src="assets/voiceover/11.wav" data-start="94.60" data-duration="6.06" data-track-index="10" data-volume="1"></audio>
+  <audio id="vo-12" src="assets/voiceover/12.wav" data-start="100.67" data-duration="5.82" data-track-index="10" data-volume="1"></audio>
+  <audio id="bgm" src="assets/bgm.mp3" data-start="0" data-duration="106.50" data-track-index="11" data-volume="0.5"></audio>
+      <div class="gprog"><div class="gprog-fill" id="gprog-fill"></div></div>
+      <div class="footer">Vido · 每日 AI 日报 · 数据来自 Hacker News / ZDNET / IT之家等公开信源</div>
+    </div>
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      tl.from("#p0-h", { y: 60, opacity: 0, duration: 0.7, ease: "power3.out" }, 0.00 + 0.2);
+      tl.from("#p0-s", { y: 24, opacity: 0, duration: 0.5, ease: "power2.out" }, 0.00 + 0.6);
+      tl.fromTo("#p0-l", { scaleX: 0 }, { scaleX: 1, duration: 0.8, ease: "power2.out" }, 0.00 + 0.8);
+      tl.from("#p1-t", { y: 40, opacity: 0, duration: 0.5, ease: "power3.out" }, 7.13 + 0.2);
+      tl.from("#p1-i0", { x: -60, opacity: 0, duration: 0.5, ease: "power2.out" }, 7.13 + 0.5);
+      tl.from("#p1-i1", { x: -60, opacity: 0, duration: 0.5, ease: "power2.out" }, 7.13 + 0.85);
+      tl.from("#p1-i2", { x: -60, opacity: 0, duration: 0.5, ease: "power2.out" }, 7.13 + 1.2);
+      tl.from("#p1-i3", { x: -60, opacity: 0, duration: 0.5, ease: "power2.out" }, 7.13 + 1.5499999999999998);
+      tl.from("#p2-t", { y: 40, opacity: 0, duration: 0.5, ease: "power3.out" }, 20.50 + 0.2);
+      tl.from("#p2-i0", { x: -60, opacity: 0, duration: 0.5, ease: "power2.out" }, 20.50 + 0.5);
+      tl.from("#p2-i1", { x: -60, opacity: 0, duration: 0.5, ease: "power2.out" }, 20.50 + 0.85);
+      tl.from("#p2-i2", { x: -60, opacity: 0, duration: 0.5, ease: "power2.out" }, 20.50 + 1.2);
+      tl.from("#p2-i3", { x: -60, opacity: 0, duration: 0.5, ease: "power2.out" }, 20.50 + 1.5499999999999998);
+      tl.from("#p3-h", { y: 80, opacity: 0, duration: 0.6, ease: "power3.out" }, 31.70 + 0.15);
+      tl.fromTo("#p3-l", { scaleX: 0 }, { scaleX: 1, duration: 0.7, ease: "power2.inOut" }, 31.70 + 0.4);
+      tl.from("#p4-card", { y: 60, opacity: 0, duration: 0.5, ease: "power3.out" }, 35.00 + 0.12);
+      tl.from("#p4-hl", { scale: 0.6, opacity: 0, duration: 0.4, ease: "back.out(2)" }, 35.00 + 0.4);
+      tl.from("#p4-sum", { y: 20, opacity: 0, duration: 0.5 }, 35.00 + 0.6);
+      tl.from("#p4-st0", { y: 16, opacity: 0, duration: 0.4 }, 35.00 + 0.9);
+      tl.from("#p4-st1", { y: 16, opacity: 0, duration: 0.4 }, 35.00 + 1.12);
+      tl.from("#p4-st2", { y: 16, opacity: 0, duration: 0.4 }, 35.00 + 1.34);
+      tl.from("#p4-st3", { y: 16, opacity: 0, duration: 0.4 }, 35.00 + 1.56);
+      tl.from("#p4-pt0", { x: -24, opacity: 0, duration: 0.4 }, 35.00 + 1.4);
+      tl.from("#p4-pt1", { x: -24, opacity: 0, duration: 0.4 }, 35.00 + 1.5999999999999999);
+      tl.from("#p4-pt2", { x: -24, opacity: 0, duration: 0.4 }, 35.00 + 1.7999999999999998);
+      tl.from("#p4-pt3", { x: -24, opacity: 0, duration: 0.4 }, 35.00 + 2);
+      tl.from("#p4-u", { opacity: 0, duration: 0.4 }, 35.00 + 2.2);
+      tl.from("#p5-card", { y: 60, opacity: 0, duration: 0.5, ease: "power3.out" }, 47.90 + 0.12);
+      tl.from("#p5-hl", { scale: 0.6, opacity: 0, duration: 0.4, ease: "back.out(2)" }, 47.90 + 0.4);
+      tl.from("#p5-sum", { y: 20, opacity: 0, duration: 0.5 }, 47.90 + 0.6);
+      tl.from("#p5-st0", { y: 16, opacity: 0, duration: 0.4 }, 47.90 + 0.9);
+      tl.from("#p5-st1", { y: 16, opacity: 0, duration: 0.4 }, 47.90 + 1.12);
+      tl.from("#p5-st2", { y: 16, opacity: 0, duration: 0.4 }, 47.90 + 1.34);
+      tl.from("#p5-st3", { y: 16, opacity: 0, duration: 0.4 }, 47.90 + 1.56);
+      tl.from("#p5-pt0", { x: -24, opacity: 0, duration: 0.4 }, 47.90 + 1.4);
+      tl.from("#p5-pt1", { x: -24, opacity: 0, duration: 0.4 }, 47.90 + 1.5999999999999999);
+      tl.from("#p5-pt2", { x: -24, opacity: 0, duration: 0.4 }, 47.90 + 1.7999999999999998);
+      tl.from("#p5-pt3", { x: -24, opacity: 0, duration: 0.4 }, 47.90 + 2);
+      tl.from("#p5-u", { opacity: 0, duration: 0.4 }, 47.90 + 2.2);
+      tl.from("#p6-card", { y: 60, opacity: 0, duration: 0.5, ease: "power3.out" }, 59.50 + 0.12);
+      tl.from("#p6-hl", { scale: 0.6, opacity: 0, duration: 0.4, ease: "back.out(2)" }, 59.50 + 0.4);
+      tl.from("#p6-sum", { y: 20, opacity: 0, duration: 0.5 }, 59.50 + 0.6);
+      tl.from("#p6-st0", { y: 16, opacity: 0, duration: 0.4 }, 59.50 + 0.9);
+      tl.from("#p6-st1", { y: 16, opacity: 0, duration: 0.4 }, 59.50 + 1.12);
+      tl.from("#p6-st2", { y: 16, opacity: 0, duration: 0.4 }, 59.50 + 1.34);
+      tl.from("#p6-st3", { y: 16, opacity: 0, duration: 0.4 }, 59.50 + 1.56);
+      tl.from("#p6-pt0", { x: -24, opacity: 0, duration: 0.4 }, 59.50 + 1.4);
+      tl.from("#p6-pt1", { x: -24, opacity: 0, duration: 0.4 }, 59.50 + 1.5999999999999999);
+      tl.from("#p6-pt2", { x: -24, opacity: 0, duration: 0.4 }, 59.50 + 1.7999999999999998);
+      tl.from("#p6-pt3", { x: -24, opacity: 0, duration: 0.4 }, 59.50 + 2);
+      tl.from("#p6-u", { opacity: 0, duration: 0.4 }, 59.50 + 2.2);
+      tl.from("#p7-card", { y: 60, opacity: 0, duration: 0.5, ease: "power3.out" }, 71.03 + 0.12);
+      tl.from("#p7-hl", { scale: 0.6, opacity: 0, duration: 0.4, ease: "back.out(2)" }, 71.03 + 0.4);
+      tl.from("#p7-sum", { y: 20, opacity: 0, duration: 0.5 }, 71.03 + 0.6);
+      tl.from("#p7-st0", { y: 16, opacity: 0, duration: 0.4 }, 71.03 + 0.9);
+      tl.from("#p7-st1", { y: 16, opacity: 0, duration: 0.4 }, 71.03 + 1.12);
+      tl.from("#p7-st2", { y: 16, opacity: 0, duration: 0.4 }, 71.03 + 1.34);
+      tl.from("#p7-st3", { y: 16, opacity: 0, duration: 0.4 }, 71.03 + 1.56);
+      tl.from("#p7-pt0", { x: -24, opacity: 0, duration: 0.4 }, 71.03 + 1.4);
+      tl.from("#p7-pt1", { x: -24, opacity: 0, duration: 0.4 }, 71.03 + 1.5999999999999999);
+      tl.from("#p7-pt2", { x: -24, opacity: 0, duration: 0.4 }, 71.03 + 1.7999999999999998);
+      tl.from("#p7-pt3", { x: -24, opacity: 0, duration: 0.4 }, 71.03 + 2);
+      tl.from("#p7-u", { opacity: 0, duration: 0.4 }, 71.03 + 2.2);
+      tl.from("#p8-h", { y: 80, opacity: 0, duration: 0.6, ease: "power3.out" }, 79.53 + 0.15);
+      tl.fromTo("#p8-l", { scaleX: 0 }, { scaleX: 1, duration: 0.7, ease: "power2.inOut" }, 79.53 + 0.4);
+      tl.from("#p9-card", { y: 60, opacity: 0, duration: 0.5, ease: "power3.out" }, 82.33 + 0.12);
+      tl.from("#p9-hl", { scale: 0.6, opacity: 0, duration: 0.4, ease: "back.out(2)" }, 82.33 + 0.4);
+      tl.from("#p9-sum", { y: 20, opacity: 0, duration: 0.5 }, 82.33 + 0.6);
+      tl.from("#p9-st0", { y: 16, opacity: 0, duration: 0.4 }, 82.33 + 0.9);
+      tl.from("#p9-st1", { y: 16, opacity: 0, duration: 0.4 }, 82.33 + 1.12);
+      tl.from("#p9-st2", { y: 16, opacity: 0, duration: 0.4 }, 82.33 + 1.34);
+      tl.from("#p9-st3", { y: 16, opacity: 0, duration: 0.4 }, 82.33 + 1.56);
+      tl.from("#p9-pt0", { x: -24, opacity: 0, duration: 0.4 }, 82.33 + 1.4);
+      tl.from("#p9-pt1", { x: -24, opacity: 0, duration: 0.4 }, 82.33 + 1.5999999999999999);
+      tl.from("#p9-pt2", { x: -24, opacity: 0, duration: 0.4 }, 82.33 + 1.7999999999999998);
+      tl.from("#p9-pt3", { x: -24, opacity: 0, duration: 0.4 }, 82.33 + 2);
+      tl.from("#p9-u", { opacity: 0, duration: 0.4 }, 82.33 + 2.2);
+      tl.from("#p10-card", { y: 60, opacity: 0, duration: 0.5, ease: "power3.out" }, 90.03 + 0.12);
+      tl.from("#p10-hl", { scale: 0.6, opacity: 0, duration: 0.4, ease: "back.out(2)" }, 90.03 + 0.4);
+      tl.from("#p10-sum", { y: 20, opacity: 0, duration: 0.5 }, 90.03 + 0.6);
+      tl.from("#p10-st0", { y: 16, opacity: 0, duration: 0.4 }, 90.03 + 0.9);
+      tl.from("#p10-st1", { y: 16, opacity: 0, duration: 0.4 }, 90.03 + 1.12);
+      tl.from("#p10-st2", { y: 16, opacity: 0, duration: 0.4 }, 90.03 + 1.34);
+      tl.from("#p10-pt0", { x: -24, opacity: 0, duration: 0.4 }, 90.03 + 1.4);
+      tl.from("#p10-pt1", { x: -24, opacity: 0, duration: 0.4 }, 90.03 + 1.5999999999999999);
+      tl.from("#p10-pt2", { x: -24, opacity: 0, duration: 0.4 }, 90.03 + 1.7999999999999998);
+      tl.from("#p10-u", { opacity: 0, duration: 0.4 }, 90.03 + 2);
+      tl.from("#p11-card", { y: 60, opacity: 0, duration: 0.5, ease: "power3.out" }, 94.60 + 0.12);
+      tl.from("#p11-hl", { scale: 0.6, opacity: 0, duration: 0.4, ease: "back.out(2)" }, 94.60 + 0.4);
+      tl.from("#p11-sum", { y: 20, opacity: 0, duration: 0.5 }, 94.60 + 0.6);
+      tl.from("#p11-st0", { y: 16, opacity: 0, duration: 0.4 }, 94.60 + 0.9);
+      tl.from("#p11-st1", { y: 16, opacity: 0, duration: 0.4 }, 94.60 + 1.12);
+      tl.from("#p11-st2", { y: 16, opacity: 0, duration: 0.4 }, 94.60 + 1.34);
+      tl.from("#p11-st3", { y: 16, opacity: 0, duration: 0.4 }, 94.60 + 1.56);
+      tl.from("#p11-pt0", { x: -24, opacity: 0, duration: 0.4 }, 94.60 + 1.4);
+      tl.from("#p11-pt1", { x: -24, opacity: 0, duration: 0.4 }, 94.60 + 1.5999999999999999);
+      tl.from("#p11-pt2", { x: -24, opacity: 0, duration: 0.4 }, 94.60 + 1.7999999999999998);
+      tl.from("#p11-pt3", { x: -24, opacity: 0, duration: 0.4 }, 94.60 + 2);
+      tl.from("#p11-u", { opacity: 0, duration: 0.4 }, 94.60 + 2.2);
+      tl.from("#p12-card", { y: 60, opacity: 0, duration: 0.5, ease: "power3.out" }, 100.67 + 0.12);
+      tl.from("#p12-hl", { scale: 0.6, opacity: 0, duration: 0.4, ease: "back.out(2)" }, 100.67 + 0.4);
+      tl.from("#p12-sum", { y: 20, opacity: 0, duration: 0.5 }, 100.67 + 0.6);
+      tl.from("#p12-st0", { y: 16, opacity: 0, duration: 0.4 }, 100.67 + 0.9);
+      tl.from("#p12-st1", { y: 16, opacity: 0, duration: 0.4 }, 100.67 + 1.12);
+      tl.from("#p12-st2", { y: 16, opacity: 0, duration: 0.4 }, 100.67 + 1.34);
+      tl.from("#p12-pt0", { x: -24, opacity: 0, duration: 0.4 }, 100.67 + 1.4);
+      tl.from("#p12-pt1", { x: -24, opacity: 0, duration: 0.4 }, 100.67 + 1.5999999999999999);
+      tl.from("#p12-pt2", { x: -24, opacity: 0, duration: 0.4 }, 100.67 + 1.7999999999999998);
+      tl.from("#p12-u", { opacity: 0, duration: 0.4 }, 100.67 + 2);
+      tl.to("#bgm", { volume: 0.15, duration: 0.35, overwrite: "auto" }, 0.00);
+      tl.to("#bgm", { volume: 0.5, duration: 0.35, overwrite: "auto" }, 6.62);
+      tl.to("#bgm", { volume: 0.15, duration: 0.35, overwrite: "auto" }, 6.78);
+      tl.to("#bgm", { volume: 0.5, duration: 0.35, overwrite: "auto" }, 20.00);
+      tl.to("#bgm", { volume: 0.15, duration: 0.35, overwrite: "auto" }, 20.15);
+      tl.to("#bgm", { volume: 0.5, duration: 0.35, overwrite: "auto" }, 31.20);
+      tl.to("#bgm", { volume: 0.15, duration: 0.35, overwrite: "auto" }, 31.35);
+      tl.to("#bgm", { volume: 0.5, duration: 0.35, overwrite: "auto" }, 34.48);
+      tl.to("#bgm", { volume: 0.15, duration: 0.35, overwrite: "auto" }, 34.65);
+      tl.to("#bgm", { volume: 0.5, duration: 0.35, overwrite: "auto" }, 47.38);
+      tl.to("#bgm", { volume: 0.15, duration: 0.35, overwrite: "auto" }, 47.55);
+      tl.to("#bgm", { volume: 0.5, duration: 0.35, overwrite: "auto" }, 58.99);
+      tl.to("#bgm", { volume: 0.15, duration: 0.35, overwrite: "auto" }, 59.15);
+      tl.to("#bgm", { volume: 0.5, duration: 0.35, overwrite: "auto" }, 70.54);
+      tl.to("#bgm", { volume: 0.15, duration: 0.35, overwrite: "auto" }, 70.68);
+      tl.to("#bgm", { volume: 0.5, duration: 0.35, overwrite: "auto" }, 79.05);
+      tl.to("#bgm", { volume: 0.15, duration: 0.35, overwrite: "auto" }, 79.18);
+      tl.to("#bgm", { volume: 0.5, duration: 0.35, overwrite: "auto" }, 81.84);
+      tl.to("#bgm", { volume: 0.15, duration: 0.35, overwrite: "auto" }, 81.98);
+      tl.to("#bgm", { volume: 0.5, duration: 0.35, overwrite: "auto" }, 89.53);
+      tl.to("#bgm", { volume: 0.15, duration: 0.35, overwrite: "auto" }, 89.68);
+      tl.to("#bgm", { volume: 0.5, duration: 0.35, overwrite: "auto" }, 94.11);
+      tl.to("#bgm", { volume: 0.15, duration: 0.35, overwrite: "auto" }, 94.25);
+      tl.to("#bgm", { volume: 0.5, duration: 0.35, overwrite: "auto" }, 100.17);
+      tl.to("#bgm", { volume: 0.15, duration: 0.35, overwrite: "auto" }, 100.32);
+      tl.to("#bgm", { volume: 0.5, duration: 0.35, overwrite: "auto" }, 105.99);
+      // 全局进度条（整片时长线性填充）
+      tl.fromTo("#gprog-fill", { width: 0 }, { width: 1920, duration: 106.50, ease: "none" }, 0);
+      window.__timelines["ai-news"] = tl;
+    </script>
+  </body>
+</html>

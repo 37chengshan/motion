@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>风格 02 - 杂志排版 Magazine Editorial</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #2c2c2c; display: flex; flex-direction: column; align-items: center; padding: 40px; font-family: 'Georgia', 'Noto Serif SC', serif; }
+  .toggle { position: fixed; top: 20px; right: 20px; z-index: 100; background: #fff; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 600; }
+  .label { color: #fff; margin-bottom: 16px; font-size: 18px; letter-spacing: 2px; }
+  .frames { display: flex; gap: 40px; flex-wrap: wrap; justify-content: center; }
+  .portrait { width: 270px; height: 480px; background: #faf8f5; border-radius: 4px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.4); position: relative; }
+  .portrait .header { padding: 20px 20px 12px; border-bottom: 2px solid #1a1a1a; }
+  .portrait .mag-title { font-size: 8px; letter-spacing: 6px; text-transform: uppercase; color: #999; text-align: center; }
+  .portrait .issue { font-size: 7px; color: #bbb; text-align: center; margin-top: 4px; }
+  .portrait .body { padding: 16px 20px; }
+  .portrait .category { font-size: 9px; color: #c0392b; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
+  .portrait .headline { font-size: 26px; font-weight: 700; color: #1a1a1a; line-height: 1.2; margin-top: 8px; font-family: 'Georgia', serif; }
+  .portrait .deck { font-size: 12px; color: #666; line-height: 1.6; margin-top: 10px; font-style: italic; }
+  .portrait .img-placeholder { width: 100%; height: 120px; background: linear-gradient(135deg, #2c3e50, #3498db); border-radius: 4px; margin-top: 14px; }
+  .portrait .columns { column-count: 2; column-gap: 12px; margin-top: 14px; font-size: 9px; color: #444; line-height: 1.6; }
+  .portrait .pull-quote { font-size: 14px; font-style: italic; color: #c0392b; border-left: 3px solid #c0392b; padding-left: 10px; margin-top: 12px; font-family: 'Georgia', serif; }
+  .portrait .footer { position: absolute; bottom: 12px; left: 20px; right: 20px; display: flex; justify-content: space-between; font-size: 7px; color: #999; border-top: 1px solid #eee; padding-top: 8px; }
+  .landscape { width: 480px; height: 270px; background: #faf8f5; border-radius: 4px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.4); display: flex; }
+  .landscape .left-col { width: 55%; padding: 24px; display: flex; flex-direction: column; justify-content: center; }
+  .landscape .right-col { width: 45%; background: #eee; display: flex; align-items: center; justify-content: center; }
+  .landscape .right-col .img-ph { width: 80%; height: 70%; background: linear-gradient(135deg, #2c3e50, #3498db); border-radius: 4px; }
+  .landscape .category { font-size: 8px; color: #c0392b; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
+  .landscape .headline { font-size: 22px; font-weight: 700; color: #1a1a1a; line-height: 1.2; margin-top: 6px; }
+  .landscape .deck { font-size: 10px; color: #666; line-height: 1.5; margin-top: 8px; font-style: italic; }
+  .landscape .points { margin-top: 12px; font-size: 9px; color: #444; line-height: 1.8; }
+  .landscape .points span { display: block; }
+  .landscape .points span::before { content: '— '; color: #c0392b; }
+  @keyframes slideIn { from { opacity: 0; transform: translateX(-30px); } to { opacity: 1; transform: translateX(0); } }
+  .portrait .headline { animation: slideIn 0.8s ease both; }
+  .portrait .deck { animation: slideIn 0.8s ease 0.2s both; }
+</style>
+</head>
+<body>
+<button class="toggle" onclick="document.querySelectorAll('.landscape').forEach(e=>e.style.display=e.style.display==='none'?'block':'none')">切换横屏/竖屏</button>
+<div class="label">风格 02 — 杂志排版 Magazine Editorial</div>
+<div class="frames">
+  <div class="portrait">
+    <div class="header">
+      <div class="mag-title">DAILY TECH REVIEW</div>
+      <div class="issue">2026.08.24 · Vol.42</div>
+    </div>
+    <div class="body">
+      <div class="category">开源精选</div>
+      <div class="headline">LangChain：重新定义 AI 应用开发</div>
+      <div class="deck">一个让大语言模型落地到真实场景的革命性框架</div>
+      <div class="img-placeholder"></div>
+      <div class="pull-quote">"让每个开发者都能构建 AI 应用"</div>
+      <div class="columns">支持 50+ LLM 提供商的无缝集成，内置向量数据库连接，链式调用让复杂逻辑变得清晰。社区活跃度极高，每周更新。</div>
+    </div>
+    <div class="footer"><span>每日AI</span><span>Page 1 / 4</span></div>
+  </div>
+  <div class="landscape">
+    <div class="left-col">
+      <div class="category">开源精选</div>
+      <div class="headline">LangChain：重新定义 AI 应用开发</div>
+      <div class="deck">让大语言模型落地到真实场景的革命性框架</div>
+      <div class="points">
+        <span>50+ LLM 提供商无缝集成</span>
+        <span>内置向量数据库连接</span>
+        <span>链式调用，逻辑清晰</span>
+      </div>
+    </div>
+    <div class="right-col"><div class="img-ph"></div></div>
+  </div>
+</div>
+</body>
+</html>

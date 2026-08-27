@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>风格 05 - 便利贴墙 Sticky Notes</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #37474f; display: flex; flex-direction: column; align-items: center; padding: 40px; font-family: 'Segoe UI', sans-serif; }
+  .toggle { position: fixed; top: 20px; right: 20px; z-index: 100; background: #fff; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-size: 14px; }
+  .label { color: #fff; margin-bottom: 16px; font-size: 18px; }
+  .frames { display: flex; gap: 40px; flex-wrap: wrap; justify-content: center; }
+  .portrait { width: 270px; height: 480px; background: #eceff1; border-radius: 4px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.3); position: relative; }
+  .portrait .board { padding: 20px 16px; height: 100%; position: relative; }
+  .portrait .board-title { font-size: 10px; color: #78909c; letter-spacing: 4px; text-transform: uppercase; text-align: center; margin-bottom: 16px; }
+  .sticky { padding: 14px; border-radius: 2px; box-shadow: 2px 3px 8px rgba(0,0,0,0.15); position: relative; }
+  .sticky::before { content: ''; position: absolute; top: -6px; left: 50%; transform: translateX(-50%); width: 30px; height: 12px; background: rgba(200,200,200,0.5); border-radius: 1px; }
+  .sticky-yellow { background: #fff9c4; }
+  .sticky-pink { background: #f8bbd0; }
+  .sticky-blue { background: #b3e5fc; }
+  .sticky-green { background: #c8e6c9; }
+  .sticky-orange { background: #ffe0b2; }
+  .portrait .s1 { transform: rotate(-2deg); margin-bottom: 12px; }
+  .portrait .s1 .s-title { font-size: 18px; font-weight: 700; color: #1a1a1a; }
+  .portrait .s1 .s-sub { font-size: 10px; color: #555; margin-top: 4px; }
+  .portrait .s2 { transform: rotate(1deg); margin-bottom: 12px; }
+  .portrait .s2 .s-title { font-size: 11px; font-weight: 600; color: #333; margin-bottom: 6px; }
+  .portrait .s2 .s-item { font-size: 9px; color: #444; padding: 3px 0; }
+  .portrait .s3 { transform: rotate(-1deg); }
+  .portrait .s3 .s-title { font-size: 10px; font-weight: 600; color: #333; }
+  .portrait .s3 .s-quote { font-size: 9px; color: #555; font-style: italic; margin-top: 4px; }
+  .landscape { width: 480px; height: 270px; background: #eceff1; border-radius: 4px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+  .landscape .board { padding: 16px 20px; height: 100%; display: flex; gap: 14px; align-items: flex-start; }
+  .landscape .sticky { flex: 1; }
+  .landscape .s-title { font-size: 14px; font-weight: 700; color: #1a1a1a; }
+  .landscape .s-sub { font-size: 9px; color: #555; margin-top: 3px; }
+  .landscape .s-item { font-size: 9px; color: #444; padding: 2px 0; }
+  @keyframes dropIn { from { transform: translateY(-40px) rotate(0deg); opacity: 0; } to { opacity: 1; } }
+  .portrait .s1 { animation: dropIn 0.4s ease both; }
+  .portrait .s2 { animation: dropIn 0.4s ease 0.2s both; }
+  .portrait .s3 { animation: dropIn 0.4s ease 0.4s both; }
+</style>
+</head>
+<body>
+<button class="toggle" onclick="document.querySelectorAll('.landscape').forEach(e=>e.style.display=e.style.display==='none'?'block':'none')">切换横屏/竖屏</button>
+<div class="label">风格 05 — 便利贴墙 Sticky Notes</div>
+<div class="frames">
+  <div class="portrait">
+    <div class="board">
+      <div class="board-title">Today's AI Pick</div>
+      <div class="sticky sticky-yellow s1">
+        <div class="s-title">LangChain</div>
+        <div class="s-sub">LLM 应用开发框架 · ⭐ 50K</div>
+      </div>
+      <div class="sticky sticky-blue s2">
+        <div class="s-title">📌 核心特性</div>
+        <div class="s-item">• 链式调用设计</div>
+        <div class="s-item">• 50+ LLM 集成</div>
+        <div class="s-item">• 向量数据库支持</div>
+        <div class="s-item">• Agent 自主框架</div>
+      </div>
+      <div class="sticky sticky-pink s3">
+        <div class="s-title">💡 为什么推荐？</div>
+        <div class="s-quote">"让 AI 应用开发从月级缩短到天级"</div>
+      </div>
+      <div class="sticky sticky-green" style="transform:rotate(2deg);margin-top:12px;padding:10px">
+        <div style="font-size:9px;color:#333">🔗 github.com/langchain-ai</div>
+        <div style="font-size:8px;color:#666;margin-top:2px">每日AI推荐 #042</div>
+      </div>
+    </div>
+  </div>
+  <div class="landscape">
+    <div class="board">
+      <div class="sticky sticky-yellow" style="transform:rotate(-1deg)">
+        <div class="s-title">LangChain</div>
+        <div class="s-sub">LLM 应用开发框架</div>
+        <div style="font-size:20px;margin-top:8px">⭐ 50K+</div>
+      </div>
+      <div class="sticky sticky-blue" style="transform:rotate(1deg)">
+        <div class="s-title">核心特性</div>
+        <div class="s-item">• 链式调用</div>
+        <div class="s-item">• 50+ LLM</div>
+        <div class="s-item">• 向量数据库</div>
+        <div class="s-item">• Agent 框架</div>
+      </div>
+      <div class="sticky sticky-pink" style="transform:rotate(-2deg)">
+        <div class="s-title">适合场景</div>
+        <div class="s-item">• RAG 应用</div>
+        <div class="s-item">• 聊天机器人</div>
+        <div class="s-item">• 数据分析</div>
+      </div>
+      <div class="sticky sticky-green" style="transform:rotate(1deg)">
+        <div class="s-title">💡 一句话</div>
+        <div style="font-size:9px;color:#333;font-style:italic;margin-top:4px">让 AI 应用开发变得简单高效</div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

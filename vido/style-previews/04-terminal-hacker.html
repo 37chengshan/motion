@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>风格 04 - 终端黑客 Terminal</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #111; display: flex; flex-direction: column; align-items: center; padding: 40px; font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace; }
+  .toggle { position: fixed; top: 20px; right: 20px; z-index: 100; background: #0f0; color: #000; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-size: 14px; font-family: inherit; }
+  .label { color: #0f0; margin-bottom: 16px; font-size: 18px; }
+  .frames { display: flex; gap: 40px; flex-wrap: wrap; justify-content: center; }
+  .portrait { width: 270px; height: 480px; background: #0d1117; border-radius: 8px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,255,0,0.1); border: 1px solid #30363d; }
+  .portrait .term-bar { height: 28px; background: #161b22; display: flex; align-items: center; padding: 0 10px; gap: 6px; }
+  .portrait .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .portrait .dot.r { background: #ff5f56; }
+  .portrait .dot.y { background: #ffbd2e; }
+  .portrait .dot.g { background: #27c93f; }
+  .portrait .term-title { color: #8b949e; font-size: 10px; margin-left: 8px; }
+  .portrait .term-body { padding: 16px; color: #c9d1d9; font-size: 11px; line-height: 1.8; }
+  .portrait .prompt { color: #0f0; }
+  .portrait .cmd { color: #58a6ff; }
+  .portrait .comment { color: #8b949e; }
+  .portrait .string { color: #a5d6ff; }
+  .portrait .keyword { color: #ff7b72; }
+  .portrait .highlight { color: #ffa657; }
+  .portrait .output { color: #7ee787; }
+  .portrait .cursor { display: inline-block; width: 8px; height: 14px; background: #0f0; animation: blink 1s step-end infinite; }
+  .portrait .divider { border-top: 1px solid #30363d; margin: 10px 0; }
+  .portrait .stats { display: flex; gap: 16px; margin-top: 12px; }
+  .portrait .stat { text-align: center; }
+  .portrait .stat-num { font-size: 20px; color: #0f0; font-weight: 700; }
+  .portrait .stat-label { font-size: 8px; color: #8b949e; margin-top: 2px; }
+  .landscape { width: 480px; height: 270px; background: #0d1117; border-radius: 8px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,255,0,0.1); border: 1px solid #30363d; }
+  .landscape .term-bar { height: 24px; background: #161b22; display: flex; align-items: center; padding: 0 10px; gap: 6px; }
+  .landscape .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .landscape .term-body { padding: 14px 18px; color: #c9d1d9; font-size: 10px; line-height: 1.7; display: flex; gap: 20px; }
+  .landscape .term-left { flex: 1; }
+  .landscape .term-right { width: 140px; border-left: 1px solid #30363d; padding-left: 14px; }
+  @keyframes blink { 50% { opacity: 0; } }
+  @keyframes typeIn { from { width: 0; } to { width: 100%; } }
+  .portrait .cmd { overflow: hidden; white-space: nowrap; animation: typeIn 1s steps(20) 0.5s both; }
+</style>
+</head>
+<body>
+<button class="toggle" onclick="document.querySelectorAll('.landscape').forEach(e=>e.style.display=e.style.display==='none'?'block':'none')">切换横屏/竖屏</button>
+<div class="label">风格 04 — 终端黑客 Terminal</div>
+<div class="frames">
+  <div class="portrait">
+    <div class="term-bar">
+      <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+      <span class="term-title">~/daily-ai — zsh</span>
+    </div>
+    <div class="term-body">
+      <div><span class="prompt">$ </span><span class="cmd">cat project.md</span></div>
+      <div class="divider"></div>
+      <div class="comment"># LangChain</div>
+      <div><span class="keyword">type:</span> <span class="string">LLM应用开发框架</span></div>
+      <div><span class="keyword">stars:</span> <span class="highlight">50,000+</span></div>
+      <div><span class="keyword">lang:</span> <span class="string">Python, JavaScript</span></div>
+      <div class="divider"></div>
+      <div class="comment">## 核心特性</div>
+      <div><span class="output">✓</span> 链式调用设计</div>
+      <div><span class="output">✓</span> 50+ LLM 集成</div>
+      <div><span class="output">✓</span> 向量数据库</div>
+      <div><span class="output">✓</span> Agent 框架</div>
+      <div class="stats">
+        <div class="stat"><div class="stat-num">50K</div><div class="stat-label">STARS</div></div>
+        <div class="stat"><div class="stat-num">1.2K</div><div class="stat-label">CONTRIBUTORS</div></div>
+        <div class="stat"><div class="stat-num">MIT</div><div class="stat-label">LICENSE</div></div>
+      </div>
+      <div style="margin-top:12px"><span class="prompt">$ </span><span class="cursor"></span></div>
+    </div>
+  </div>
+  <div class="landscape">
+    <div class="term-bar">
+      <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+      <span class="term-title" style="color:#8b949e;font-size:9px">~/daily-ai — zsh — 80×24</span>
+    </div>
+    <div class="term-body">
+      <div class="term-left">
+        <div><span class="prompt">$ </span><span class="cmd" style="animation:none">cat project.md</span></div>
+        <div class="divider"></div>
+        <div class="comment"># LangChain — LLM应用开发框架</div>
+        <div><span class="keyword">stars:</span> <span class="highlight">50,000+</span> <span class="keyword">license:</span> <span class="string">MIT</span></div>
+        <div class="divider"></div>
+        <div><span class="output">✓</span> 链式调用 <span class="output">✓</span> 50+ LLM <span class="output">✓</span> 向量数据库</div>
+        <div><span class="output">✓</span> Agent 框架 <span class="output">✓</span> Memory 管理</div>
+      </div>
+      <div class="term-right">
+        <div style="color:#8b949e;font-size:9px">STATS</div>
+        <div style="color:#0f0;font-size:16px;margin-top:4px">50K ★</div>
+        <div style="color:#8b949e;font-size:8px;margin-top:8px">1.2K contributors</div>
+        <div style="color:#8b949e;font-size:8px">MIT License</div>
+        <div style="color:#58a6ff;font-size:8px;margin-top:8px">langchain.com</div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

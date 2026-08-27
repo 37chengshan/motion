@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>风格 07 - 像素复古 Pixel Retro</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #1a1a2e; display: flex; flex-direction: column; align-items: center; padding: 40px; font-family: 'Press Start 2P', 'Courier New', monospace; image-rendering: pixelated; }
+  .toggle { position: fixed; top: 20px; right: 20px; z-index: 100; background: #ff6b9d; color: #fff; border: none; padding: 10px 20px; cursor: pointer; font-size: 12px; font-family: inherit; }
+  .label { color: #ff6b9d; margin-bottom: 16px; font-size: 14px; }
+  .frames { display: flex; gap: 40px; flex-wrap: wrap; justify-content: center; }
+  .portrait { width: 270px; height: 480px; background: #0f0e17; border-radius: 0; overflow: hidden; box-shadow: 0 0 40px rgba(255,107,157,0.2); border: 4px solid #ff6b9d; }
+  .portrait .screen { padding: 16px; height: 100%; position: relative; }
+  .portrait .scanlines { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.1) 2px, rgba(0,0,0,0.1) 4px); pointer-events: none; }
+  .portrait .score-bar { display: flex; justify-content: space-between; font-size: 8px; color: #ff6b9d; margin-bottom: 16px; }
+  .portrait .pixel-title { font-size: 16px; color: #ffff00; text-shadow: 2px 2px #ff6b9d; margin-bottom: 8px; }
+  .portrait .pixel-sub { font-size: 8px; color: #a8a8a8; line-height: 1.8; margin-bottom: 16px; }
+  .portrait .pixel-box { border: 2px solid #4ecdc4; padding: 10px; margin-bottom: 12px; background: rgba(78,205,196,0.05); }
+  .portrait .pixel-box-title { font-size: 8px; color: #4ecdc4; margin-bottom: 8px; }
+  .portrait .pixel-item { font-size: 7px; color: #fff; padding: 4px 0; display: flex; align-items: center; gap: 6px; }
+  .portrait .pixel-item::before { content: '▶'; color: #ff6b9d; font-size: 6px; }
+  .portrait .pixel-bar { height: 8px; background: #333; margin-top: 12px; position: relative; overflow: hidden; }
+  .portrait .pixel-bar-fill { height: 100%; background: repeating-linear-gradient(90deg, #ff6b9d 0px, #ff6b9d 4px, transparent 4px, transparent 6px); width: 75%; }
+  .portrait .pixel-footer { position: absolute; bottom: 16px; left: 16px; right: 16px; display: flex; justify-content: space-between; font-size: 7px; color: #666; }
+  .portrait .blink { animation: retroBlink 0.8s step-end infinite; }
+  .landscape { width: 480px; height: 270px; background: #0f0e17; border-radius: 0; overflow: hidden; box-shadow: 0 0 40px rgba(255,107,157,0.2); border: 4px solid #ff6b9d; }
+  .landscape .screen { padding: 14px 18px; height: 100%; display: flex; gap: 16px; position: relative; }
+  .landscape .scanlines { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.1) 2px, rgba(0,0,0,0.1) 4px); pointer-events: none; }
+  .landscape .left { flex: 1; }
+  .landscape .right { width: 160px; display: flex; flex-direction: column; gap: 8px; }
+  .landscape .pixel-title { font-size: 14px; color: #ffff00; text-shadow: 2px 2px #ff6b9d; }
+  .landscape .pixel-sub { font-size: 7px; color: #a8a8a8; line-height: 1.6; margin-top: 6px; }
+  .landscape .pixel-box { border: 2px solid #4ecdc4; padding: 8px; background: rgba(78,205,196,0.05); }
+  .landscape .pixel-item { font-size: 7px; color: #fff; padding: 3px 0; }
+  .landscape .pixel-item::before { content: '▶'; color: #ff6b9d; font-size: 6px; }
+  .landscape .pixel-stat { border: 2px solid #ffff00; padding: 6px; text-align: center; }
+  .landscape .pixel-stat-num { font-size: 14px; color: #ffff00; }
+  .landscape .pixel-stat-label { font-size: 6px; color: #a8a8a8; margin-top: 2px; }
+  @keyframes retroBlink { 50% { opacity: 0; } }
+  @keyframes pixelIn { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+  .portrait .pixel-title { animation: pixelIn 0.6s steps(8) both; }
+</style>
+</head>
+<body>
+<button class="toggle" onclick="document.querySelectorAll('.landscape').forEach(e=>e.style.display=e.style.display==='none'?'block':'none')">切换横屏/竖屏</button>
+<div class="label">风格 07 — 像素复古 Pixel Retro</div>
+<div class="frames">
+  <div class="portrait">
+    <div class="screen">
+      <div class="scanlines"></div>
+      <div class="score-bar">
+        <span>SCORE: 50000</span>
+        <span>HI: 99999</span>
+      </div>
+      <div class="pixel-title">LANG<br>CHAIN</div>
+      <div class="pixel-sub">LLM 应用开发框架<br>LEVEL: MAX</div>
+      <div class="pixel-box">
+        <div class="pixel-box-title">POWER UPS</div>
+        <div class="pixel-item">链式调用</div>
+        <div class="pixel-item">50+ LLM</div>
+        <div class="pixel-item">向量数据库</div>
+        <div class="pixel-item">Agent 模式</div>
+      </div>
+      <div class="pixel-bar"><div class="pixel-bar-fill"></div></div>
+      <div class="pixel-footer">
+        <span>STAGE 42</span>
+        <span class="blink">INSERT COIN</span>
+      </div>
+    </div>
+  </div>
+  <div class="landscape">
+    <div class="screen">
+      <div class="scanlines"></div>
+      <div class="left">
+        <div class="pixel-title">LANGCHAIN</div>
+        <div class="pixel-sub">LLM 应用开发框架 · LEVEL MAX</div>
+        <div class="pixel-box" style="margin-top:10px">
+          <div class="pixel-item">链式调用设计</div>
+          <div class="pixel-item">50+ LLM 集成</div>
+          <div class="pixel-item">向量数据库</div>
+          <div class="pixel-item">Agent 框架</div>
+          <div class="pixel-item">Memory 管理</div>
+        </div>
+      </div>
+      <div class="right">
+        <div class="pixel-stat">
+          <div class="pixel-stat-num">50K</div>
+          <div class="pixel-stat-label">STARS</div>
+        </div>
+        <div class="pixel-stat">
+          <div class="pixel-stat-num">1.2K</div>
+          <div class="pixel-stat-label">CONTRIB</div>
+        </div>
+        <div class="pixel-stat" style="border-color:#4ecdc4">
+          <div class="pixel-stat-num" style="color:#4ecdc4">MIT</div>
+          <div class="pixel-stat-label">LICENSE</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>风格 08 - 渐变卡片 Gradient Cards</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0f0f1a; display: flex; flex-direction: column; align-items: center; padding: 40px; font-family: 'Inter', -apple-system, sans-serif; }
+  .toggle { position: fixed; top: 20px; right: 20px; z-index: 100; background: #fff; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-size: 14px; }
+  .label { color: #fff; margin-bottom: 16px; font-size: 18px; }
+  .frames { display: flex; gap: 40px; flex-wrap: wrap; justify-content: center; }
+  .portrait { width: 270px; height: 480px; background: linear-gradient(180deg, #0f0f1a 0%, #1a1a3e 100%); border-radius: 20px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.4); }
+  .portrait .content { padding: 28px 20px; height: 100%; display: flex; flex-direction: column; }
+  .portrait .badge { display: inline-block; background: linear-gradient(135deg, #667eea, #764ba2); padding: 4px 12px; border-radius: 12px; font-size: 9px; color: #fff; font-weight: 600; }
+  .portrait .title { font-size: 26px; font-weight: 800; color: #fff; margin-top: 14px; background: linear-gradient(135deg, #fff, #a8b5ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .portrait .subtitle { font-size: 12px; color: rgba(255,255,255,0.6); line-height: 1.6; margin-top: 8px; }
+  .portrait .card { background: rgba(255,255,255,0.06); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 14px; margin-top: 14px; }
+  .portrait .card-title { font-size: 10px; color: rgba(255,255,255,0.5); font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; }
+  .portrait .card-item { display: flex; align-items: center; gap: 8px; padding: 6px 0; }
+  .portrait .card-icon { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+  .portrait .card-icon.i1 { background: linear-gradient(135deg, #667eea, #764ba2); }
+  .portrait .card-icon.i2 { background: linear-gradient(135deg, #f093fb, #f5576c); }
+  .portrait .card-icon.i3 { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+  .portrait .card-text { font-size: 11px; color: rgba(255,255,255,0.8); }
+  .portrait .stats-row { display: flex; gap: 10px; margin-top: auto; padding-top: 14px; }
+  .portrait .stat-card { flex: 1; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 10px; text-align: center; }
+  .portrait .stat-num { font-size: 16px; font-weight: 800; background: linear-gradient(135deg, #667eea, #f093fb); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .portrait .stat-label { font-size: 7px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+  .landscape { width: 480px; height: 270px; background: linear-gradient(135deg, #0f0f1a, #1a1a3e); border-radius: 20px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.4); }
+  .landscape .content { padding: 24px; height: 100%; display: flex; gap: 20px; }
+  .landscape .left { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+  .landscape .right { width: 200px; display: flex; flex-direction: column; gap: 8px; justify-content: center; }
+  .landscape .badge { display: inline-block; background: linear-gradient(135deg, #667eea, #764ba2); padding: 3px 10px; border-radius: 10px; font-size: 8px; color: #fff; font-weight: 600; width: fit-content; }
+  .landscape .title { font-size: 22px; font-weight: 800; color: #fff; margin-top: 8px; }
+  .landscape .subtitle { font-size: 10px; color: rgba(255,255,255,0.6); margin-top: 6px; }
+  .landscape .mini-card { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 10px; display: flex; align-items: center; gap: 8px; }
+  .landscape .mini-icon { width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+  .landscape .mini-text { font-size: 10px; color: rgba(255,255,255,0.8); }
+  @keyframes glow { from { opacity: 0.5; } to { opacity: 1; } }
+  .portrait .title { animation: glow 2s ease-in-out infinite alternate; }
+</style>
+</head>
+<body>
+<button class="toggle" onclick="document.querySelectorAll('.landscape').forEach(e=>e.style.display=e.style.display==='none'?'block':'none')">切换横屏/竖屏</button>
+<div class="label">风格 08 — 渐变卡片 Gradient Cards</div>
+<div class="frames">
+  <div class="portrait">
+    <div class="content">
+      <span class="badge">开源项目推荐</span>
+      <div class="title">LangChain</div>
+      <div class="subtitle">大语言模型应用开发框架，让 AI 落地更快</div>
+      <div class="card">
+        <div class="card-title">核心能力</div>
+        <div class="card-item"><div class="card-icon i1">⛓</div><div class="card-text">链式调用，模块化设计</div></div>
+        <div class="card-item"><div class="card-icon i2">🤖</div><div class="card-text">50+ LLM 无缝集成</div></div>
+        <div class="card-item"><div class="card-icon i3">📊</div><div class="card-text">内置向量数据库</div></div>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-num">50K</div><div class="stat-label">STARS</div></div>
+        <div class="stat-card"><div class="stat-num">1.2K</div><div class="stat-label">CONTRIBUTORS</div></div>
+        <div class="stat-card"><div class="stat-num">MIT</div><div class="stat-label">LICENSE</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="landscape">
+    <div class="content">
+      <div class="left">
+        <span class="badge">开源推荐</span>
+        <div class="title">LangChain</div>
+        <div class="subtitle">LLM 应用开发框架</div>
+        <div style="display:flex;gap:8px;margin-top:14px">
+          <span style="background:rgba(102,126,234,0.2);color:#667eea;padding:4px 10px;border-radius:8px;font-size:9px">链式调用</span>
+          <span style="background:rgba(240,147,251,0.2);color:#f093fb;padding:4px 10px;border-radius:8px;font-size:9px">50+ LLM</span>
+          <span style="background:rgba(79,172,254,0.2);color:#4facfe;padding:4px 10px;border-radius:8px;font-size:9px">向量DB</span>
+        </div>
+      </div>
+      <div class="right">
+        <div class="mini-card"><div class="mini-icon" style="background:linear-gradient(135deg,#667eea,#764ba2)">⛓</div><div class="mini-text">链式调用设计</div></div>
+        <div class="mini-card"><div class="mini-icon" style="background:linear-gradient(135deg,#f093fb,#f5576c)">🤖</div><div class="mini-text">50+ LLM 集成</div></div>
+        <div class="mini-card"><div class="mini-icon" style="background:linear-gradient(135deg,#4facfe,#00f2fe)">📊</div><div class="mini-text">向量数据库</div></div>
+        <div class="mini-card"><div class="mini-icon" style="background:linear-gradient(135deg,#43e97b,#38f9d7)">🧠</div><div class="mini-text">Agent 框架</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

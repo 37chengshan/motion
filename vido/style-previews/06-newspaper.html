@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>风格 06 - 报纸头条 Newspaper</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #4a4a4a; display: flex; flex-direction: column; align-items: center; padding: 40px; font-family: 'Times New Roman', 'Noto Serif SC', serif; }
+  .toggle { position: fixed; top: 20px; right: 20px; z-index: 100; background: #fff; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-size: 14px; }
+  .label { color: #fff; margin-bottom: 16px; font-size: 18px; }
+  .frames { display: flex; gap: 40px; flex-wrap: wrap; justify-content: center; }
+  .portrait { width: 270px; height: 480px; background: #f5f0e0; border-radius: 2px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.4); position: relative; }
+  .portrait .np { padding: 12px 16px; height: 100%; }
+  .portrait .np-header { text-align: center; border-bottom: 3px double #1a1a1a; padding-bottom: 8px; }
+  .portrait .np-name { font-size: 18px; font-weight: 700; color: #1a1a1a; font-variant: small-caps; letter-spacing: 4px; }
+  .portrait .np-date { font-size: 7px; color: #666; margin-top: 2px; letter-spacing: 2px; }
+  .portrait .np-headline { font-size: 24px; font-weight: 700; color: #1a1a1a; line-height: 1.15; margin-top: 12px; text-align: center; }
+  .portrait .np-subhead { font-size: 11px; color: #444; text-align: center; font-style: italic; margin-top: 6px; }
+  .portrait .np-rule { border: none; border-top: 1px solid #1a1a1a; margin: 10px 0; }
+  .portrait .np-img { width: 100%; height: 100px; background: #ddd; border: 1px solid #999; }
+  .portrait .np-cols { column-count: 2; column-gap: 10px; column-rule: 1px solid #ccc; margin-top: 10px; font-size: 8px; color: #333; line-height: 1.6; text-align: justify; }
+  .portrait .np-caption { font-size: 7px; color: #666; text-align: center; font-style: italic; margin-top: 4px; }
+  .portrait .np-footer { position: absolute; bottom: 10px; left: 16px; right: 16px; border-top: 2px solid #1a1a1a; padding-top: 6px; display: flex; justify-content: space-between; font-size: 7px; color: #666; }
+  .landscape { width: 480px; height: 270px; background: #f5f0e0; border-radius: 2px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.4); }
+  .landscape .np { padding: 14px 20px; height: 100%; display: flex; flex-direction: column; }
+  .landscape .np-header { text-align: center; border-bottom: 3px double #1a1a1a; padding-bottom: 6px; }
+  .landscape .np-name { font-size: 14px; font-weight: 700; font-variant: small-caps; letter-spacing: 4px; }
+  .landscape .np-date { font-size: 6px; color: #666; letter-spacing: 2px; }
+  .landscape .np-content { display: flex; gap: 16px; flex: 1; margin-top: 10px; }
+  .landscape .np-main { flex: 1; }
+  .landscape .np-side { width: 140px; border-left: 1px solid #ccc; padding-left: 12px; }
+  .landscape .np-headline { font-size: 18px; font-weight: 700; line-height: 1.15; }
+  .landscape .np-subhead { font-size: 9px; color: #444; font-style: italic; margin-top: 4px; }
+  .landscape .np-cols { column-count: 1; font-size: 8px; color: #333; line-height: 1.6; margin-top: 8px; }
+  .landscape .np-side-title { font-size: 9px; font-weight: 700; border-bottom: 1px solid #1a1a1a; padding-bottom: 4px; margin-bottom: 6px; }
+  .landscape .np-side-item { font-size: 7px; color: #333; padding: 4px 0; border-bottom: 1px dotted #ccc; }
+</style>
+</head>
+<body>
+<button class="toggle" onclick="document.querySelectorAll('.landscape').forEach(e=>e.style.display=e.style.display==='none'?'block':'none')">切换横屏/竖屏</button>
+<div class="label">风格 06 — 报纸头条 Newspaper</div>
+<div class="frames">
+  <div class="portrait">
+    <div class="np">
+      <div class="np-header">
+        <div class="np-name">每日AI日报</div>
+        <div class="np-date">2026年8月24日 · 星期日 · 第42期</div>
+      </div>
+      <div class="np-headline">LangChain 重新定义 AI 应用开发方式</div>
+      <div class="np-subhead">这个开源框架让五万开发者为之疯狂</div>
+      <hr class="np-rule">
+      <div class="np-img"></div>
+      <div class="np-caption">LangChain 架构示意图 — 本报记者拍摄</div>
+      <div class="np-cols">
+        LangChain 自发布以来，已经获得超过五万颗星标，成为大语言模型应用领域最受欢迎的框架之一。其核心设计理念是通过链式调用将复杂的 AI 工作流拆解为可管理的模块。该框架支持超过五十个主流大语言模型提供商的无缝集成，内置向量数据库连接能力，使开发者能够快速构建检索增强生成应用。社区每周都有重大更新，生态系统的完善程度在开源项目中名列前茅。
+      </div>
+      <div class="np-footer"><span>每日AI日报</span><span>continued on page 2</span></div>
+    </div>
+  </div>
+  <div class="landscape">
+    <div class="np">
+      <div class="np-header">
+        <div class="np-name">每日AI日报</div>
+        <div class="np-date">2026年8月24日 · 第42期</div>
+      </div>
+      <div class="np-content">
+        <div class="np-main">
+          <div class="np-headline">LangChain 重新定义 AI 应用开发</div>
+          <div class="np-subhead">五万开发者为之疯狂的开源框架</div>
+          <div class="np-cols">LangChain 通过链式调用将复杂 AI 工作流拆解为可管理模块。支持 50+ LLM 提供商，内置向量数据库，可快速构建 RAG 应用。社区活跃，每周重大更新。</div>
+        </div>
+        <div class="np-side">
+          <div class="np-side-title">核心数据</div>
+          <div class="np-side-item">⭐ 50,000+ GitHub Stars</div>
+          <div class="np-side-item">👥 1,200+ 贡献者</div>
+          <div class="np-side-item">📜 MIT 开源协议</div>
+          <div class="np-side-item">🔗 50+ LLM 集成</div>
+          <div class="np-side-title" style="margin-top:10px">其他推荐</div>
+          <div class="np-side-item">LlamaIndex — 数据连接</div>
+          <div class="np-side-item">AutoGPT — 自主代理</div>
+          <div class="np-side-item">Dify — 低代码平台</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

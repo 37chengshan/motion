@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>风格 09 - 手账日记 Journal</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #5d4037; display: flex; flex-direction: column; align-items: center; padding: 40px; font-family: 'Segoe Print', 'Comic Sans MS', cursive; }
+  .toggle { position: fixed; top: 20px; right: 20px; z-index: 100; background: #fff; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-size: 14px; }
+  .label { color: #fff; margin-bottom: 16px; font-size: 18px; }
+  .frames { display: flex; gap: 40px; flex-wrap: wrap; justify-content: center; }
+  .portrait { width: 270px; height: 480px; background: #fdf6e3; border-radius: 4px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.3); position: relative; border-left: 20px solid rgba(200,180,150,0.3); }
+  .portrait .page { padding: 20px 18px; height: 100%; position: relative; background-image: repeating-linear-gradient(transparent, transparent 27px, #e8dcc8 27px, #e8dcc8 28px); }
+  .portrait .date { font-size: 10px; color: #8d6e63; text-align: right; margin-bottom: 12px; }
+  .portrait .diary-title { font-size: 22px; color: #5d4037; font-weight: 700; margin-bottom: 6px; }
+  .portrait .diary-sub { font-size: 12px; color: #8d6e63; margin-bottom: 16px; }
+  .portrait .tape { position: absolute; width: 60px; height: 18px; background: rgba(255,235,150,0.6); transform: rotate(-5deg); top: 80px; right: 10px; }
+  .portrait .doodle { width: 100%; height: 80px; background: #f5e6d0; border-radius: 8px; margin-bottom: 14px; display: flex; align-items: center; justify-content: center; font-size: 32px; border: 2px dashed #d7ccc8; }
+  .portrait .diary-text { font-size: 11px; color: #5d4037; line-height: 28px; }
+  .portrait .highlight-text { background: linear-gradient(transparent 60%, rgba(255,235,59,0.4) 60%); }
+  .portrait .star { color: #ff8f00; }
+  .portrait .washi { position: absolute; bottom: 60px; left: -10px; width: 80px; height: 24px; background: repeating-linear-gradient(45deg, #ef9a9a, #ef9a9a 4px, #fff 4px, #fff 8px); opacity: 0.6; transform: rotate(3deg); }
+  .portrait .footer-note { position: absolute; bottom: 16px; right: 18px; font-size: 9px; color: #bcaaa4; }
+  .landscape { width: 480px; height: 270px; background: #fdf6e3; border-radius: 4px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.3); border-left: 16px solid rgba(200,180,150,0.3); }
+  .landscape .page { padding: 16px 20px; height: 100%; display: flex; gap: 16px; background-image: repeating-linear-gradient(transparent, transparent 27px, #e8dcc8 27px, #e8dcc8 28px); }
+  .landscape .left { flex: 1; }
+  .landscape .right { width: 160px; display: flex; flex-direction: column; gap: 8px; }
+  .landscape .date { font-size: 9px; color: #8d6e63; text-align: right; }
+  .landscape .diary-title { font-size: 18px; color: #5d4037; font-weight: 700; margin-bottom: 4px; }
+  .landscape .diary-sub { font-size: 10px; color: #8d6e63; }
+  .landscape .diary-text { font-size: 10px; color: #5d4037; line-height: 28px; margin-top: 8px; }
+  .landscape .mini-card { background: #f5e6d0; border-radius: 6px; padding: 8px; border: 1px dashed #d7ccc8; }
+  .landscape .mini-title { font-size: 9px; color: #8d6e63; font-weight: 700; }
+  .landscape .mini-item { font-size: 8px; color: #5d4037; padding: 2px 0; }
+  .landscape .sticker { background: #fff9c4; padding: 6px; border-radius: 4px; font-size: 8px; color: #5d4037; transform: rotate(2deg); box-shadow: 1px 1px 4px rgba(0,0,0,0.1); }
+  @keyframes writeIn { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+  .portrait .diary-title { animation: writeIn 0.8s ease both; }
+</style>
+</head>
+<body>
+<button class="toggle" onclick="document.querySelectorAll('.landscape').forEach(e=>e.style.display=e.style.display==='none'?'block':'none')">切换横屏/竖屏</button>
+<div class="label">风格 09 — 手账日记 Journal</div>
+<div class="frames">
+  <div class="portrait">
+    <div class="page">
+      <div class="tape"></div>
+      <div class="date">2026.08.24 ☀️</div>
+      <div class="diary-title">今天发现了好东西！</div>
+      <div class="diary-sub">— LangChain 使用心得 —</div>
+      <div class="doodle">🔗⛓️🤖</div>
+      <div class="diary-text">
+        今天试了一下 <span class="highlight-text">LangChain</span>，真的是太方便了！<br>
+        它可以 <span class="highlight-text">链式调用</span>，把复杂的 AI 流程拆成一块一块的。<br><br>
+        <span class="star">★★★★★</span> 推荐指数满分！<br>
+        支持 <span class="highlight-text">50+ LLM</span>，还有向量数据库！<br>
+        做 RAG 应用简直不要太方便~
+      </div>
+      <div class="washi"></div>
+      <div class="footer-note">每日AI手账 #042</div>
+    </div>
+  </div>
+  <div class="landscape">
+    <div class="page">
+      <div class="left">
+        <div class="date">2026.08.24 ☀️</div>
+        <div class="diary-title">LangChain 使用心得</div>
+        <div class="diary-sub">一个让 AI 开发变简单的框架</div>
+        <div class="diary-text">
+          今天试了 <span class="highlight-text">LangChain</span>，太方便了！<br>
+          链式调用把复杂流程拆成一块块，支持 50+ LLM。<br>
+          <span class="star">★★★★★</span> 做 RAG 应用超好用~
+        </div>
+      </div>
+      <div class="right">
+        <div class="mini-card">
+          <div class="mini-title">📌 核心功能</div>
+          <div class="mini-item">✓ 链式调用</div>
+          <div class="mini-item">✓ 50+ LLM</div>
+          <div class="mini-item">✓ 向量数据库</div>
+          <div class="mini-item">✓ Agent 框架</div>
+        </div>
+        <div class="sticker">💡 GitHub 50K Stars!<br>MIT 开源协议</div>
+        <div class="mini-card" style="background:#e8f5e9;border-color:#c8e6c9">
+          <div class="mini-title">🔗 链接</div>
+          <div class="mini-item" style="color:#2e7d32">langchain.com</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
