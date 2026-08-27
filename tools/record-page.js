@@ -6,7 +6,8 @@ const fs = require("fs");
 const path = require("path");
 const puppeteer = require("puppeteer-core");
 
-const CHROME = "/Users/cc/.cache/hyperframes/chrome/chrome-headless-shell/mac_arm-152.0.7977.30/chrome-headless-shell-mac-arm64/chrome-headless-shell";
+const defaultChrome = "/Users/cc/.cache/hyperframes/chrome/chrome-headless-shell/mac_arm-152.0.7977.30/chrome-headless-shell-mac-arm64/chrome-headless-shell";
+const CHROME = process.env.CHROME_BIN || (fs.existsSync(defaultChrome) ? defaultChrome : "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome");
 const url = process.argv[2];
 const rawPrefix = process.argv[3] || "page";
 if (!/^[a-z0-9-]{1,32}$/.test(rawPrefix)) throw new Error("bad outPrefix");

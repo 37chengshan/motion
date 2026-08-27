@@ -54,6 +54,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--map", required=True,
                     help="逗号分隔的 段名:场景起点秒:旁白起点秒，如 vo-s1:0:0.8")
+    ap.add_argument("--dir", "-d", default=".", help="VTT 文件所在目录")
     ap.add_argument("--maxc", type=int, default=MAXC)
     args = ap.parse_args()
 
@@ -63,9 +64,9 @@ def main():
         if not re.fullmatch(r"[A-Za-z0-9_-]+", seg):
             raise ValueError(f"bad segment name: {seg}")
         base = float(scene_start) + float(lead)
-        for (s0, s1, text) in merge_cues(parse_vtt(f"{seg}.vtt"), args.maxc):
+        vtt_file = f"{args.dir}/{seg}.vtt" if args.dir != "." else f"{seg}.vtt"
+        for (s0, s1, text) in merge_cues(parse_vtt(vtt_file), args.maxc):
             t = text.strip()
-            if t:
                 all_cues.append({"s": round(base + s0, 3), "e": round(base + s1, 3), "t": t})
     all_cues.sort(key=lambda c: c["s"])
     for i in range(len(all_cues) - 1):

@@ -13,4 +13,13 @@ webrec/out/
 
 # misc
 .DS_Store
+.vscode/
 *.log
+
+# Python & Publisher runtime artifacts
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+publisher/data/
+*.db
