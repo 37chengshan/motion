@@ -69,11 +69,14 @@ ProjectSpotlight 模板（src/components/templates/ProjectSpotlight.tsx）按 bl
 ### 5. 旁白 + 时间轴 + 渲染
 
 ```bash
+# 断点续跑：选题 key 如 github-<owner>-<repo>，重入时跳过已完成阶段
+# node scripts/stage.ts next <key> tts,timeline,render,review
 npm run tts          # CosyVoice2 优先，edge-tts 暂代
 npm run timeline     # out/timeline.json（Remotion 自动读它定时长+挂 Audio）
 npm run srt
 npx tsc --noEmit     # 必须 0 错误
 npm run render:all   # 双格式 → out/video_short.mp4 + video_long.mp4
+node scripts/stage.ts done <key> render
 ```
 
 Remotion 侧音画同步自动生效：Root.tsx 读 out/timeline.json 定 totalFrames，
@@ -85,6 +88,15 @@ VidoShort/VidoLong 按 targetFrames 播 Sequence 并挂对应旁白 Audio。
 - 重点检查：star 数字与 GitHub API 一致、终端命令与 README 一致、文字无溢出
 - 不合格：改 today.json 对应 block（时间轴不动）→ 重跑 tts/timeline（如 narration 变了）→ render:all
 - 交付 out/video_short.mp4（竖屏）+ video_long.mp4（横屏）+ subtitle.srt
+
+### 7. 登记预览台 → 停在草稿（流程必做）
+
+```bash
+node scripts/stage.ts done <key> review
+node scripts/dashboard-add.ts --type github --video out/video_short.mp4 --title "<项目名>科普" --accounts "<平台>:<账号>,..."
+```
+
+登记后通知用户打开 http://localhost:4399 审阅；**禁止自动点发布**（`npm run publish` 不传 `--no-draft-mode` 即停在草稿）。
 
 ## 常见问题
 

@@ -1,0 +1,17 @@
+{
+  "proxy": {
+    "host": "127.0.0.1",
+    "port": 7890,
+    "note": "flclash 混合端口，常开；如端口变化改这里即可"
+  },
+  "limits": {
+    "maxDurationSec": 900,
+    "maxHeight": 1080,
+    "maxPerSource": 2,
+    "maxPerRound": 10,
+    "recentDays": 3
+  },
+  "archiveDays": 14,
+  "historyPath": "repost/history.json",
+  "inboxDir": "repost/inbox"
+}

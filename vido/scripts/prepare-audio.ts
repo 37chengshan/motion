@@ -12,8 +12,8 @@
  *  - 无配音的 block：defaultBlockSec × fps（title/过渡类稍短）
  *  - globalStartFrame 顺序累加；proofTimestamps 取每段中段
  *
- * 用法：node scripts/prepare-audio.ts [--config src/data/today.json] [--fps 30]
- * 输出：out/timeline.json
+ * 用法：node scripts/prepare-audio.ts [--config src/data/today.json] [--fps 30] [--voiceover-dir out/voiceover] [--timeline-out out/timeline.json]
+ * 输出：out/timeline.json（--timeline-out 指定时不再同步 public/timeline.json，用于场次隔离）
  */
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
@@ -53,8 +53,10 @@ async function main() {
   };
   const configPath = path.resolve(ROOT, get("--config", "src/data/today.json"));
   const fps = parseInt(get("--fps", "30"), 10);
-  const voiceoverDir = path.resolve(ROOT, "out", "voiceover");
-  const outPath = path.resolve(ROOT, "out", "timeline.json");
+  const voiceoverDir = path.resolve(ROOT, get("--voiceover-dir", "out/voiceover"));
+  const timelineOut = get("--timeline-out", ""); // 空=默认 out/timeline.json（兼容旧用法）
+  const syncPublic = !timelineOut; // 非默认输出时跳过 public/ 同步（场次隔离）
+  const outPath = path.resolve(ROOT, timelineOut || "out/timeline.json");
 
   const config = JSON.parse(await readFile(configPath, "utf-8")) as {
     blocks: VideoBlockLite[];
@@ -128,10 +130,12 @@ async function main() {
 
   await mkdir(path.dirname(outPath), { recursive: true });
   await writeFile(outPath, JSON.stringify(manifest, null, 2), "utf-8");
-  // 同步到 public/（Remotion calculateMetadata 在 Chrome 里 fetch staticFile 用）
-  const pubTimeline = path.resolve(ROOT, "public", "timeline.json");
-  await mkdir(path.dirname(pubTimeline), { recursive: true });
-  await writeFile(pubTimeline, JSON.stringify(manifest, null, 2), "utf-8");
+  // 同步到 public/（Remotion calculateMetadata 在 Chrome 里 fetch staticFile 用；仅默认输出时）
+  if (syncPublic) {
+    const pubTimeline = path.resolve(ROOT, "public", "timeline.json");
+    await mkdir(path.dirname(pubTimeline), { recursive: true });
+    await writeFile(pubTimeline, JSON.stringify(manifest, null, 2), "utf-8");
+  }
 
   const narrated = entries.filter((e) => e.audioPath).length;
   console.log(

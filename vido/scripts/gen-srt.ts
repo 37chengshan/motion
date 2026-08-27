@@ -58,9 +58,14 @@ function wrapNarration(text: string, maxChars = 22): string[] {
 }
 
 async function main() {
-  const timelinePath = path.join(ROOT, "out", "timeline.json");
-  const configPath = path.join(ROOT, "src", "data", "today.json");
-  const outPath = path.join(ROOT, "out", "subtitle.srt");
+  const args = process.argv.slice(2);
+  const get = (flag: string, fallback: string) => {
+    const i = args.indexOf(flag);
+    return i >= 0 ? args[i + 1] : fallback;
+  };
+  const timelinePath = path.join(ROOT, get("--timeline", "out/timeline.json"));
+  const configPath = path.join(ROOT, get("--config", "src/data/today.json"));
+  const outPath = path.join(ROOT, get("--out", "out/subtitle.srt"));
 
   const timeline = JSON.parse(await readFile(timelinePath, "utf-8")) as TimelineManifest;
   const config = JSON.parse(await readFile(configPath, "utf-8")) as { blocks: VideoBlockLite[] };
@@ -83,7 +88,7 @@ async function main() {
   }
 
   await writeFile(outPath, cues.join("\n"), "utf-8");
-  console.log(`[srt] ${n} 条字幕 → out/subtitle.srt（时间轴与 timeline.json 同源）`);
+  console.log(`[srt] ${n} 条字幕 → ${path.relative(ROOT, outPath)}（时间轴与 timeline.json 同源）`);
 }
 
 main().catch((e) => {

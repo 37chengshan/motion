@@ -117,13 +117,15 @@ async function main() {
     return i >= 0 ? args[i + 1] : fallback;
   };
   const configPath = path.resolve(ROOT, get("--config", "src/data/today.json"));
-  const timelinePath = path.resolve(ROOT, "out", "timeline.json");
+  const timelinePath = path.resolve(ROOT, get("--timeline", "out/timeline.json"));
   const orientation = get("--orientation", "short") === "long" ? "long" : "short";
   const cliStyle = get("--style", "");
   const outDir = path.resolve(
     ROOT,
-    "hyperframes",
-    orientation === "long" ? "ai-news-long" : "ai-news"
+    get(
+      "--out",
+      `hyperframes/${orientation === "long" ? "ai-news-long" : "ai-news"}`
+    )
   );
 
   const config = JSON.parse(await readFile(configPath, "utf-8")) as {

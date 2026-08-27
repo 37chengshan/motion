@@ -16,10 +16,17 @@
  * 容错：单源失败降级跳过；全部失败输出回顾版（从 research/archive/ 最近 3 天抽取）
  * 归档：每日产物复制到 research/archive/YYYY-MM-DD/
  *
- * 用法：npm run research
+ * 用法：
+ *   npm run research                                # 默认 → research/today/raw.json（兼容旧用法）
+ *   npm run research -- --edition morning           # 早场：窗口=昨 08:00→今 08:00 → research/morning/raw.json
+ *   npm run research -- --edition evening           # 晚场：窗口=今 06:00→17:30 → research/evening/raw.json
+ *   npm run research -- --since 2026-08-27T00:00:00Z --until ... --out research/custom
  * 输出：research/today/raw.json（含 items[].category: "ai" | "other"）
+ *
+ * 场次窗口为有意重叠设计（早场覆盖昨夜-今晨，晚场覆盖白天），两场产物按目录隔离。
  */
 import { mkdir, writeFile, readFile, readdir, copyFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
 import path from "node:path";
 
 interface NewsItem {
@@ -34,8 +41,30 @@ interface NewsItem {
   summary?: string;
 }
 
-const RESEARCH_DIR = path.resolve(process.cwd(), "research", "today");
+const DEFAULT_DIR = path.resolve(process.cwd(), "research", "today");
 const ARCHIVE_ROOT = path.resolve(process.cwd(), "research", "archive");
+
+/** 场次默认时间窗（有意重叠设计）：早场=昨08:00→今08:00；晚场=今06:00→17:30 */
+function windowFor(edition: string | undefined): { since: string; until: string } | null {
+  if (!edition) return null;
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = now.getMonth();
+  const d = now.getDate();
+  if (edition === "morning") {
+    return {
+      since: new Date(y, m, d - 1, 8, 0, 0).toISOString(),
+      until: new Date(y, m, d, 8, 0, 0).toISOString(),
+    };
+  }
+  if (edition === "evening") {
+    return {
+      since: new Date(y, m, d, 6, 0, 0).toISOString(),
+      until: new Date(y, m, d, 17, 30, 0).toISOString(),
+    };
+  }
+  return null;
+}
 
 async function fetchWithTimeout(url: string, ms = 12000): Promise<Response> {
   const controller = new AbortController();
@@ -196,7 +225,14 @@ async function buildFallbackFromArchive(): Promise<NewsItem[]> {
     const items: NewsItem[] = [];
     for (const d of dirs) {
       try {
-        const raw = await readFile(path.join(ARCHIVE_ROOT, d, "raw.json"), "utf-8");
+        // 兼容两种归档布局：<date>/raw.json 与 <date>/<edition>/raw.json
+        let rawPath = path.join(ARCHIVE_ROOT, d, "raw.json");
+        if (!existsSync(rawPath)) {
+          const dateDir = path.join(ARCHIVE_ROOT, d);
+          const editionDirs = (await readdir(dateDir)).filter((x) => x === "morning" || x === "evening");
+          if (editionDirs.length) rawPath = path.join(dateDir, editionDirs[0], "raw.json");
+        }
+        const raw = await readFile(rawPath, "utf-8");
         const data = JSON.parse(raw) as { items: NewsItem[] };
         items.push(...(data.items ?? []).slice(0, 10));
       } catch {
@@ -215,8 +251,24 @@ async function buildFallbackFromArchive(): Promise<NewsItem[]> {
 // ─────────────────────────── 主流程 ───────────────────────────
 
 async function main() {
+  const args = process.argv.slice(2);
+  const get = (flag: string, fallback: string) => {
+    const i = args.indexOf(flag);
+    return i >= 0 ? args[i + 1] : fallback;
+  };
+  const edition = get("--edition", ""); // morning | evening（空=默认单场）
+  const win = windowFor(edition || undefined);
+  const since = win ? get("--since", win.since) : get("--since", "");
+  const until = win ? get("--until", win.until) : get("--until", "");
+  const RESEARCH_DIR = path.resolve(
+    process.cwd(),
+    get("--out", edition ? `research/${edition}` : "research/today")
+  );
+
   await mkdir(RESEARCH_DIR, { recursive: true });
-  console.log("[research] 开始采集（15 信源并行）…");
+  console.log(
+    `[research] 开始采集（${edition ? edition + " 场" : "默认单场"}${since ? "，窗口 " + since.slice(0, 16).replace("T", " ") + " → " + until.slice(0, 16).replace("T", " ") : ""}）…`
+  );
 
   const tasks: Promise<NewsItem[]>[] = [
     // AI 新闻类（10 源：AI 垂直/开发者社区为主）
@@ -252,6 +304,18 @@ async function main() {
     }
   }
 
+  // 时间窗过滤（--edition 自动带默认窗口；显式 --since/--until 覆盖）
+  if (since) {
+    const before = items.length;
+    items = items.filter((i) => i.publishedAt >= since);
+    if (items.length !== before) console.log(`[research] 窗口过滤：${before - items.length} 条早于 ${since.slice(0, 16)} 被剔除`);
+  }
+  if (until) {
+    const before = items.length;
+    items = items.filter((i) => i.publishedAt <= until);
+    if (items.length !== before) console.log(`[research] 窗口过滤：${before - items.length} 条晚于 ${until.slice(0, 16)} 被剔除`);
+  }
+
   const aiCount = items.filter((i) => i.category === "ai").length;
   const otherCount = items.filter((i) => i.category === "other").length;
 
@@ -266,16 +330,18 @@ async function main() {
   const rawPath = path.join(RESEARCH_DIR, "raw.json");
   await writeFile(rawPath, JSON.stringify(out, null, 2), "utf-8");
 
-  // 每日归档（回顾版地基）
+  // 每日归档（回顾版地基；场次隔离：archive/<date>/<edition>/）
   const today = out.date;
-  const archiveDir = path.join(ARCHIVE_ROOT, today);
+  const archiveDir = edition
+    ? path.join(ARCHIVE_ROOT, today, edition)
+    : path.join(ARCHIVE_ROOT, today);
   await mkdir(archiveDir, { recursive: true });
   await copyFile(rawPath, path.join(archiveDir, "raw.json"));
 
   console.log(
-    `[research] 采集完成：${items.length} 条（AI ${aiCount} / 其他 ${otherCount}）→ research/today/raw.json`
+    `[research] 采集完成：${items.length} 条（AI ${aiCount} / 其他 ${otherCount}）→ ${path.relative(process.cwd(), rawPath)}`
   );
-  console.log(`[research] 已归档 → research/archive/${today}/`);
+  console.log(`[research] 已归档 → research/archive/${today}/${edition}/`);
   console.log("[research] 下一步：npm run score（AI 打分 + 生成 Top 推荐卡）");
 }
 

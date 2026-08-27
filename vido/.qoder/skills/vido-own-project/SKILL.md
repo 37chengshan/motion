@@ -55,9 +55,12 @@ description: 制作自有项目宣传视频（Remotion 引擎），复用开源�
 ### 4. 旁白 + 渲染 + 审查
 
 ```bash
+# 断点续跑：选题 key 如 own-<project-slug>，重入时跳过已完成阶段
+# node scripts/stage.ts next <key> tts,timeline,render,review
 npm run tts && npm run timeline && npm run srt
 npx tsc --noEmit
 npm run render:all
+node scripts/stage.ts done <key> render
 ```
 
 审查（docs/workflow.md 第七节）+ 自有项目特有检查项：
@@ -69,6 +72,15 @@ npm run render:all
 
 交付 out/video_short.mp4 + video_long.mp4 + subtitle.srt。发布（用户确认后）：
 B站横屏+外挂字幕；抖音/小红书竖屏烧录版（npm run render:burned）。
+
+### 6. 登记预览台 → 停在草稿（流程必做）
+
+```bash
+node scripts/stage.ts done <key> review
+node scripts/dashboard-add.ts --type github --video out/video_short.mp4 --title "<项目名>宣传" --accounts "<平台>:<账号>,..."
+```
+
+登记后通知用户打开 http://localhost:4399 审阅；**禁止自动点发布**（`npm run publish` 不传 `--no-draft-mode` 即停在草稿）。
 
 ## 常见问题
 

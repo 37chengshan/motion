@@ -132,11 +132,67 @@ node scripts/style-check.ts   # 每风格渲染一帧 → out/styles/<style>.png
 4. 不合格 → 外科手术式修复（只改出错 block，时间轴不动）→ 重渲 → 重审
 5. 全部通过才算完成；发布需用户明确同意
 
-## 八、发布（用户确认后）
+## 八、发布（草稿闸口，默认停在草稿）
+
+**所有发布默认停在草稿态**（`--draft-mode` 默认开启）：tencent 真草稿箱；其他平台自动取 `now + 平台安全上限` 作为定时时间（纯当草稿箱用），人工在各平台后台改"立即发布"才真正发出。详见 [docs/publish.md](publish.md) 五-B 草稿模式。
 
 ```bash
-npm run login:check -- --platform bilibili   # Cookie 有效性
-npm run publish -- --platform bilibili,douyin,xiaohongshu
+npm run accounts -- --quick               # 账号矩阵与 Cookie 有效性
+npm run publish -- --platform bilibili,douyin,xiaohongshu   # 默认草稿闸口
+npm run publish -- --platform douyin --no-draft-mode        # 立即发布（仅人工明确要求）
 ```
 
-B站=横屏+外挂字幕；抖音/小红书=竖屏烧录版。首次登录：`npm run login -- --platform douyin --headed`（抖音/小红书必须 --headed 弹窗扫码，无头会被风控）。
+B站=横屏+外挂字幕；抖音/小红书=竖屏烧录版。首次登录：`npm run login -- --platform douyin --headed`（抖音/小红书必须 --headed 弹窗扫码，无头会被风控）；多账号：`--accounts a,b,c`。
+
+## 九、预览台（内容审阅闸口）
+
+本地内容台账：三类工作流（日报早/晚场、GitHub 项目、搬运）渲染完成后登记，人工在此审阅、批准、跟踪发布状态。
+
+```bash
+npm run dashboard            # 启动 → http://localhost:4399（固定入口）
+npm run dashboard:add -- --type ai-news --edition morning --video out/morning/ai_news_short.mp4 --title "..." --accounts "douyin:creator"
+```
+
+- 台账：`dashboard/registry.json`（工作数据，不入 git）
+- 卡片状态：待审 → 已批准 → 已发草稿 → 已发布（或拒绝）；页面按钮直接切换
+- 到期巡检：草稿距定时时间 <7 天自动置"即将到期"警告（server 每小时扫）
+- 视频由 server 流式映射 `out/`、`repost/` 目录（支持拖动播放，不复制文件）
+
+三个技能流程末尾都含"登记预览台 → 停在草稿"步骤；实际发布动作仍在对话中人工确认后执行 `npm run publish`。
+
+## 十、三类工作流总览与定时编排
+
+| 时间 | 工作流 | 说明 |
+|---|---|---|
+| 08:00 | 早场日报 | vido-ai-news --edition morning（窗口 昨08:00→今08:00） |
+| 17:30 | 晚场日报 | vido-ai-news --edition evening（窗口 今06:00→17:30） |
+| 12:00 | GitHub 项目 | vido-open-source（trending 选题） |
+| 10:30/14:30/20:30 | 搬运加工轮 | vido-repost（巡检 inbox → 包装 → 草稿上传） |
+| schtasks 每 2h | 搬运采集层 | scripts/repost-download.ts（无 AI，08:00-22:00） |
+
+- 定时任务经 schedule MCP 注册（依赖 Qoder 运行）；漏场可手动补跑，`out/.stage.json` 断点保证幂等（`node scripts/stage.ts next <key> ...`）
+- 搬运双层架构：采集层 schtasks 全自动（不依赖 AI/Qoder），加工层 AI 会话每天三轮，inbox 缓冲队列解耦
+
+## 十一、双机传输（Windows 生产 + Mac 自有视频）
+
+分工：Windows = 全部生产 + 搬运发布（账号 Cookie 全在 Windows）；Mac = 自有视频制作与发布。Mac 白天可能带出，需支持离线增量同步。
+
+| 方案 | 机制 | 适用 |
+|---|---|---|
+| ① Syncthing（主力） | 两机装 Syncthing 共享 `motion-sync/`；Windows 侧成品进 `out/mac-handoff/`，Mac 回家联网即增量同步；轻量数据（registry/accounts/代码）双向 | 不要求同时在线，Mac 白天在外不影响 |
+| ② SMB 直连 | Windows 开共享文件夹，Mac 在家时 Finder 连 `smb://192.168.1.x/vido` | 在家即时手动取大文件 |
+| ③ Git 同步层 | 代码/配置/registry 走 push/pull（仓库 37chengshan/motion），公网可达 | Mac 白天在外同步代码与轻量数据；视频不入 git |
+| ④ 网盘/QQ 中转 | 手动 ZIP 上传 | 应急兜底 |
+
+落地：③+① 为主（代码走 git、视频走 Syncthing），② 作在家即时补充；路由器 192.168.1.1:8080 仅管理界面不参与方案。
+
+Syncthing 配置要点：两机首次配对需同时在线一次（设备 ID 互认）；Windows 侧共享文件夹设"发送+接收"（registry/accounts 双向）或"仅发送"（out/mac-handoff 单向）；Mac 白天在外产生的数据回家后自动双向合并，冲突以最近修改时间为准。
+
+## 十二、账号管理
+
+- 事实源：`data/accounts.json`（平台/账号/领域/用途/状态）；主创号与搬运号严格分离
+- 矩阵查询：`npm run accounts`（逐号 sau check 验证 Cookie）；`--quick` 只看本地
+- 登录：`npm run login -- --platform <平台> --account <账号> --headed`；批量 `--accounts a,b,c` 逐个弹窗扫码
+- 注册准备（人工环节）：`node scripts/account-register-prep.ts --platform douyin --account tech01 --domain 数码` → 独立 Chrome profile（tools/profiles/）+ 注册核对单（data/register-checklists/）+ 台账 paused 条目
+- 风控基线：单日单 IP 注册 ≤2 个；新号养号 3-7 天再接自动化；同账号每日 ≤3 条；连续上传失败 ≥2 次自动停用
+- Cookie 失效：account-list 标红 → 重新 `npm run login --headed`

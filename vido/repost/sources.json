@@ -1,0 +1,35 @@
+{
+  "sources": [
+    {
+      "domain": "ai",
+      "name": "Two Minute Papers",
+      "platform": "youtube",
+      "url": "https://www.youtube.com/@TwoMinutePapers/videos"
+    },
+    {
+      "domain": "ai",
+      "name": "AI Explained",
+      "platform": "youtube",
+      "url": "https://www.youtube.com/@aiexplained-official/videos"
+    },
+    {
+      "domain": "编程",
+      "name": "Fireship",
+      "platform": "youtube",
+      "url": "https://www.youtube.com/@Fireship/videos"
+    },
+    {
+      "domain": "数码",
+      "name": "MKBHD",
+      "platform": "youtube",
+      "url": "https://www.youtube.com/@mkbhd/videos"
+    },
+    {
+      "domain": "科普",
+      "name": "Veritasium",
+      "platform": "youtube",
+      "url": "https://www.youtube.com/@veritasium/videos"
+    }
+  ],
+  "note": "按领域分组维护源。B站 UP 主源：platform=bilibili，url 填 UP 主空间或合集链接（采集层同样用 yt-dlp 下载）。新增源后无需改代码。"
+}

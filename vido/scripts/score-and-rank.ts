@@ -13,15 +13,24 @@
  *
  * 去重：标题相似度 > 80%（字符 bigram Jaccard）合并，保留高分者
  *
- * 用法：npm run score
- * 输入：research/today/raw.json
- * 输出：research/today/top.md（Top 3 推荐卡）+ scored.json + archive 归档
+ * 用法：npm run score [--dir research/morning]
+ * 输入：<--dir>/raw.json（默认 research/today/raw.json）
+ * 输出：<--dir>/top.md（Top 3 推荐卡）+ scored.json + 归档 research/archive/<date>[/<edition>]
  */
 import { readFile, writeFile, copyFile, mkdir } from "node:fs/promises";
 import path from "node:path";
 
-const RESEARCH_DIR = path.resolve(process.cwd(), "research", "today");
 const ARCHIVE_ROOT = path.resolve(process.cwd(), "research", "archive");
+
+/** 解析 --dir（默认 research/today，兼容旧用法）；目录名为 morning/evening 时归档带场次 */
+function resolveDir(): { dir: string; edition: string } {
+  const args = process.argv.slice(2);
+  const i = args.indexOf("--dir");
+  const raw = i >= 0 ? args[i + 1] : "research/today";
+  const dir = path.resolve(process.cwd(), raw);
+  const base = path.basename(dir);
+  return { dir, edition: base === "morning" || base === "evening" ? base : "" };
+}
 
 interface RawItem {
   id: string;
@@ -170,6 +179,7 @@ function cardMd(item: ScoredItem, i: number): string {
 // ─────────────────────────── 主流程 ───────────────────────────
 
 async function main() {
+  const { dir: RESEARCH_DIR, edition } = resolveDir();
   const raw = JSON.parse(
     await readFile(path.join(RESEARCH_DIR, "raw.json"), "utf-8")
   ) as { items: RawItem[]; collectedAt?: string; date?: string };
@@ -230,14 +240,14 @@ async function main() {
     "utf-8"
   );
 
-  // 归档
+  // 归档（场次隔离：archive/<date>/<edition>/）
   const date = raw.date ?? new Date().toISOString().slice(0, 10);
-  const archiveDir = path.join(ARCHIVE_ROOT, date);
+  const archiveDir = edition ? path.join(ARCHIVE_ROOT, date, edition) : path.join(ARCHIVE_ROOT, date);
   await mkdir(archiveDir, { recursive: true });
   await copyFile(path.join(RESEARCH_DIR, "scored.json"), path.join(archiveDir, "scored.json"));
   await copyFile(path.join(RESEARCH_DIR, "top.md"), path.join(archiveDir, "top.md"));
 
-  console.log(`[score] 打分完成（去重后 ${scored.length} 条）→ research/today/top.md`);
+  console.log(`[score] 打分完成（去重后 ${scored.length} 条）→ ${path.relative(process.cwd(), path.join(RESEARCH_DIR, "top.md"))}`);
   console.log("[score] AI 新闻 Top 3：");
   console.log(aiTop.map((t, i) => `  ${i + 1}. ${t.total.toFixed(1)}分 — ${t.title.slice(0, 60)}`).join("\n"));
   console.log("[score] 其他新闻 Top 3：");
