@@ -37,7 +37,7 @@ bg:      "kolors"              // 背景免费刷
 ## 二、配置（勿硬编码 QC）
 
 ```bash
-# vido/.env.example （复制为 .env 并填入你的 QC）
+# producer/.env.example （复制为 .env 并填入你的 QC）
 OPENAI_BASE_URL=https://aiping.cn/api/v1
 ANTHROPIC_BASE_URL=https://aiping.cn/api/v1/anthropic
 AIPING_API_KEY=QC-xxx...   # 形如 QC-xxxx ，勿提交到 git
@@ -47,7 +47,7 @@ IMAGE_MODEL_BG=kolors
 ```
 
 ```ts
-// vido/scripts/gen-images.ts 透传示例
+// producer/scripts/gen-images.ts 透传示例
 const client = new OpenAI({
   baseURL: process.env.OPENAI_BASE_URL, // https://aiping.cn/api/v1
   apiKey: process.env.AIPING_API_KEY,   // QC-xxx

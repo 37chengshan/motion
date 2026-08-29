@@ -233,33 +233,8 @@ class LeaseManager:
             conn.commit()
             return cursor.rowcount > 0
 
-    def store_authorization(self, auth) -> bool:
-        """持久化 PublishAuthorization 防重启重放"""
-        try:
-            with self._get_connection_cm() as conn:
-                conn.execute("""
-                    INSERT OR IGNORE INTO publish_authorizations
-                    (authorization_id, task_id, target_id, authorized_at, authorized_by, expires_at, scope, nonce, is_consumed)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)
-                """, (auth.authorization_id, auth.task_id, auth.target_id, auth.authorized_at, auth.authorized_by, auth.expires_at, auth.scope, auth.nonce))
-                conn.commit()
-                return True
-        except Exception:
-            return False
-
-    def consume_authorization(self, nonce: str) -> bool:
-        """原子消费 Nonce，防重放 (返回是否成功消费)"""
-        with self._get_connection_cm() as conn:
-            cursor = conn.cursor()
-            cursor.execute("UPDATE publish_authorizations SET is_consumed=1 WHERE nonce=? AND is_consumed=0", (nonce,))
-            conn.commit()
-            return cursor.rowcount > 0
-
-    def get_authorization(self, nonce: str):
-        """查询授权记录"""
-        with self._get_connection_cm() as conn:
-            row = conn.execute("SELECT * FROM publish_authorizations WHERE nonce=?", (nonce,)).fetchone()
-            return dict(row) if row else None
+    # 注：授权持久化/nonce 原子消费已由 authorization.OperatorAuthorizationService 统一负责（
+    # authorizations 表 + consumed_at 原子拒绝重放），此处不再重复实现
 
     def update_target_status(
         self,

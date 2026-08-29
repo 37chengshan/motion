@@ -4,11 +4,12 @@ import logging
 import os
 import subprocess
 import sys
-from datetime import datetime, timezone
+import uuid
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from ..conf import DB_PATH, DEFAULT_LEASE_DURATION_SEC, INCOMING_DIR
+from ..conf import DB_PATH, DEFAULT_AUTH_TTL_SEC, DEFAULT_LEASE_DURATION_SEC, INCOMING_DIR
 from ..models.contract import TaskPackage, AssetSpec, TargetSpec
 from ..models.policy import PublishAuthorization
 from ..models.state import TargetStatus
@@ -199,9 +200,29 @@ class MasterPublisherDaemon:
             return False
 
         # 授权（§8.3/8.4）：publish 目标必须消费 operator 一次性 nonce；draft_only/无授权 → 停在 READY_TO_REVIEW
+        # 人审闸门：默认不自签（等待 operator nonce）；仅显式 PUBLISHER_AUTO_PUBLISH=1 时允许 daemon 自签兜底
+        _auto_publish = os.environ.get("PUBLISHER_AUTO_PUBLISH", "0").lower() in ("1", "true", "yes")
         authorizations: Dict[str, PublishAuthorization] = {}
         for target in pkg.targets:
             if target.publish_policy == "draft_only":
+                continue
+            if _auto_publish:
+                # 显式开启自动发布：daemon 自签（审计留痕，TTL 与 operator nonce 一致）
+                _now = datetime.now(timezone.utc)
+                authorizations[target.target_id] = PublishAuthorization(
+                    authorization_id=f"auth-{uuid.uuid4().hex[:8]}",
+                    task_id=package_id,
+                    target_id=target.target_id,
+                    authorized_at=_now.isoformat(),
+                    authorized_by="publisher_daemon_auto_policy",
+                    expires_at=(_now + timedelta(seconds=DEFAULT_AUTH_TTL_SEC)).isoformat(),
+                    scope="single_target",
+                )
+                self.audit_log.record_event(
+                    task_id=package_id, target_id=target.target_id, event_type="AUTHORIZATION_CONSUMED",
+                    payload={"operator": "auto", "reason": "PUBLISHER_AUTO_PUBLISH"},
+                )
+                logger.warning(f"[PublisherDaemon] AUTO_PUBLISH 已开启，自动签发授权 {package_id}:{target.target_id}")
                 continue
             record = self.auth_service.consume_pending(package_id, target.target_id)
             if record:

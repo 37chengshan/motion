@@ -46,20 +46,43 @@ class LocalWatchAdapter(BaseTransport):
         return packages
 
     async def acknowledge_package(self, package_id: str, receipt: dict) -> bool:
-        """在包目录下写 receipt.json（完整回执字段由调用方提供）"""
+        """在包目录下写 receipt.json（完整回执字段由调用方提供）。
+        安全：package_id 白名单校验 + resolve 后锚定在 incoming 内，防路径穿越。"""
+        import re
+        _id_re = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9_\-\.]{1,127}$")
+        if not _id_re.match(package_id):
+            logger.error(f"[LocalWatchTransport] 非法 package_id 拒绝回写 {package_id}")
+            return False
         try:
-            target_dir = self.incoming_dir / package_id
+            incoming_root = self.incoming_dir.resolve()
+            target_dir = (self.incoming_dir / package_id).resolve()
+            # 必须仍在 incoming 内（防 .. 绕过）
+            try:
+                target_dir.relative_to(incoming_root)
+            except ValueError:
+                logger.error(f"[LocalWatchTransport] 回写路径穿越拦截 {package_id}")
+                return False
             if not target_dir.exists():
                 for sub in self.incoming_dir.iterdir():
-                    if (sub / "manifest.json").exists():
-                        try:
-                            m = json.loads((sub / "manifest.json").read_text(encoding="utf-8"))
-                            if m.get("package_id") == package_id or m.get("task_id") == package_id:
-                                target_dir = sub
-                                break
-                        except Exception:
-                            pass
-            if target_dir.exists():
+                    if not sub.is_dir() or not _id_re.match(sub.name):
+                        continue
+                    mf = sub / "manifest.json"
+                    if not mf.exists():
+                        continue
+                    try:
+                        m = json.loads(mf.read_text(encoding="utf-8"))
+                        if m.get("package_id") == package_id or m.get("task_id") == package_id:
+                            target_dir = sub.resolve()
+                            break
+                    except Exception:
+                        continue
+                # 兼容匹配后再次锚定校验
+                try:
+                    target_dir.relative_to(incoming_root)
+                except ValueError:
+                    logger.error(f"[LocalWatchTransport] 回写路径穿越拦截 {package_id}")
+                    return False
+            if target_dir.exists() and target_dir.is_dir():
                 (target_dir / "receipt.json").write_text(
                     json.dumps(receipt, ensure_ascii=False, indent=2), encoding="utf-8"
                 )

@@ -1,7 +1,9 @@
 import asyncio
+import gc
 import json
 import os
 import tempfile
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -188,6 +190,25 @@ def test_full_e2e_publishing_pipeline_with_operator_auth():
             assert event_count > 10
             # ④ 重复消费 nonce 拒绝（重放）
             assert auth_svc.consume_pending("pkg-e2e-002", "bilibili:acc2") is None
+            # ⑤ 显式释放并 checkpoint WAL，防 Windows 文件锁（WAL 模式下临时目录可能删除失败）
+            try:
+                del daemon
+            except Exception:
+                pass
+            gc.collect()
+            time.sleep(0.3)
+            try:
+                import sqlite3
+                _ck = sqlite3.connect(str(db_path), timeout=5.0)
+                try:
+                    _ck.execute("PRAGMA wal_checkpoint(TRUNCATE);")
+                    _ck.commit()
+                finally:
+                    _ck.close()
+            except Exception:
+                pass
+            gc.collect()
+            time.sleep(0.2)
             print("✓ e2e: 签名 manifest + operator 授权 + draft_only 停草稿 + 回执/审计链 全部通过")
 
     asyncio.run(_run())
