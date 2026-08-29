@@ -4,6 +4,7 @@
 → 本地验包（与 LocalWatch 同一 validate_package_manifest 门）→ 完成后回执 POST（幂等键）。
 支持指数退避重试（由调用方传入 attempt 决定 sleep）。白天离线/晚间联网场景由 daemon 轮询驱动。
 """
+import asyncio
 import json
 import logging
 import time
@@ -77,9 +78,19 @@ class CloudControlPlaneAdapter(BaseTransport):
                     logger.error(f"[CloudCP] asset 下载失败 {asset['path']} HTTP {dl.status_code}")
                     return False
                 signed = dl.json()["data"]["url"]
-                blob = await client.get(self.base_url + signed)
-                if blob.status_code != 200:
-                    logger.error(f"[CloudCP] asset 内容下载失败 {asset['path']} HTTP {blob.status_code}")
+                # GCS 驱动返回绝对 signed URL；memory 驱动返回相对路径 → 需拼接
+                blob_url = signed if signed.startswith("http") else (self.base_url + signed)
+                blob = None
+                for attempt in range(3):
+                    try:
+                        blob = await client.get(blob_url)
+                        if blob.status_code == 200:
+                            break
+                    except Exception as e:  # noqa: BLE001
+                        logger.warning(f"[CloudCP] asset 下载第 {attempt + 1} 次失败: {e}")
+                        await asyncio.sleep(2 ** attempt)
+                if blob is None or blob.status_code != 200:
+                    logger.error(f"[CloudCP] asset 内容下载失败 {asset['path']} (retry exhausted)")
                     return False
                 target.write_bytes(blob.content)
         errors = validate_package_manifest(dest / "manifest.json", self.public_key_pem)

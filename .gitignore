@@ -61,3 +61,4 @@ contracts/keys/
 
 # weekly own-project input (user-provided, per-week)
 producer/weekly/
+publisher/launchd/com.motion.publisher.daemon.plist
