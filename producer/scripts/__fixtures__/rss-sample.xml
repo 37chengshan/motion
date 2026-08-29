@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>样例源（测试用，脱敏）</title>
+    <link>https://example.com</link>
+    <item>
+      <title>Sample AI model release announcement</title>
+      <link>https://example.com/2026/08/28/model-release</link>
+      <description>厂商官方发布样例条目</description>
+      <pubDate>Fri, 28 Aug 2026 10:00:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>Sample policy update</title>
+      <link>https://example.com/2026/08/28/policy</link>
+      <description>政策样例条目</description>
+      <pubDate>Fri, 28 Aug 2026 08:00:00 +0000</pubDate>
+    </item>
+  </channel>
+</rss>

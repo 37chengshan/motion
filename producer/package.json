@@ -7,6 +7,7 @@
   "scripts": {
     "build": "npx remotion render",
     "verify": "node scripts/run-verification.mjs",
+    "test": "node --test scripts/*.test.ts",
     "render:all": "node scripts/render-batch.ts",
     "login": "node scripts/platform-login.ts",
     "login:check": "node scripts/platform-login.ts --check",
