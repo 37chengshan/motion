@@ -1,0 +1,11 @@
+# 日志告警（§7.6）：控制面 5xx/429 与上游错误
+groups:
+  - name: control-plane-alerts
+    rules:
+      - alert: ControlPlane5xxRate
+        expr: |
+          rate(loadbalancing.googleapis.com/https/request_count{response_code_class="500"}[5m]) > 0.02
+        for: 5m
+        labels: { severity: warning }
+        annotations:
+          summary: "控制面 5xx 比例过高"

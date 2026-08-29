@@ -1,0 +1,15 @@
+# 全库统一 LF。
+#
+# 理由不是 check_docs.py——它用 Path.read_text()，Python 文本模式的通用换行
+# 已经把 \r\n 翻成 \n 了，CRLF 下它照样干净（实测过）。
+# 真正的理由是另外两个脚本：check_storyboard.py 与 check_prompts.py 走 read_bytes()
+# 自己 decode，得手工 .replace("\r\n", "\n") 才行；这类手工归一化漏一处就出错，
+# 与其靠每个脚本自觉，不如让仓库里根本不存在 CRLF。
+#
+# 注意 eol=lf 只在 checkout 时生效。给已有文件落地要跑一次：
+#     git add --renormalize .
+* text=auto eol=lf
+
+# 图片按二进制处理，不做任何换行转换
+*.jpg binary
+*.png binary

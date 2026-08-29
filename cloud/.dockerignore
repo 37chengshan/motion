@@ -1,0 +1,12 @@
+node_modules
+dist
+data
+*.log
+.git
+.gitignore
+README.md
+Dockerfile
+.dockerignore
+deploy.sh
+infra
+tools

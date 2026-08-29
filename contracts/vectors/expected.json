@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "key_id": "test-key-1",
+  "algorithm": "Ed25519",
+  "canonicalization": "JCS",
+  "public_key_pem": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEA48jDf/+rhlTu19Y5PAJTMcnR0yBTG+ZwN+yc+TSULB0=\n-----END PUBLIC KEY-----\n",
+  "vectors": [
+    {
+      "manifest": "manifest-01.json",
+      "canonical_input": "manifest-01.jcs.json",
+      "signature_value": "3aKGLHBQt3INj0p--O2FGLlu4MwGkGU2fTs5O3IXj3dvSbGqfmkbkLsr39B79A97iwEacUcr7cRv5uFFeZdWAQ",
+      "expect_verify": true,
+      "note": "正向量：未篡改，必须验签通过"
+    },
+    {
+      "canonical_input": "manifest-02.jcs.json",
+      "signature_value": "3aKGLHBQt3INj0p--O2FGLlu4MwGkGU2fTs5O3IXj3dvSbGqfmkbkLsr39B79A97iwEacUcr7cRv5uFFeZdWAQ",
+      "expect_verify": false,
+      "note": "负向量：标题被篡改；签名值=正向量签名，合法实现必须拒绝该签名作用于 manifest-02 canonical"
+    }
+  ]
+}

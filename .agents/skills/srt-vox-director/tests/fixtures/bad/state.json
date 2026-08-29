@@ -1,0 +1,17 @@
+{
+  "project": "bad fixture",
+  "style_id": "S17",
+  "style_locked": true,
+  "text_density": "wrong-value",
+  "clip_limits": [4, 6, 8],
+
+  "total_shots": 5,
+  "split_shots": [9],
+  "bridge_frames": [],
+  "scale": { "reference_images": 3, "clips": 3, "calls": 6 },
+
+  "batch_size": 7,
+  "shots_done": [1, 2, 3],
+  "next_batch": [2, 4],
+  "open_issues": []
+}

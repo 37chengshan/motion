@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "updated_at": "2026-08-28",
+  "note": "每日研究信源注册表（§3.2）。parser 取值：rss | hn-algolia | github-search | arxiv-atom。脚本禁止硬编码 URL。",
+  "sources": [
+    {
+      "stream": "ai-news",
+      "name": "hacker-news",
+      "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI&tags=story&hitsPerPage=30",
+      "parser": "hn-algolia",
+      "enabled": true,
+      "trust_level": "high"
+    },
+    {
+      "stream": "ai-news",
+      "name": "github-trending",
+      "url": "https://api.github.com/search/repositories?q=AI+created:>",
+      "parser": "github-search",
+      "enabled": true,
+      "trust_level": "high"
+    },
+    {
+      "stream": "ai-news",
+      "name": "qbitai",
+      "url": "https://www.qbitai.com/feed",
+      "parser": "rss",
+      "enabled": true,
+      "trust_level": "high"
+    },
+    {
+      "stream": "ai-news",
+      "name": "36kr",
+      "url": "https://36kr.com/feed",
+      "parser": "rss",
+      "enabled": true,
+      "trust_level": "medium"
+    },
+    {
+      "stream": "ai-news",
+      "name": "solidot",
+      "url": "https://www.solidot.org/index.rss",
+      "parser": "rss",
+      "enabled": true,
+      "trust_level": "medium"
+    },
+    {
+      "stream": "ai-news",
+      "name": "leiphone",
+      "url": "https://www.leiphone.com/feed",
+      "parser": "rss",
+      "enabled": true,
+      "trust_level": "medium"
+    },
+    {
+      "stream": "ai-news",
+      "name": "tmtpost",
+      "url": "https://www.tmtpost.com/feed",
+      "parser": "rss",
+      "enabled": true,
+      "trust_level": "medium"
+    },
+    {
+      "stream": "ai-news",
+      "name": "techcrunch",
+      "url": "https://techcrunch.com/feed/",
+      "parser": "rss",
+      "enabled": true,
+      "trust_level": "high"
+    },
+    {
+      "stream": "ai-news",
+      "name": "arxiv-cs-ai",
+      "url": "http://export.arxiv.org/api/query?search_query=cat:cs.AI&sortBy=submittedDate&sortOrder=descending&max_results=8",
+      "parser": "arxiv-atom",
+      "enabled": true,
+      "trust_level": "high"
+    },
+    {
+      "stream": "world-news",
+      "name": "bbc-world",
+      "url": "https://feeds.bbci.co.uk/news/world/rss.xml",
+      "parser": "rss",
+      "enabled": true,
+      "trust_level": "high"
+    },
+    {
+      "stream": "world-news",
+      "name": "huanqiu",
+      "url": "https://rss.huanqiu.com/world.xml",
+      "parser": "rss",
+      "enabled": true,
+      "trust_level": "medium"
+    },
+    {
+      "stream": "world-news",
+      "name": "chinanews",
+      "url": "https://www.chinanews.com.cn/rss/scroll.xml",
+      "parser": "rss",
+      "enabled": true,
+      "trust_level": "medium"
+    },
+    {
+      "stream": "world-news",
+      "name": "bbc-tech",
+      "url": "https://feeds.bbci.co.uk/news/technology/rss.xml",
+      "parser": "rss",
+      "enabled": true,
+      "trust_level": "high"
+    },
+    {
+      "stream": "github",
+      "name": "github-trending",
+      "url": "https://api.github.com/search/repositories",
+      "parser": "github-search",
+      "enabled": true,
+      "trust_level": "high"
+    }
+  ]
+}

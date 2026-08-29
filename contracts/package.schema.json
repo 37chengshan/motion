@@ -1,0 +1,367 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://motion.local/contracts/package.schema.json",
+  "title": "PackageManifest",
+  "description": "跨机交接包清单：Windows producer 签名，Mac publisher 与 Cloud verifier 验签。package_state 固定为 READY_FOR_PUBLISH；Cloud 索引状态与 Mac target 状态另存，绝不写入本 manifest。",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "package_id",
+    "run_id",
+    "workflow",
+    "stream",
+    "edition",
+    "cadence",
+    "created_at",
+    "expires_at",
+    "producer_commit",
+    "package_state",
+    "assets",
+    "targets",
+    "timeline",
+    "content_refs",
+    "review",
+    "signature"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "package_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{7,63}$"
+    },
+    "run_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{3,127}$"
+    },
+    "workflow": {
+      "type": "string",
+      "enum": [
+        "hyperframes",
+        "remotion"
+      ]
+    },
+    "stream": {
+      "type": "string",
+      "enum": [
+        "ai-news",
+        "world-news",
+        "github-daily",
+        "github-weekly",
+        "own-project-weekly",
+        "recording"
+      ]
+    },
+    "edition": {
+      "type": ["string", "null"],
+      "enum": [
+        "morning",
+        "evening",
+        null
+      ]
+    },
+    "cadence": {
+      "type": "string",
+      "enum": [
+        "daily",
+        "weekly"
+      ]
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "producer_commit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "package_state": {
+      "const": "READY_FOR_PUBLISH"
+    },
+    "assets": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "path",
+          "type",
+          "size_bytes",
+          "mime",
+          "sha256"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "包内相对路径，POSIX，禁止绝对路径与 ..",
+            "pattern": "^(?!\\.\\./)[A-Za-z0-9_./-]+$"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "video",
+              "audio",
+              "subtitle",
+              "cover",
+              "metadata",
+              "review",
+              "timeline",
+              "media",
+              "other"
+            ]
+          },
+          "size_bytes": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483648
+          },
+          "mime": {
+            "type": "string",
+            "pattern": "^[a-z0-9.+-]+/[a-z0-9.+-]+$"
+          },
+          "width": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "height": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "duration_ms": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        }
+      }
+    },
+    "targets": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "platform",
+          "account_ref",
+          "title",
+          "description",
+          "tags",
+          "statement",
+          "subtitle_path",
+          "cover_path",
+          "publish_policy"
+        ],
+        "properties": {
+          "platform": {
+            "type": "string",
+            "enum": [
+              "bilibili",
+              "xiaohongshu",
+              "douyin",
+              "kuaishou",
+              "wechat-channels",
+              "tiktok",
+              "x",
+              "youtube"
+            ]
+          },
+          "account_ref": {
+            "type": "string",
+            "description": "Mac 账号台账引用名，不含 Cookie 原文"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 10000
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 50
+            }
+          },
+          "statement": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "subtitle_path": {
+            "type": "string"
+          },
+          "cover_path": {
+            "type": "string"
+          },
+          "publish_policy": {
+            "type": "string",
+            "enum": [
+              "draft_only",
+              "publish"
+            ]
+          },
+          "scheduled_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    "timeline": {
+      "type": "object",
+      "required": [
+        "path",
+        "sha256",
+        "block_count"
+      ],
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "block_count": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "content_refs": {
+      "type": "object",
+      "required": [
+        "source_snapshots"
+      ],
+      "properties": {
+        "source_snapshots": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "url",
+              "sha256"
+            ],
+            "properties": {
+              "url": {
+                "type": "string",
+                "format": "uri"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "language": {
+                "type": "string",
+                "enum": [
+                  "zh",
+                  "en",
+                  "other"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "review": {
+      "type": "object",
+      "required": [
+        "status",
+        "verdict",
+        "reports"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "completed",
+            "error"
+          ]
+        },
+        "verdict": {
+          "type": "string",
+          "enum": [
+            "pass",
+            "warning",
+            "fail",
+            "unknown"
+          ]
+        },
+        "reports": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "video",
+              "provider",
+              "reviewed_at",
+              "timeline_hash",
+              "config_hash"
+            ],
+            "properties": {
+              "video": {
+                "type": "string"
+              },
+              "provider": {
+                "type": "string"
+              },
+              "model": {
+                "type": "string"
+              },
+              "reviewed_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "timeline_hash": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "config_hash": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              }
+            }
+          }
+        }
+      }
+    },
+    "signature": {
+      "type": "object",
+      "required": [
+        "algorithm",
+        "key_id",
+        "canonicalization",
+        "value"
+      ],
+      "properties": {
+        "algorithm": {
+          "const": "Ed25519"
+        },
+        "key_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "canonicalization": {
+          "const": "JCS"
+        },
+        "value": {
+          "type": "string",
+          "description": "base64url 无填充；对移除 signature.value 后的完整 manifest 做 RFC8785 JCS 序列化后签名",
+          "pattern": "^[A-Za-z0-9_-]{1,128}$"
+        }
+      }
+    }
+  }
+}
