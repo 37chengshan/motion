@@ -32,3 +32,14 @@
 
 `cp launchd/com.motion.publisher.daemon.plist.example ~/Library/LaunchAgents/`（替换 USER/域名/token），
 `launchctl load ~/Library/LaunchAgents/com.motion.publisher.daemon.plist`。
+
+## Windows 生产签名（生产密钥已部署）
+
+```bash
+cd producer && node scripts/create-package.ts \
+  --run-dir runs/YYYY-MM-DD/<run> \
+  --key ../contracts/keys/prod-ed25519-private.pem --key-id prod-key-1
+```
+
+- 云端/Mac 已切生产公钥（revision 00013+）；mac 设备 token 已接通。
+- 私钥仅存 Windows（本机 `~/.dsh/secret/prod-ed25519-private.pem` 与 `contracts/keys/` 为工作副本，gitignore，不入仓库）。
