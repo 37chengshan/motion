@@ -18,7 +18,7 @@ const REGISTRY_PATH = path.join(ROOT, "dashboard", "registry.json");
 interface RegistryItem {
   id: string;
   date: string;
-  type: "ai-news" | "github" | "repost";
+  type: "ai-news" | "intl-news" | "cn-news" | "ent-news" | "github" | "repost";
   edition?: "morning" | "evening";
   title: string;
   videoPath: string;
@@ -49,8 +49,9 @@ function parseArgs(argv: string[]) {
 async function main() {
   const args = parseArgs(process.argv.slice(2));
 
-  if (!["ai-news", "github", "repost"].includes(args.type)) {
-    console.error("[dashboard-add] --type 必须是 ai-news | github | repost");
+  const NEWS_TYPES = ["ai-news", "intl-news", "cn-news", "ent-news"];
+  if (![...NEWS_TYPES, "github", "repost"].includes(args.type)) {
+    console.error("[dashboard-add] --type 必须是 ai-news|intl-news|cn-news|ent-news|github|repost");
     process.exit(1);
   }
   const videoPath = path.resolve(ROOT, args.video);
@@ -74,7 +75,7 @@ async function main() {
     status: "pending",
     createdAt: now.toISOString(),
   };
-  if (args.edition && args.type === "ai-news") item.edition = args.edition;
+  if (args.edition && NEWS_TYPES.includes(args.type)) item.edition = args.edition;
   if (args.cover) item.coverPath = args.cover;
   if (args.accounts) item.targetAccounts = args.accounts.split(",").map((s) => s.trim()).filter(Boolean);
   if (args.review) item.reviewReportPath = args.review;

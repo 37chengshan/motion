@@ -59,6 +59,18 @@ export interface NewsItem {
   description?: string;
 }
 
+/** 信源健康条目（runs/<date>/source-health.json，dashboard /api/source-health 消费） */
+export interface SourceHealthEntry {
+  name: string;
+  stream: ResearchStream;
+  ok: boolean;
+  http_status?: number | null;
+  latency_ms?: number | null;
+  items_count: number;
+  consecutive_failures?: number;
+  note: string;
+}
+
 export interface SourceEntry {
   stream: string;
   name: string;
@@ -348,6 +360,7 @@ async function main() {
   let items: NewsItem[] = [];
   let sourceUnavailable = false;
   let fixtureUsed = false;
+  const sourceHealth: SourceHealthEntry[] = [];
 
   // 测试注入：RESEARCH_FIXTURE=<items.json>
   if (process.env.RESEARCH_FIXTURE) {
@@ -374,12 +387,15 @@ async function main() {
     const results = await Promise.allSettled(tasks);
     for (let i = 0; i < results.length; i++) {
       const r = results[i];
-      const name = enabled[i].name;
+      const src = enabled[i];
       if (r.status === "fulfilled") {
         items.push(...r.value);
-        console.log("[research] " + name + ": " + r.value.length + " 条");
+        console.log("[research] " + src.name + ": " + r.value.length + " 条");
+        sourceHealth.push({ name: src.name, stream, ok: true, items_count: r.value.length, note: "" });
       } else {
-        console.warn("[research] " + name + " 获取失败（跳过）: " + (r.reason as Error).message);
+        const errMsg = (r.reason as Error).message;
+        console.warn("[research] " + src.name + " 获取失败（跳过）: " + errMsg);
+        sourceHealth.push({ name: src.name, stream, ok: false, items_count: 0, note: errMsg });
       }
     }
 
@@ -423,6 +439,29 @@ async function main() {
 
   await mkdir(path.dirname(rawPath), { recursive: true });
   await writeFile(rawPath, JSON.stringify(out, null, 2), "utf-8");
+
+  // 信源健康（runs/<date>/source-health.json，dashboard /api/source-health 消费）
+  // consecutive_failures：同名同 stream 源连续失败计数（成功重置为 0），供渠道健康度告警
+  if (!fixtureUsed && sourceHealth.length) {
+    const healthPath = path.join(ROOT, "runs", date, "source-health.json");
+    const prev = JSON.parse(
+      await readFile(healthPath, "utf-8").catch(() => '{"sources":[]}')
+    ) as { sources: SourceHealthEntry[] };
+    const prevFails = new Map(prev.sources.map((s) => [s.name + "|" + s.stream, s.consecutive_failures ?? 0]));
+    const merged = sourceHealth.map((s) => ({
+      ...s,
+      consecutive_failures: s.ok ? 0 : (prevFails.get(s.name + "|" + s.stream) ?? 0) + 1,
+    }));
+    const health = {
+      schema_version: 1,
+      checked_at: new Date().toISOString(),
+      date,
+      sources: merged,
+    };
+    await mkdir(path.dirname(healthPath), { recursive: true });
+    await writeFile(healthPath, JSON.stringify(health, null, 2), "utf-8");
+    console.log("[research] 信源健康 → " + path.relative(ROOT, healthPath));
+  }
 
   // 独立归档（research/archive/<date>/<stream>-<edition>/）
   if (items.length && !sourceUnavailable) {

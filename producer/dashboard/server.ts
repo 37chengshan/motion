@@ -13,7 +13,7 @@
  */
 import http from "node:http";
 import { createReadStream } from "node:fs";
-import { readFile, writeFile, stat, mkdir, rename } from "node:fs/promises";
+import { readFile, writeFile, stat, mkdir, rename, readdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -25,6 +25,24 @@ const REGISTRY_PATH = path.join(ROOT, "dashboard", "registry.json");
 const INDEX_PATH = path.join(__dirname, "index.html");
 const EXPIRY_WARN_DAYS = 7;
 const DASHBOARD_TOKEN = process.env.PUBLISHER_DASHBOARD_TOKEN?.trim() || "";
+const RUNS_ROOT = path.join(ROOT, "runs");
+
+/** 读取最近日期的 source-health.json（daily-research 产物：runs/<date>/source-health.json） */
+async function readLatestSourceHealth(): Promise<Record<string, unknown> | null> {
+  try {
+    const dates = (await readdir(RUNS_ROOT)).filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d)).sort();
+    for (let i = dates.length - 1; i >= 0; i--) {
+      const f = path.join(RUNS_ROOT, dates[i], "source-health.json");
+      if (existsSync(f)) {
+        const data = JSON.parse(await readFile(f, "utf-8"));
+        return { ...data, date: dates[i] };
+      }
+    }
+  } catch {
+    /* runs 目录不存在或不可读 */
+  }
+  return null;
+}
 
 function requireAuth(req: http.IncomingMessage, res: http.ServerResponse): boolean {
   if (!DASHBOARD_TOKEN) return true;
@@ -37,7 +55,7 @@ function requireAuth(req: http.IncomingMessage, res: http.ServerResponse): boole
 export interface RegistryItem {
   id: string;
   date: string; // YYYY-MM-DD
-  type: "ai-news" | "github" | "repost";
+  type: "ai-news" | "intl-news" | "cn-news" | "ent-news" | "github" | "repost";
   edition?: "morning" | "evening";
   title: string;
   videoPath: string; // 相对 producer/
@@ -59,8 +77,7 @@ async function readRegistry(): Promise<RegistryItem[]> {
   }
 }
 
-async function writeRegistry(items: RegistryItem[]): Promise<void> {
-  await mkdir(path.dirname(REGISTRY_PATH), { recursive: true });
+async function writeRegistry(items: RegistryItem[]): Promise<void> {  await mkdir(path.dirname(REGISTRY_PATH), { recursive: true });
   const tmp = REGISTRY_PATH + ".tmp";
   await writeFile(tmp, JSON.stringify(items, null, 2), "utf-8");
   await rename(tmp, REGISTRY_PATH);
@@ -181,6 +198,13 @@ const server = http.createServer(async (req, res) => {
     if (p === "/api/items" && req.method === "GET") {
       const items = await readRegistry();
       sendJson(res, 200, await enhance(items));
+      return;
+    }
+
+    // 信源健康（Phase 3.8）：读最近日期的 source-health.json（daily-research 产物）
+    if (p === "/api/source-health" && req.method === "GET") {
+      const health = await readLatestSourceHealth();
+      sendJson(res, 200, health ?? { error: "no source-health.json found" });
       return;
     }
 
