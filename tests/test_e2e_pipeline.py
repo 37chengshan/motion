@@ -1,4 +1,7 @@
 import asyncio
+import gc
+import os
+import time
 import json
 import tempfile
 from pathlib import Path
@@ -68,6 +71,7 @@ def test_full_e2e_publishing_pipeline():
             (task_dir / "manifest.json").write_text(json.dumps(manifest_data, ensure_ascii=False, indent=2), encoding="utf-8")
 
             # 2. 启动 Master Publisher Daemon 并执行单轮轮询
+            os.environ["PUBLISHER_AUTO_PUBLISH"] = "1"
             daemon = MasterPublisherDaemon(
                 worker_id="test_mac_worker_01",
                 db_path=db_path
@@ -95,6 +99,25 @@ def test_full_e2e_publishing_pipeline():
             assert chain_ok is True
             assert event_count > 10 # 包含了全流程的状态跃迁事件
             print(f"✓ Test 7: 端到端全平台分发流水线 (8 大平台) 及审计链 ({event_count} 个防篡改事件) 验证 100% 通过！")
+            # 显式释放并 checkpoint WAL，防 Windows 文件锁
+            try:
+                del daemon
+            except Exception:
+                pass
+            gc.collect()
+            time.sleep(0.3)
+            try:
+                import sqlite3
+                _ck = sqlite3.connect(str(db_path), timeout=5.0)
+                try:
+                    _ck.execute("PRAGMA wal_checkpoint(TRUNCATE);")
+                    _ck.commit()
+                finally:
+                    _ck.close()
+            except Exception:
+                pass
+            gc.collect()
+            time.sleep(0.2)
 
     asyncio.run(_run())
 

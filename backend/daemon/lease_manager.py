@@ -15,13 +15,33 @@ class LeaseManager:
         self._init_db()
 
     def _get_connection(self) -> sqlite3.Connection:
-        conn = sqlite3.connect(self.db_path, timeout=10.0)
+        conn = sqlite3.connect(self.db_path, timeout=10.0, isolation_level=None, check_same_thread=False)
         conn.row_factory = sqlite3.Row
-        conn.execute("PRAGMA journal_mode=WAL;")
+        try:
+            conn.execute("PRAGMA journal_mode=WAL;")
+            conn.execute("PRAGMA busy_timeout=5000;")
+            conn.execute("PRAGMA foreign_keys=ON;")
+        except Exception:
+            pass
         return conn
 
+    def _get_connection_cm(self):
+        from contextlib import contextmanager
+        @contextmanager
+        def _cm():
+            conn = self._get_connection()
+            try:
+                yield conn
+            finally:
+                try:
+                    conn.close()
+                except Exception:
+                    pass
+        return _cm()
+
     def _init_db(self):
-        with self._get_connection() as conn:
+        conn = self._get_connection()
+        try:
             conn.executescript("""
             CREATE TABLE IF NOT EXISTS tasks (
                 task_id TEXT PRIMARY KEY,
@@ -83,6 +103,11 @@ class LeaseManager:
             );
             """)
             conn.commit()
+        finally:
+            try:
+                conn.close()
+            except Exception:
+                pass
 
     def claim_task(
         self,
@@ -99,7 +124,7 @@ class LeaseManager:
         now_str = now.isoformat()
         new_token = f"tok-{uuid.uuid4().hex}"
 
-        with self._get_connection() as conn:
+        with self._get_connection_cm() as conn:
             cursor = conn.cursor()
             # 1. 检查是否存在该 idempotency_key
             cursor.execute(
@@ -175,7 +200,7 @@ class LeaseManager:
         """带 Version Fencing 保护的租约续期"""
         now = datetime.now(timezone.utc)
         expires_at = (now + timedelta(seconds=extend_sec)).isoformat()
-        with self._get_connection() as conn:
+        with self._get_connection_cm() as conn:
             cursor = conn.cursor()
             cursor.execute("""
                 UPDATE tasks SET
@@ -193,18 +218,48 @@ class LeaseManager:
         lease_token: str,
         claim_version: int
     ) -> bool:
-        """带 Version Fencing 的任务状态更新"""
+        """带 Version Fencing 的任务状态更新 (原子递增 claim_version)"""
         now_str = datetime.now(timezone.utc).isoformat()
-        with self._get_connection() as conn:
+        with self._get_connection_cm() as conn:
             cursor = conn.cursor()
+            # 原子递增 claim_version 防止僵尸 Worker 脏写
             cursor.execute("""
                 UPDATE tasks SET
                     status = ?,
+                    claim_version = claim_version + 1,
                     updated_at = ?
                 WHERE task_id = ? AND lease_token = ? AND claim_version = ?
             """, (status.value, now_str, task_id, lease_token, claim_version))
             conn.commit()
             return cursor.rowcount > 0
+
+    def store_authorization(self, auth) -> bool:
+        """持久化 PublishAuthorization 防重启重放"""
+        try:
+            with self._get_connection_cm() as conn:
+                conn.execute("""
+                    INSERT OR IGNORE INTO publish_authorizations
+                    (authorization_id, task_id, target_id, authorized_at, authorized_by, expires_at, scope, nonce, is_consumed)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)
+                """, (auth.authorization_id, auth.task_id, auth.target_id, auth.authorized_at, auth.authorized_by, auth.expires_at, auth.scope, auth.nonce))
+                conn.commit()
+                return True
+        except Exception:
+            return False
+
+    def consume_authorization(self, nonce: str) -> bool:
+        """原子消费 Nonce，防重放 (返回是否成功消费)"""
+        with self._get_connection_cm() as conn:
+            cursor = conn.cursor()
+            cursor.execute("UPDATE publish_authorizations SET is_consumed=1 WHERE nonce=? AND is_consumed=0", (nonce,))
+            conn.commit()
+            return cursor.rowcount > 0
+
+    def get_authorization(self, nonce: str):
+        """查询授权记录"""
+        with self._get_connection_cm() as conn:
+            row = conn.execute("SELECT * FROM publish_authorizations WHERE nonce=?", (nonce,)).fetchone()
+            return dict(row) if row else None
 
     def update_target_status(
         self,
@@ -218,17 +273,17 @@ class LeaseManager:
         receipt_screenshot: str = "",
         error_message: str = ""
     ) -> bool:
-        """带 Version Fencing 的目标平台子任务状态更新"""
-        # 1. 先验证 task 层的 lease token
-        with self._get_connection() as conn:
+        """带 Version Fencing 的目标平台子任务状态更新 (SELECT 校验避免并发误伤)"""
+        # 说明: Task 级 claim_version 不在 target 路径递增，避免 FairResourceScheduler 并发多 target 时首个成功后其余 Fencing 失败
+        # 真正的版本递增仅在 task 级状态变更 (update_task_status) 时进行；此处仅做租约有效性校验
+        with self._get_connection_cm() as conn:
             cursor = conn.cursor()
             cursor.execute(
                 "SELECT 1 FROM tasks WHERE task_id = ? AND lease_token = ? AND claim_version = ?",
                 (task_id, lease_token, claim_version)
             )
             if not cursor.fetchone():
-                return False # Fencing 校验失败，租约已失效
-
+                return False
             now_str = datetime.now(timezone.utc).isoformat()
             cursor.execute("""
                 UPDATE targets SET

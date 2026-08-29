@@ -130,24 +130,44 @@ class MasterPublisherDaemon:
 
         logger.info(f"[PublisherDaemon] 任务领取成功: {pkg.task_id} (token={token}, version={version})")
 
-        # 2. 签发发布授权令牌 (根据 Policy Plane 控制)
+        # 2. 签发发布授权令牌 (根据 Policy Plane 控制 — 默认 draft_only 人审闸门)
+        # 原则: DRAFT_READY != AUTHORIZED；自动签发仅在显式开启 AUTO_PUBLISH 时允许
+        import os as _os
+        _auto_publish = _os.environ.get("PUBLISHER_AUTO_PUBLISH", "0").lower() in ("1", "true", "yes")
         now = datetime.now(timezone.utc)
         auth_exp = (now + timedelta(seconds=DEFAULT_AUTH_TTL_SEC)).isoformat()
-        authorizations = {}
+        authorizations: dict = {}
 
         for target in pkg.targets:
-            if target.publish_policy == "publish":
-                auth = PublishAuthorization(
-                    authorization_id=f"auth-{uuid.uuid4().hex[:8]}",
-                    task_id=pkg.task_id,
-                    target_id=target.target_id,
-                    authorized_at=now.isoformat(),
-                    authorized_by="publisher_daemon_auto_policy",
-                    expires_at=auth_exp,
-                    scope="single_target"
-                )
-                authorizations[target.target_id] = auth
-
+            if target.publish_policy != "publish":
+                continue
+            if not _auto_publish:
+                # 默认不签发 — 调度器将停在 READY_TO_REVIEW 等待人工/外部授权
+                logger.info(f"[PublisherDaemon] 人审闸门生效 {pkg.task_id}:{target.target_id} 停在 READY_TO_REVIEW (需外部授权)")
+                continue
+            # 显式开启自动发布时才自签，并落库持久化防重放
+            auth = PublishAuthorization(
+                authorization_id=f"auth-{uuid.uuid4().hex[:8]}",
+                task_id=pkg.task_id,
+                target_id=target.target_id,
+                authorized_at=now.isoformat(),
+                authorized_by="publisher_daemon_auto_policy",
+                expires_at=auth_exp,
+                scope="single_target"
+            )
+            # 持久化到 DB
+            try:
+                with self.lease_mgr._get_connection() as _conn:
+                    _conn.execute("""
+                        INSERT OR IGNORE INTO publish_authorizations
+                        (authorization_id, task_id, target_id, authorized_at, authorized_by, expires_at, scope, nonce, is_consumed)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)
+                    """, (auth.authorization_id, auth.task_id, auth.target_id, auth.authorized_at, auth.authorized_by, auth.expires_at, auth.scope, auth.nonce))
+                    _conn.commit()
+            except Exception as _e:
+                logger.warning(f"[PublisherDaemon] 授权落库失败 {target.target_id}: {_e}")
+            authorizations[target.target_id] = auth
+            logger.warning(f"[PublisherDaemon] AUTO_PUBLISH 已开启，自动签发授权 {auth.authorization_id} for {target.target_id}")
         # 3. 调度器执行
         target_results = await self.scheduler.execute_task_package(
             package=pkg,

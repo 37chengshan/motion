@@ -91,7 +91,7 @@ def test_hash_chained_audit_tamper_detection():
         assert err is None
 
         # 模拟中间数据被非法篡改
-        with audit._get_connection() as conn:
+        with audit._get_connection_cm() as conn:
             conn.execute("UPDATE publish_events SET payload = '{\"tampered\": true}' WHERE event_id = 2")
             conn.commit()
 

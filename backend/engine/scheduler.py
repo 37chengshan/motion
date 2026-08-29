@@ -89,18 +89,31 @@ class FairResourceScheduler:
                 t_id, st = res
                 results[t_id] = st
 
-        # 计算并更新 Task 顶层状态
+        # 计算并更新 Task 顶层状态 (覆盖全量终态)
         final_statuses = list(results.values())
-        if all(s == TargetStatus.CONFIRMED for s in final_statuses):
+        # 成功态
+        if final_statuses and all(s == TargetStatus.CONFIRMED for s in final_statuses):
             task_final = TaskStatus.COMPLETED
         elif any(s == TargetStatus.CONFIRMED for s in final_statuses):
             task_final = TaskStatus.PARTIAL_SUCCESS
-        elif all(s in [TargetStatus.FAILED, TargetStatus.BLOCKED] for s in final_statuses):
+        # 草稿/待审/未发布 视为半成功 (需人工介入但非失败)
+        elif any(s in (TargetStatus.READY_TO_REVIEW, TargetStatus.NOT_PUBLISHED, TargetStatus.DRAFT_VERIFIED) for s in final_statuses):
+            # 若同时有失败，则为部分成功，否则保持处理中等待人审
+            if any(s in (TargetStatus.FAILED, TargetStatus.BLOCKED) for s in final_statuses):
+                task_final = TaskStatus.PARTIAL_SUCCESS
+            else:
+                task_final = TaskStatus.PARTIAL_SUCCESS
+        elif final_statuses and all(s in (TargetStatus.FAILED, TargetStatus.BLOCKED, TargetStatus.AUTHORIZATION_EXPIRED) for s in final_statuses):
+            task_final = TaskStatus.FAILED
+        elif any(s == TargetStatus.BLOCKED for s in final_statuses):
             task_final = TaskStatus.FAILED
         else:
             task_final = TaskStatus.PROCESSING
 
-        self.lease_mgr.update_task_status(package.task_id, task_final, lease_token, claim_version)
+        # Fencing 失败不阻塞结果返回，仅告警
+        ok = self.lease_mgr.update_task_status(package.task_id, task_final, lease_token, claim_version)
+        if not ok:
+            logger.warning(f"[Scheduler] 任务顶层状态更新 Fencing 失败 {package.task_id} -> {task_final}")
         return results
 
     async def _execute_target_pipeline(
@@ -120,7 +133,10 @@ class FairResourceScheduler:
 
         try:
             # 1. PREFLIGHT: 账号与平台健康预检
-            self.sm.transition(task_id, target_id, current_status, TargetStatus.PREFLIGHT, lease_token, claim_version)
+            ok, _, _ = self.sm.transition(task_id, target_id, current_status, TargetStatus.PREFLIGHT, lease_token, claim_version)
+            if not ok:
+                logger.warning(f"[Scheduler] Fencing 失败 PREFLIGHT {task_id}:{target_id}")
+                return TargetStatus.FAILED
             current_status = TargetStatus.PREFLIGHT
             preflight_ok, preflight_msg = await adapter.preflight(target.account_ref)
             if not preflight_ok:
@@ -128,7 +144,10 @@ class FairResourceScheduler:
                 return TargetStatus.FAILED
 
             # 2. UPLOADING: 并行上传视频流
-            self.sm.transition(task_id, target_id, current_status, TargetStatus.UPLOADING, lease_token, claim_version)
+            ok, _, _ = self.sm.transition(task_id, target_id, current_status, TargetStatus.UPLOADING, lease_token, claim_version)
+            if not ok:
+                logger.warning(f"[Scheduler] Fencing 失败 UPLOADING {task_id}:{target_id}")
+                return TargetStatus.FAILED
             current_status = TargetStatus.UPLOADING
             video_asset = next((a for a in package.assets if a.type == "video"), None)
             video_path = video_asset.local_path if video_asset else ""
@@ -140,7 +159,10 @@ class FairResourceScheduler:
                     return TargetStatus.FAILED
 
             # 3. MUTATING: 串行 UI 填表/配置
-            self.sm.transition(task_id, target_id, current_status, TargetStatus.MUTATING, lease_token, claim_version)
+            ok, _, _ = self.sm.transition(task_id, target_id, current_status, TargetStatus.MUTATING, lease_token, claim_version)
+            if not ok:
+                logger.warning(f"[Scheduler] Fencing 失败 MUTATING {task_id}:{target_id}")
+                return TargetStatus.FAILED
             current_status = TargetStatus.MUTATING
             async with self.ui_pool:
                 mutate_res = await adapter.mutate(package, target)
@@ -151,7 +173,10 @@ class FairResourceScheduler:
             # 4. DRAFT VERIFYING: 独立草稿验收
             self.sm.transition(task_id, target_id, current_status, TargetStatus.DRAFT_READY, lease_token, claim_version)
             current_status = TargetStatus.DRAFT_READY
-            self.sm.transition(task_id, target_id, current_status, TargetStatus.VERIFYING_DRAFT, lease_token, claim_version)
+            ok, _, _ = self.sm.transition(task_id, target_id, current_status, TargetStatus.VERIFYING_DRAFT, lease_token, claim_version)
+            if not ok:
+                logger.warning(f"[Scheduler] Fencing 失败 VERIFYING_DRAFT {task_id}:{target_id}")
+                return TargetStatus.FAILED
             current_status = TargetStatus.VERIFYING_DRAFT
 
             async with self.verify_pool:
@@ -160,9 +185,11 @@ class FairResourceScheduler:
                     self.sm.transition(task_id, target_id, current_status, TargetStatus.FAILED, lease_token, claim_version, error_msg="DRAFT_VERIFICATION_FAILED")
                     return TargetStatus.FAILED
 
-            self.sm.transition(task_id, target_id, current_status, TargetStatus.DRAFT_VERIFIED, lease_token, claim_version, evidence=draft_record.to_dict())
+            ok, _, _ = self.sm.transition(task_id, target_id, current_status, TargetStatus.DRAFT_VERIFIED, lease_token, claim_version, evidence=draft_record.to_dict())
+            if not ok:
+                logger.warning(f"[Scheduler] Fencing 失败 DRAFT_VERIFIED {task_id}:{target_id}")
+                return TargetStatus.FAILED
             current_status = TargetStatus.DRAFT_VERIFIED
-
             # 5. SAFETY GATE & AUTHORIZATION: 发布授权检查
             if target.publish_policy == "draft_only" or not auth:
                 # 显式停在草稿就绪状态

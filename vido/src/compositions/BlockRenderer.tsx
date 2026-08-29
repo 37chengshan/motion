@@ -1,3 +1,9 @@
+/**
+ * BlockRenderer — 内容块分发器
+ * 现状：仅 8 个文字/终端/手绘组件已接入（Typewriter/Stagger/Blur/Terminal/Code/List/HandDrawing/CharacterProgress + Comparison/StatCounter），见 docs/effects.md §一 ✅
+ * 缺口：docs/effects.md 曾列 55 项，含运镜（KenBurns/Dolly/Beat/FlowArrow）与AI生图（diagrams/milvus/*）均为 ⏳ 规划，非实现；已在 VIDO.md §五与 docs/effects.md §零 按 ✅/📦/⏳/📋 标注，避免文档与代码割裂
+ * 约定：Milvus 天花板三轨（A-AI底图 visual_prompt / B-代码图 diagram_spec / C-运镜 camera/reveal）待 M 任务新增，不在本文件批量实现
+ */
 import React from "react";
 import { AbsoluteFill } from "remotion";
 import type { VideoBlock, VideoConfig } from "../data/types";

@@ -24,6 +24,15 @@ const PORT = 4399;
 const REGISTRY_PATH = path.join(ROOT, "dashboard", "registry.json");
 const INDEX_PATH = path.join(__dirname, "index.html");
 const EXPIRY_WARN_DAYS = 7;
+const DASHBOARD_TOKEN = process.env.PUBLISHER_DASHBOARD_TOKEN?.trim() || "";
+
+function requireAuth(req: http.IncomingMessage, res: http.ServerResponse): boolean {
+  if (!DASHBOARD_TOKEN) return true;
+  const auth = req.headers.authorization || "";
+  if (auth === `Bearer ${DASHBOARD_TOKEN}` || auth === DASHBOARD_TOKEN) return true;
+  sendJson(res, 401, { error: "unauthorized — set Authorization: Bearer PUBLISHER_DASHBOARD_TOKEN" });
+  return false;
+}
 
 export interface RegistryItem {
   id: string;
@@ -176,6 +185,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (p === "/api/items" && req.method === "POST") {
+      if (!requireAuth(req, res)) return;
       const body = JSON.parse((await readBody(req)) || "{}");
       const id = body.id;
       const status = body.status;
@@ -197,6 +207,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (p.startsWith("/api/items/") && req.method === "POST") {
+      if (!requireAuth(req, res)) return;
       const id = p.split("/")[3];
       const body = JSON.parse((await readBody(req)) || "{}");
       const items = await readRegistry();

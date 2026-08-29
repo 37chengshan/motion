@@ -50,8 +50,35 @@ npm run publish -- --platform bilibili,douyin,xiaohongshu
 - **音画同步**：TTS 逐段合成 → ffprobe 读时长 → Sequence/Audio 同源对齐
 - **内容真实化**：每条 block 强制真实数据（star/金额/版本号/URL），禁止空话
 - **强审查**：lint/tsc → snapshot/抽帧 → contact sheet AI 审查 → 不合格外科手术式修复
+- **AI生图管线**：文生图（SDXL/即梦/可灵）批量生成图标与背景 + 程序化布局（Mermaid/Manim/Remotion Shapes）保证文字清晰，二者叠加合成，非整图一键生成
+- **默认运镜**：每张图解默认 Ken Burns 缓慢推拉 + 流动箭头 + 逐项揭示（stagger）+ 脉冲高亮，0.6-1.2s easeInOut，转场 Wipe/Fade 0.4s；动效是可选，运镜是必选
 
-## 五、项目结构
+## 五、视觉生成三轨（对标 Milvus 天花板 691s 拆解）
+
+> 该视频高级感 = 三轨视觉 + 默认运镜，非PPT翻页。307帧实测（AV1 1920×1080 1fps）见 `.ccg/tasks/milvus-video-ai-analysis/frames/` 与 `supplement-visual-motion.md`
+
+| 轨 | 职责 | 工具 | 产出 | 对应 `timeline.json` 字段 |
+|---|---|---|---|---|
+| **A. AI底图轨** | 批量生成图标与背景（扁平矢量、科技渐变、人物/风景缩略图） | Doubao-Seedream 4.0 / Kling V2.1 / Kolors / ComfyUI SDXL；prompt 管线统一管理 | `assets/images/*.png` 4K 背景+图标，文字留空 | `visual_prompt: "flat vector, database cylinder, dark tech #0B1220, soft shadow"` |
+| **B. 代码图轨** | 程序化排版保证文字清晰（B+树/分区/数据流/泳道） | Mermaid / Manim / SVG + Remotion Shapes / ECharts | `src/components/diagrams/*` SVG/Canvas，文字可检索 | `diagram_spec: { type: "bplus-tree", params: { nodes: [...] } }` |
+| **C. 动画合成轨** | 叠加A+B，附加运镜与揭示 | Remotion / HyperFrames / @remotion/transitions | 单图解 = 背景图层 + 代码图层 + 运镜容器 | `camera: "kenburns|pan"`, `reveal: "stagger"`, `transition: "wipe"` |
+
+**合成规则**：A轨不含文字 → B轨叠字 → C轨包 KenBurns 容器；三轨在 `BlockRenderer` 按 `diagram_spec` 分发，避免AI生图乱码。
+
+**本项目现状**：已打通 `timeline.json → BlockRenderer`，待补 `diagrams/milvus/*`（ScalarIndexTree/VectorVsScalar/SegmentStates/PartitionScan）即达到 Milvus 视频同款。
+
+## 六、视觉与运镜速查
+
+| 层 | 手法 | 实现 | 在 Vido 中的组件 | 状态 |
+|---|---|---|---|---|
+| 图像 | 扁平矢量图解（B+树/分区/数据流） | 文生图图标 + 代码排版叠加 | `src/components/diagrams/*` | ⏳ 规划（M任务） |
+| 运镜 | Ken Burns 推拉 / Pan 平移 / 流动箭头 | `KenBurns.tsx` / `FlowArrow.tsx`（SVG dashoffset） | 默认容器 `camera: "kenburns"` | ⏳ 规划 |
+| 揭示 | 逐项 stagger / 脉冲高亮 | `StaggerCards` / `PulseHighlight` | `reveal: "stagger"` | ⏳ 规划 |
+| 转场 | Wipe/Fade/Flip | `@remotion/transitions` | 章节切换 0.4s | ✅ 可用（已依赖） |
+
+已实现文字动效 8 项见 `docs/effects.md` §一；运镜6项见该文档 §零。
+
+## 七、项目结构
 
 ```
 d:\vido\
@@ -59,10 +86,11 @@ d:\vido\
 ├── hyperframes/ai-news/      ← HyperFrames 合成（AI 新闻，生成产物）
 ├── src/
 │   ├── Root.tsx              ← 合成注册（calculateMetadata 读 timeline）
-│   ├── data/types.ts         ← 数据契约（narration/url/highlight/section）
+│   ├── data/types.ts         ← 数据契约（narration/url/highlight/section + camera/reveal + visual_prompt/diagram_spec）
 │   ├── data/timeline.ts      ← Timeline Manifest 类型
-│   ├── compositions/         ← VidoShort/VidoLong/BlockRenderer + 5 风格
-│   ├── components/effects/   ← 11 个动画组件（StatCounter/ComparisonCard/ProgressSteps…）
+│   ├── compositions/         ← VidoShort/VidoLong/BlockRenderer + 6 风格（含 dark-tech）
+│   ├── components/effects/   ← 8 个已实现 + 6 个运镜规划（KenBurns/FlowArrow…）
+│   ├── components/diagrams/  ← 领域图解库（Milvus/ES/PG/RabbitMQ，规划）
 │   ├── components/templates/ ← ProjectSpotlight 科普模板
 │   └── components/formats/   ← MacDesktopFormat
 ├── scripts/
@@ -80,20 +108,22 @@ d:\vido\
 └── out/                      ← 渲染产物 + voiceover/ + timeline.json + proof/
 ```
 
-## 六、子文档索引（docs/）
+## 八、子文档索引（docs/）
 
 | 文档 | 内容 |
 |------|------|
 | [docs/workflow.md](docs/workflow.md) | **共享工作流**（契约/timeline/TTS/审查/发布，三技能公共底座） |
-| [docs/effects.md](docs/effects.md) | 动画效果组件清单 |
-| [docs/styles.md](docs/styles.md) | 5 种视觉风格规范 |
+| [docs/effects.md](docs/effects.md) | 动画·运镜·AI生图清单（含已实现✅/规划⏳与配方参数） |
+| [docs/styles.md](docs/styles.md) | 6 种视觉风格（含 dark-tech 深色科技） |
 | [docs/research-workflow.md](docs/research-workflow.md) | 调研打分自动化 |
 | [docs/tts.md](docs/tts.md) | 配音流程（CosyVoice2） |
 | [docs/publish.md](docs/publish.md) | 多平台发布与登录 |
 | [docs/mac-format.md](docs/mac-format.md) | AI 分享视频格式 |
 | [docs/faq.md](docs/faq.md) | 常见问题 |
+| [补充](../.ccg/tasks/milvus-video-ai-analysis/report.md) | Milvus AI视频完整逆向报告 |
+| [补充](../.ccg/tasks/milvus-video-ai-analysis/supplement-visual-motion.md) | AI生图与运镜 307帧实测 |
 
-## 七、核心命令
+## 九、核心命令
 
 | 命令 | 作用 |
 |------|------|

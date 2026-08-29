@@ -2,6 +2,7 @@ import hashlib
 import json
 import logging
 import os
+import re
 import subprocess
 from pathlib import Path
 from typing import List, Optional
@@ -26,6 +27,10 @@ class GitHubReleaseAdapter(BaseTransport):
     """
 
     def __init__(self, repo: str, incoming_dir: Optional[Path] = None):
+        import re as _re
+        # 校验 repo 格式防注入 (owner/repo)
+        if not _re.match(r"^[\w.\-]+/[\w.\-]+$", repo or ""):
+            raise ValueError(f"非法 GitHub repo 格式: {repo}")
         self.repo = repo
         self.incoming_dir = incoming_dir or INCOMING_DIR
 
@@ -46,8 +51,16 @@ class GitHubReleaseAdapter(BaseTransport):
                 if not tag.startswith(("publish-", "job-")):
                     continue
 
-                # 下载到本地独立工作目录
-                task_dir = self.incoming_dir / tag
+                # 下载到本地独立工作目录 (校验 tag 防路径穿越)
+                if not re.match(r"^[a-zA-Z0-9][a-zA-Z0-9_\-\.]{2,64}$", tag):
+                    logger.warning(f"[GitHubTransport] 跳过非法 tag {tag}")
+                    continue
+                task_dir = (self.incoming_dir / tag).resolve()
+                try:
+                    task_dir.relative_to(self.incoming_dir.resolve())
+                except ValueError:
+                    logger.warning(f"[GitHubTransport] tag 路径穿越拦截 {tag}")
+                    continue
                 task_dir.mkdir(parents=True, exist_ok=True)
                 manifest_file = task_dir / "manifest.json"
 

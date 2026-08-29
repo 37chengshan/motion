@@ -70,6 +70,9 @@ export const styleThemes: Record<VideoStyle, StyleTheme> = {
     fontFamily: "'Xingkai SC', 'KaiTi', 'STKaiti', cursive",
     titleFont: "'Xingkai SC', 'KaiTi', 'STKaiti', cursive",
   },
+  // TODO(dark-tech): 对标 Milvus 天花板 #0B1220/#22D3EE，见 vido/docs/styles.md §6
+  // 需新增 "dark-tech": { background: "#0B1220", text: "#F9FAFB", accent: "#22D3EE", muted: "#1A2332", panel: "#111827", fontFamily: "Inter, 'PingFang SC', sans-serif", titleFont: "Inter, 'PingFang SC', sans-serif" }
+  // 并新建 vido/src/compositions/styles/DarkTechBackground.tsx（网格+渐变+光晕），在 StyleProvider 背景分发处加 case "dark-tech"
 };
 
 interface StyleContextValue {

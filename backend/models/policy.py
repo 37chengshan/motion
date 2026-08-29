@@ -1,9 +1,12 @@
+import logging
 import re
 import uuid
 from datetime import datetime, timezone
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Optional
 
+logger = logging.getLogger("policy")
 @dataclass
 class PlatformConstraints:
     max_title_len: int
@@ -171,16 +174,47 @@ class PublishAuthorization:
     nonce: str = field(default_factory=lambda: uuid.uuid4().hex)
     is_consumed: bool = False
 
+    def _parse_expires(self) -> Optional[datetime]:
+        try:
+            # 兼容带时区与不带时区的 ISO-8601
+            dt = datetime.fromisoformat(self.expires_at.replace("Z", "+00:00"))
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=timezone.utc)
+            return dt
+        except Exception:
+            return None
+
     def is_valid(self) -> bool:
         if self.is_consumed:
             return False
-        now_iso = datetime.now(timezone.utc).isoformat()
-        return now_iso < self.expires_at
+        exp = self._parse_expires()
+        if exp is None:
+            return False
+        return datetime.now(timezone.utc) < exp
 
-    def consume(self) -> bool:
+    def consume(self, db_path: Optional[Path] = None) -> bool:
+        """消费 Nonce：内存标记 + 可选持久化到 publish_authorizations 表防重启重放"""
         if not self.is_valid():
             return False
         self.is_consumed = True
+        try:
+            import sqlite3
+            _db = db_path
+            if _db is None:
+                try:
+                    from ..conf import DB_PATH as _DEFAULT_DB
+                    _db = Path(_DEFAULT_DB)
+                except Exception:
+                    _db = None
+            if _db is not None and Path(_db).exists():
+                conn = sqlite3.connect(str(_db), timeout=5.0)
+                try:
+                    conn.execute("UPDATE publish_authorizations SET is_consumed=1 WHERE nonce=? AND is_consumed=0", (self.nonce,))
+                    conn.commit()
+                finally:
+                    conn.close()
+        except Exception as e:
+            logger.warning(f"[Policy] 持久化 consume 失败 nonce={self.nonce}: {e}")
         return True
 
 def sanitize_bilibili_title(title: str) -> str:

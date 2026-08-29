@@ -3,6 +3,7 @@ import logging
 import os
 import sqlite3
 import subprocess
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional, Dict, Tuple
@@ -17,8 +18,13 @@ class SessionGuard:
         self.db_path = str(db_path or DB_PATH)
 
     def _get_connection(self) -> sqlite3.Connection:
-        conn = sqlite3.connect(self.db_path, timeout=10.0)
+        conn = sqlite3.connect(self.db_path, timeout=10.0, isolation_level=None, check_same_thread=False)
         conn.row_factory = sqlite3.Row
+        try:
+            conn.execute("PRAGMA busy_timeout=5000;")
+            conn.execute("PRAGMA foreign_keys=ON;")
+        except Exception:
+            pass
         return conn
 
     def register_account(
@@ -31,7 +37,7 @@ class SessionGuard:
     ):
         """注册或更新账号与凭据索引"""
         now_str = datetime.now(timezone.utc).isoformat()
-        with self._get_connection() as conn:
+        with self._get_connection_cm() as conn:
             conn.execute("""
                 INSERT INTO accounts (
                     account_id, platform, alias, tags, credential_ref,
@@ -50,7 +56,7 @@ class SessionGuard:
     def check_account_health(self, account_id: str) -> Tuple[SessionHealth, AccountCapability, PlatformAvailability]:
         """三级健康巡检探针"""
         now_str = datetime.now(timezone.utc).isoformat()
-        with self._get_connection() as conn:
+        with self._get_connection_cm() as conn:
             row = conn.execute("SELECT * FROM accounts WHERE account_id = ?", (account_id,)).fetchone()
             if not row:
                 return SessionHealth.LOGIN_REQUIRED, AccountCapability.ACCOUNT_BLOCKED, PlatformAvailability.AVAILABLE
