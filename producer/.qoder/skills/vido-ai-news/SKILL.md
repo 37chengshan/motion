@@ -18,26 +18,33 @@ description: 制作每日 AI 新闻日报视频（含其他/国际新闻半场�
 | morning | 昨 08:00 → 今 08:00 | 08:00 |
 | evening | 今 06:00 → 17:30 | 17:30 |
 
-- 数据：`research/<场次>/raw.json` → `src/data/today.<场次>.json`（不再覆盖 today.json）
-- 音频：`out/<场次>/voiceover/{i}.wav` → `out/<场次>/timeline.json`
-- 合成：`hyperframes/ai-news-<场次>/` → 渲染 `out/<场次>/ai_news_short.mp4`（竖屏）
-- 断点续跑（幂等）：每阶段完成后 `node scripts/stage.ts done <场次> <阶段>`；重入时先 `node scripts/stage.ts next <场次> research,score,tts,timeline,gen,render,review` 跳过已完成阶段
-- 跑完登记预览台并停在草稿（见末节）
+**run 目录契约**（所有产物隔离在 run 内，不再读写 `out/`、`public/`、`src/data/today*.json` 单例）：
 
-单场模式（兼容旧用法）：不传 `--edition`，仍走 research/today + today.json。
+- run id 格式：`<stream>-<edition>-<date>`（如 `ai-news-morning-2026-08-30`）
+- 数据：`runs/<date>/<run>/research/raw.json` → `scored.json`
+- 内容：`runs/<date>/<run>/config/content.json`
+- 音频：`runs/<date>/<run>/audio/{i}.wav` → `runs/<date>/<run>/timeline/timeline.json`
+- 字幕：`runs/<date>/<run>/timeline/subtitle.srt`
+- 合成：`runs/<date>/<run>/hyperframes/hf-<run>-short/`
+- 断点续跑（幂等）：每阶段完成后 `node scripts/stage.ts done <run_id> <阶段>`；重入时先
+  `node scripts/stage.ts next <run_id> research,score,select,script,media,voiceover,timeline,compose,render,review,package`
+  跳过已完成阶段（阶段名以 `scripts/stage.ts` 的 `STAGE_ORDER` 为准）
+- 跑完登记预览台并停在草稿（见末节）
 
 ## 完整流程
 
 ### 1. 调研采集
 
 ```bash
-# 场次模式（推荐）：窗口自动计算（morning=昨08:00→今08:00 / evening=今06:00→17:30）
-npm run research -- --edition <morning|evening>
-npm run score -- --dir research/<morning|evening>
-# 单场模式（兼容）：默认 research/today
-npm run research
-npm run score
+# --date 与 --stream 均为必填（脚本禁止自取系统日期）
+# 窗口自动计算：morning=昨08:00→今08:00 / evening=今06:00→17:30
+node scripts/daily-research.ts --date 2026-08-30 --stream ai-news --edition morning
+node scripts/score-and-rank.ts --run-dir runs/2026-08-30/ai-news-morning --stream ai-news
 ```
+
+输出：`runs/<date>/<run>/research/{raw,scored,top.md,selection-candidates}.json`。
+信源只从 `config/news-sources.json` 注册表读取，脚本不硬编码 URL；单源失败可跳过，
+全部实时源失败则 `source_unavailable=true` 并退出非零。
 
 海外源（BBC/Reuters）可能被墙自动降级；需要更多国际新闻时用 agent-reach 搜索补充（`bili search` / Exa / `curl r.jina.ai`）。
 
@@ -92,53 +99,69 @@ npm run score
 
 结构比例：总评约 25%，AI 半场 37%，其他半场 37%。每条 narration 1-2 句口语化。
 
-### 5. 旁白合成 + 时间轴（场次隔离）
+### 5. 旁白合成 + 时间轴（run 内隔离）
 
 ```bash
-npm run tts -- --out out/<场次>/voiceover     # CosyVoice2 优先，edge-tts 暂代
-npm run timeline -- --config src/data/today.<场次>.json --voiceover-dir out/<场次>/voiceover --timeline-out out/<场次>/timeline.json
-npm run srt -- --timeline out/<场次>/timeline.json   # → out/<场次>/subtitle.srt
+# TTS：逐段生成 runs/<date>/<run>/audio/{i}.wav（CosyVoice2 优先，edge-tts 暂代）
+npm run tts -- --out runs/2026-08-30/ai-news-morning/audio
+
+# 时间轴（唯一时间事实源，ffprobe 逐段读时长）
+npm run timeline:run -- --run-dir runs/2026-08-30/ai-news-morning
+#   → runs/<date>/<run>/timeline/timeline.json
+
+# 外挂字幕（从 timeline 生成，供平台字幕轨）
+npm run srt:run -- --run-dir runs/2026-08-30/ai-news-morning
+#   → runs/<date>/<run>/timeline/subtitle.srt
 ```
 
-单场模式（兼容）：`npm run tts` / `npm run timeline` / `npm run srt`（默认路径不变）。
-edge-tts 偶发失败用补跑模式：单段重试 8 次×3s（详见 docs/workflow.md 第三节）。
+**注意命令名是 `timeline:run` / `srt:run`**（不是 `timeline` / `srt`）。
+`prepare-audio` 硬性校验：有 narration 必须有对应 wav、ffprobe 失败即失败、孤儿 wav 即失败，全程不静默降级。
+edge-tts 偶发失败用补跑模式：单段重试 8 次×3s。
 
 ### 6. 生成 HyperFrames 合成并渲染（双格式，场次隔离）
 
 ```bash
-# 场次模式
-node scripts/gen-hyperframes.ts --config src/data/today.<场次>.json --timeline out/<场次>/timeline.json --out hyperframes/ai-news-<场次>
-node scripts/gen-hyperframes.ts --config src/data/today.<场次>.json --timeline out/<场次>/timeline.json --orientation long --out hyperframes/ai-news-<场次>-long
-cd hyperframes/ai-news-<场次>
-npx hyperframes lint               # 必须 0 errors
-npx hyperframes validate           # 必须 0 errors（音频槽长度警告可忽略：尾缓冲设计）
-npx hyperframes snapshot --at 2,10,25,45,65,75    # 生成 snapshots/*.png + contact-sheet.jpg
-npx hyperframes render --output ../../out/<场次>/ai_news_short.mp4
-cd ..\ai-news-<场次>-long
-npx hyperframes render --output ../../out/<场次>/ai_news_long.mp4   # B站横屏版
-# 单场模式（兼容）：不带 --config/--timeline/--out，路径同旧版 hyperframes/ai-news、out/ai_news_short.mp4
+# --run-dir 必填（缺失直接 exit 1）；--orientation 默认 short，long 为 B站横屏版
+node scripts/gen-hyperframes.ts --run-dir runs/2026-08-30/ai-news-morning --orientation short
+node scripts/gen-hyperframes.ts --run-dir runs/2026-08-30/ai-news-morning --orientation long
+
+# 进入合成目录执行 CLI（产物落在 run 内）
+cd runs/2026-08-30/ai-news-morning/hyperframes/hf-ai-news-morning-2026-08-30-short
+npx hyperframes check --strict     # 必须 0 error
+npx hyperframes snapshot --at 2,10,25,45,65,75
+npx hyperframes render --output ../../renders/ai_news_short.mp4
+cd ../hf-ai-news-morning-2026-08-30-long
+npx hyperframes render --output ../../renders/ai_news_long.mp4
 ```
 
-BGM：today.json 加 `"bgm": "bgm/bgm.mp3"`（素材放 public/bgm/）→ 生成器自动加铺底音轨 + ducking 关键帧（旁白段 0.15/间奏 0.5）。
+**判定要点**：`check --strict` 失败时**退出码仍为 0**，必须按输出文本中是否含 `Check failed` 判定，不能只看退出码。
+
+BGM：content.json 加 `"bgm": "bgm/bgm.mp3"` → 生成器自动加铺底音轨 + ducking 关键帧（旁白段 0.15/间奏 0.5）。
 
 页面类型自动路由（gen-hyperframes.ts 内置）：title→开场页 / list→总评页 / 短 text 无 url→分区页 / text+url→新闻卡页。
 
 ### 7. 审查与交付
 
-- 看 snapshots/*.png + contact-sheet.jpg（AI 快筛：文字溢出/数字正确/无空白帧）
+- 看 `runs/<date>/<run>/hyperframes/*/snapshots/`（AI 快筛：文字溢出/数字正确/无空白帧）
 - **整视频终审（必做，替代单帧抽查）**：
   ```bash
-  npm run review:video -- out/<场次>/ai_news_short.mp4 --kind render --effort high --config src/data/today.<场次>.json --timeline out/<场次>/timeline.json
+  npm run review:video -- runs/2026-08-30/ai-news-morning/renders/ai_news_short.mp4 \
+    --kind render --effort high \
+    --config runs/2026-08-30/ai-news-morning/config/content.json \
+    --timeline runs/2026-08-30/ai-news-morning/timeline/timeline.json
   ```
-  模型完整观看整段视频（gemini-3.7-flash），核对数据快照/文字溢出/动画冻结/黑帧/时序错位，输出 out/review-report.json；verdict=fail 时退出码 1 → 必须修复重渲
-- 交付 out/<场次>/ai_news_short.mp4；横屏版可改 data-width/height 为 1920×1080 重渲
-- 发布需用户确认（docs/workflow.md 第八节）
+  模型完整观看整段视频，核对数据快照/文字溢出/动画冻结/黑帧/时序错位，输出 review 报告；
+  verdict=fail 时退出码 1 → 必须修复重渲
+- 交付 `runs/<date>/<run>/renders/` 下成片；横屏版用 `--orientation long` 重渲
+- 发布需用户确认
 
 ### 8. 登记预览台 → 停在草稿（流程必做）
 
 ```bash
-node scripts/stage.ts done <场次> review
-node scripts/dashboard-add.ts --type ai-news --edition <场次> --video out/<场次>/ai_news_short.mp4 --title "<今日标题>" --accounts "<平台>:<账号>,..."
+node scripts/stage.ts done ai-news-morning-2026-08-30 review
+node scripts/dashboard-add.ts --type ai-news --edition morning \
+  --video runs/2026-08-30/ai-news-morning/renders/ai_news_short.mp4 \
+  --title "<今日标题>" --accounts "<平台>:<账号>,..."
 ```
 
 登记后通知用户打开 http://localhost:4399 审阅；**禁止自动点发布**（草稿闸口默认开启，`npm run publish` 不传 `--no-draft-mode` 即停在草稿）。
