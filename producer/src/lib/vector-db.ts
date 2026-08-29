@@ -169,7 +169,7 @@ export class VectorDB {
                 text_desc AS textDesc
          FROM video_segments WHERE video_ref = ? ORDER BY seg_index`
       )
-      .all(videoRef) as SegmentRow[];
+      .all(videoRef) as unknown as SegmentRow[];
   }
 
   /** 片段向量检索（有向量的片段，按余弦排序） */
@@ -183,7 +183,7 @@ export class VectorDB {
                 text_desc AS textDesc, vector
          FROM video_segments WHERE vector IS NOT NULL`
       )
-      .all() as (SegmentRow & { vector: Uint8Array })[];
+      .all() as unknown as (SegmentRow & { vector: Uint8Array })[];
     return rows
       .map((r) => ({ ...r, vector: undefined, score: cosine(queryVector, blobToVec(r.vector)) }))
       .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))

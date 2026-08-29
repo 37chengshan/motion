@@ -39,7 +39,8 @@ test("STREAM_LABEL：四方向中文名齐全", () => {
 });
 
 test("NEWS_STREAMS：不含 github-daily，ALL_STREAMS 含之", () => {
-  assert.ok(!NEWS_STREAMS.includes("github-daily"));
+  const news = NEWS_STREAMS as readonly string[];
+  assert.ok(!news.includes("github-daily"));
   assert.ok(ALL_STREAMS.includes("github-daily"));
   assert.equal(ALL_STREAMS.length, NEWS_STREAMS.length + 1);
 });

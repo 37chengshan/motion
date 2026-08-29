@@ -187,6 +187,7 @@ export async function generateHyperframes(job: HyperframesJob): Promise<Hyperfra
   const sections: string[] = [];
   const audios: string[] = [];
   const tweens: string[] = [];
+  const subtitleBars: string[] = [];
   const bgmTweens: string[] = [];
   const voiceoverFiles: string[] = [];
   let bgmSrc = "";
@@ -361,6 +362,23 @@ export async function generateHyperframes(job: HyperframesJob): Promise<Hyperfra
         tweens.push(
           'tl.from("#' + id + '-u", { opacity: 0, duration: 0.4 }, ' + start + ' + ' + (1.4 + (block.points?.length ?? 0) * 0.2) + ');'
         );
+
+        // ── 内嵌字幕条（画面元素，随主题配色；数据源 block.subtitle，缺失 fallback 旁白前 28 字）
+        // 预渲染 div + opacity fromTo 控制窗口 —— 严禁 tween 中改 textContent（非 seek-safe）
+        if (entry.audioDurationSec > 0) {
+          const subText = (block.subtitle ?? "").trim() || (block.narration ?? "").slice(0, 28);
+          if (subText) {
+            const subId = compId + "-sub-" + entry.blockIndex;
+            subtitleBars.push(
+              '<div class="subtitle-bar" id="' + subId + '">' + esc(subText) + "</div>"
+            );
+            const hideAt = Math.max(Number(start) + entry.audioDurationSec - 0.3, Number(start) + 0.5).toFixed(2);
+            tweens.push(
+              'tl.fromTo("#' + subId + '", { opacity: 0 }, { opacity: 1, duration: 0.22 }, ' + start + ' + 0.5);',
+              'tl.to("#' + subId + '", { opacity: 0, duration: 0.22 }, ' + hideAt + ');'
+            );
+          }
+        }
         break;
       }
       default: {
@@ -433,6 +451,8 @@ export async function generateHyperframes(job: HyperframesJob): Promise<Hyperfra
     '      .gprog { position: absolute; top: 0; left: 0; height: 6px; width: ' + W + 'px; background: ' + T.border + '; z-index: 50; }\n' +
     '      .gprog-fill { height: 100%; width: 0; background: ' + T.accent + '; border-radius: 0 3px 3px 0; }\n' +
     '      .footer { position: absolute; bottom: ' + px(18) + 'px; left: 0; right: 0; text-align: center; font-size: ' + px(17) + 'px; color: ' + T.muted + '; letter-spacing: 1px; z-index: 40; }\n' +
+    // 内嵌字幕条：底部安全区上方，随主题配色（竖屏宽88%+底部8%安全区 / 横屏居中上限宽1200px）
+    '      .subtitle-bar { position: absolute; left: 50%; transform: translateX(-50%); bottom: ' + px(72) + 'px; width: 88%; max-width: ' + (orientation === "long" ? 1200 : 880) + 'px; background: rgba(0,0,0,0.72); color: #fff; font-size: ' + px(24) + 'px; line-height: 1.4; text-align: center; padding: ' + px(10) + 'px ' + px(18) + 'px; border-radius: ' + px(10) + 'px; z-index: 45; opacity: 0; font-family: "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif; }\n' +
     '    </style>\n' +
     '  </head>\n' +
     '  <body>\n' +
@@ -442,6 +462,7 @@ export async function generateHyperframes(job: HyperframesJob): Promise<Hyperfra
     sections.join("\n") + "\n" +
     audios.join("\n") + "\n" +
     '      <div class="gprog"><div class="gprog-fill" id="' + compId + '-gprog"></div></div>\n' +
+    subtitleBars.join("\n") + "\n" +
     '      <div class="footer">' + esc(config.footer ?? "") + '</div>\n' +
     '    </div>\n' +
     '    <script>\n' +
