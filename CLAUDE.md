@@ -20,8 +20,9 @@
 
 ## ⚠️ 未完成 / 待办
 
-1. **生产密钥轮换**：线上 `PUBLIC_KEY_PEM` 目前是测试公钥；正式生产需换 Windows 生产私钥对应公钥，并轮换 `device-token-pepper` 与设备 token（`~/.dsh/secret/control-plane-*.txt` 明文只在 Windows/Mac 各自 OS Secret Store，勿提交）。
-2. **真实内容生产**：Windows 侧跑真实日报/周更需要 AIPING/文本模型 API key（环境注入）、CosyVoice endpoint、真实 GitHub 选题确认；本机验证均用 fixture/stub。
+0. **【最高优先级】AI 新闻内容侧大改重构**（用户指令 2026-08-29）：日报流水线的整个**搜索（research/score 选题）与视频内容生成**都需要大改重构——当前仅验证了链路连通性（fixture 级选题质量、edge-tts 暂代、无 AI 底图），内容质量与形态均不达标，需重新设计选题策略、写稿质量、视觉三轨与配音方案。
+1. ~~生产密钥轮换~~ ✅ 已完成（2026-08-29）：生产密钥对 `contracts/keys/prod-ed25519-*.pem`、新 pepper、mac-1 新设备 token（token_hash）均已写入 Secret Manager v2 并重部署；device-token 工具补齐入库 `cloud/tools/device-token.ts`。
+2. **真实内容生产**：首次真实日报链路已通（2026-08-29：aiping DeepSeek-V3.2 写稿→edge-tts→HyperFrames 渲染→agy 审查→生产私钥签名包，publisher 验包 PASS）；但内容质量待大改（见第 0 条）；CosyVoice endpoint 未部署（自动回退 edge-tts）、AI 底图三轨未启用。
 3. **真实平台发布**：publisher 平台适配器目前返回 `provider_unavailable`；接入真实 B站/抖音/小红书等需要账号 Cookie/profile 与登录态（只在 Mac 本地管理，不提交）。
 4. **周更定时**：`weekly-pipeline.ts` 周六/周日节奏已实现，但无 cron/launchd 定时器接入生产（Mac 有 launchd 示例待配置真实账号与 token）。
 5. **DNS/域名**：已生效；若换子域或证书到期需在 Cloudflare/GCP 维护（`cloud/infra/lb-dns.md`）。

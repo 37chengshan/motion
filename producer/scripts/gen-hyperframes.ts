@@ -202,8 +202,11 @@ export async function generateHyperframes(job: HyperframesJob): Promise<Hyperfra
       await mkdir(path.dirname(dst), { recursive: true });
       await copyFile(src, dst).catch(() => {});
       voiceoverFiles.push(entry.blockIndex + ".wav");
+      // 音频 clip 只覆盖音频实际时长（targetFrames 含段尾静音缓冲，
+      // 槽位比媒体长会触发 clip_media_fit 警告导致 check --strict 失败）
+      const audioDur = Math.max(0.5, entry.audioDurationSec).toFixed(2);
       audios.push(
-        '  <audio id="' + compId + '-vo-' + entry.blockIndex + '" src="assets/voiceover/' + entry.blockIndex + '.wav" data-start="' + start + '" data-duration="' + dur + '" data-track-index="10" data-volume="1"></audio>'
+        '  <audio id="' + compId + '-vo-' + entry.blockIndex + '" src="assets/voiceover/' + entry.blockIndex + '.wav" data-start="' + start + '" data-duration="' + audioDur + '" data-track-index="10" data-volume="1"></audio>'
       );
       if (bgmSrc) {
         const spanStart = entry.globalStartSec;

@@ -20,13 +20,14 @@ if [ "$DRY" = "--dry-run" ]; then
 fi
 
 gcloud config set project "$GCP_PROJECT_ID"
+# 注 1：默认即拒绝未认证访问（--allow-unauthenticated=false 带值会报错，不能这样写）
+# 注 2：--no-cpu-throttling（cpu always allocated）要求内存 ≥ 512Mi
 gcloud run deploy control-plane \
   --source . \
   --region "$GCP_REGION" \
   --platform managed \
-  --allow-unauthenticated=false \
   --min-instances 0 --max-instances 5 \
-  --memory 256Mi --cpu 1 \
+  --memory 512Mi --cpu 1 \
   --timeout 60s \
   --no-cpu-throttling \
   --set-env-vars "GCP_PROJECT_ID=$GCP_PROJECT_ID,GCP_REGION=$GCP_REGION,PACKAGE_BUCKET=$PACKAGE_BUCKET,FIRESTORE_DATABASE=(default),STORE_DRIVER=firestore,STORAGE_DRIVER=gcs,CONTROL_PLANE_DOMAIN=$CONTROL_PLANE_DOMAIN" \
