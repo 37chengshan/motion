@@ -26,7 +26,17 @@ import { markStageDone } from "./stage.ts";
 
 const ROOT = process.cwd();
 
-export type ResearchStream = "ai-news" | "world-news" | "github-daily";
+// 四方向流标识统一从单一真相源导入（避免各处重复字面量导致半迁移态）
+import {
+  type ResearchStream,
+  NEWS_STREAMS,
+  STREAM_LABEL,
+  streamToCategory,
+} from "../src/lib/streams.ts";
+
+export type { ResearchStream };
+export { NEWS_STREAMS, STREAM_LABEL, streamToCategory };
+
 export type Edition = "morning" | "evening";
 
 export interface NewsItem {
@@ -309,12 +319,16 @@ async function main() {
     process.exit(1);
   }
   const stream = get("--stream", "") as ResearchStream;
-  if (stream !== "ai-news" && stream !== "world-news" && stream !== "github-daily") {
-    console.error("[research] --stream 只允许 ai-news|world-news|github-daily");
+  const isNews = stream !== "github-daily";
+  const isKnownStream =
+    (NEWS_STREAMS as readonly string[]).includes(stream) || stream === "github-daily";
+  if (!isKnownStream) {
+    console.error(
+      "[research] --stream 只允许 " + [...NEWS_STREAMS, "github-daily"].join("|")
+    );
     process.exit(1);
   }
   const edition = get("--edition", "") as Edition;
-  const isNews = stream !== "github-daily";
   if (isNews && edition !== "morning" && edition !== "evening") {
     console.error("[research] 新闻 stream 必须提供 --edition morning|evening");
     process.exit(1);
@@ -340,14 +354,14 @@ async function main() {
     const fx = JSON.parse(await readFile(path.resolve(ROOT, process.env.RESEARCH_FIXTURE), "utf-8"));
     items = (Array.isArray(fx) ? fx : fx.items ?? []).map((it: NewsItem) => ({
       ...it,
-      category: (stream === "world-news" ? "other" : stream === "github-daily" ? "github" : "ai") as NewsItem["category"],
+      category: streamToCategory(stream),
       stream,
     }));
     fixtureUsed = true;
     if (!items.length && !retrospective) sourceUnavailable = true;
     console.log("[research] fixture 注入 " + items.length + " 条");
   } else {
-    const category = (stream === "world-news" ? "other" : stream === "github-daily" ? "github" : "ai") as NewsItem["category"];
+    const category = streamToCategory(stream);
     const registry = await loadSourceRegistry();
     const enabled = registry.filter(
       (s) => s.enabled && (isNews ? s.stream === stream : s.stream === "github")

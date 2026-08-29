@@ -17,6 +17,11 @@
 import { readFile, writeFile, mkdir, copyFile } from "node:fs/promises";
 import path from "node:path";
 import { markStageDone } from "./stage.ts";
+import {
+  type ResearchStream,
+  isResearchStream,
+  allowedStreamsText,
+} from "../src/lib/streams.ts";
 
 const ROOT = process.cwd();
 const ARCHIVE_ROOT = path.join(ROOT, "research", "archive");
@@ -111,9 +116,13 @@ function timelinessSignal(item: RawItem): number {
   return 0;
 }
 
-function sourceQualitySignal(item: RawItem): number {
-  if (TOP_SOURCES.has(item.source)) return 10;
-  if (GOOD_SOURCES.has(item.source)) return 6.5;
+/** 信源质量：配置驱动（trust_level: high=8 / medium=6.5 / 未配置=3.5）
+ *  依赖调用方从 news-sources.json 构建 trust 映射；四方向信源只在配置里维护
+ */
+function sourceQualitySignal(item: RawItem, trust: Map<string, string>): number {
+  const level = trust.get(item.source);
+  if (level === "high") return 8;
+  if (level === "medium") return 6.5;
   return 3.5;
 }
 
@@ -173,12 +182,16 @@ async function main() {
     process.exit(1);
   }
   const runDir = path.resolve(ROOT, runDirFlag);
-  const stream = get("--stream", "");
-  if (stream !== "ai-news" && stream !== "world-news" && stream !== "github-daily") {
-    console.error("[score] --stream 只允许 ai-news|world-news|github-daily");
+  const streamRaw = get("--stream", "");
+  if (!isResearchStream(streamRaw)) {
+    console.error("[score] --stream 只允许 " + allowedStreamsText());
     process.exit(1);
   }
+  const stream: ResearchStream = streamRaw;
   const isGithub = stream === "github-daily";
+  // degraded 兜底：子代理超时/失败时，按分数取 top 补位（不依赖 agent 会话）
+  const fallbackOnly = args.includes("--fallback-only");
+  const limit = parseInt(get("--limit", ""), 10);
   const researchDir = path.join(runDir, "research");
   const rawPath = path.join(researchDir, "raw.json");
 
@@ -195,10 +208,24 @@ async function main() {
   }
   const date = raw.business_date ?? new Date().toISOString().slice(0, 10);
 
+  // 信源质量改为配置驱动（news-sources.json 的 trust_level）——
+  // 四方向新增信源只改配置即可正确打分，无需改代码（修复：硬编码集合漏新源 → 恒 3.5 分无区分度）
+  const trustBySource = new Map<string, string>();
+  try {
+    const registry = JSON.parse(
+      await readFile(path.join(ROOT, "config", "news-sources.json"), "utf-8")
+    );
+    for (const s of registry.sources ?? []) {
+      trustBySource.set(s.name, s.trust_level ?? "low");
+    }
+  } catch {
+    console.warn("[score] news-sources.json 读取失败，sourceQuality 回退默认值");
+  }
+
   const prelim: ScoredItem[] = (raw.items ?? []).map((item) => {
     const heat = heatSignal(item, false);
     const timeliness = timelinessSignal(item);
-    const sourceQuality = sourceQualitySignal(item);
+    const sourceQuality = sourceQualitySignal(item, trustBySource);
     let total = heat * 0.4 + timeliness * 0.3 + sourceQuality * 0.3;
     const scores: ScoredItem["scores"] = { heat, timeliness, sourceQuality };
     if (isGithub) {
@@ -219,7 +246,9 @@ async function main() {
     }
   }
   scored.sort((a, b) => b.total - a.total);
-  const topN = scored.slice(0, isGithub ? 5 : 3);
+  // --limit 可覆盖 topN 条数（degraded 补位时按配额取）
+  const topCount = Number.isInteger(limit) && limit > 0 ? limit : isGithub ? 5 : 3;
+  const topN = scored.slice(0, topCount);
 
   const md: string[] = [
     "# 今日推荐（" + stream + "）",
@@ -267,6 +296,33 @@ async function main() {
     ),
     "utf-8"
   );
+
+  // ── degraded 兜底：--fallback-only 直接产出统一 selection.json ──
+  // 供「子代理超时/失败」时补位：generate-content --selection 消费，不开第二输入分支。
+  if (fallbackOnly) {
+    const selection = {
+      selected_by: "score-fallback",
+      selected_at: new Date().toISOString(),
+      stream,
+      date,
+      quota: topN.length,
+      items: topN.map((c) => ({
+        id: c.id,
+        url: c.url,
+        title: c.title,
+        stream,
+        total: c.total,
+      })),
+    };
+    const selPath = path.join(researchDir, "selection.json");
+    await writeFile(selPath, JSON.stringify(selection, null, 2), "utf-8");
+    console.log(
+      "[score] --fallback-only：已按分数取 top " +
+        topN.length +
+        " 条 → " +
+        path.relative(ROOT, selPath)
+    );
+  }
 
   // 归档（独立 stream/edition）
   const archiveDir = path.join(ARCHIVE_ROOT, date, path.basename(runDir));

@@ -1,8 +1,24 @@
 {
-  "schema_version": 1,
-  "updated_at": "2026-08-28",
-  "note": "每日研究信源注册表（§3.2）。parser 取值：rss | hn-algolia | github-search | arxiv-atom。脚本禁止硬编码 URL。",
+  "schema_version": 2,
+  "updated_at": "2026-08-29",
+  "note": "四方向信源注册表。parser 取值：rss | hn-algolia | github-search | arxiv-atom。脚本禁止硬编码 URL。四方向：ai-news（全球 AI 动态）/ intl-news（国际，取代原 world-news）/ cn-news（国内）/ ent-news（娱乐）。信源端点详见 config/research-handbooks/*.md。",
   "sources": [
+    {
+      "stream": "ai-news",
+      "name": "openai-blog",
+      "url": "https://openai.com/blog/rss.xml",
+      "parser": "rss",
+      "enabled": true,
+      "trust_level": "high"
+    },
+    {
+      "stream": "ai-news",
+      "name": "ithome",
+      "url": "https://www.ithome.com/rss/",
+      "parser": "rss",
+      "enabled": true,
+      "trust_level": "high"
+    },
     {
       "stream": "ai-news",
       "name": "hacker-news",
@@ -14,7 +30,7 @@
     {
       "stream": "ai-news",
       "name": "github-trending",
-      "url": "https://api.github.com/search/repositories?q=AI+created:>",
+      "url": "https://api.github.com/search/repositories",
       "parser": "github-search",
       "enabled": true,
       "trust_level": "high"
@@ -32,7 +48,7 @@
       "name": "36kr",
       "url": "https://36kr.com/feed",
       "parser": "rss",
-      "enabled": true,
+      "enabled": false,
       "trust_level": "medium"
     },
     {
@@ -75,8 +91,9 @@
       "enabled": true,
       "trust_level": "high"
     },
+
     {
-      "stream": "world-news",
+      "stream": "intl-news",
       "name": "bbc-world",
       "url": "https://feeds.bbci.co.uk/news/world/rss.xml",
       "parser": "rss",
@@ -84,29 +101,128 @@
       "trust_level": "high"
     },
     {
-      "stream": "world-news",
-      "name": "huanqiu",
-      "url": "https://rss.huanqiu.com/world.xml",
-      "parser": "rss",
-      "enabled": true,
-      "trust_level": "medium"
-    },
-    {
-      "stream": "world-news",
-      "name": "chinanews",
-      "url": "https://www.chinanews.com.cn/rss/scroll.xml",
-      "parser": "rss",
-      "enabled": true,
-      "trust_level": "medium"
-    },
-    {
-      "stream": "world-news",
+      "stream": "intl-news",
       "name": "bbc-tech",
       "url": "https://feeds.bbci.co.uk/news/technology/rss.xml",
       "parser": "rss",
       "enabled": true,
       "trust_level": "high"
     },
+    {
+      "stream": "intl-news",
+      "name": "the-verge",
+      "url": "https://www.theverge.com/rss/index.xml",
+      "parser": "rss",
+      "enabled": true,
+      "trust_level": "high"
+    },
+    {
+      "stream": "intl-news",
+      "name": "arstechnica",
+      "url": "https://feeds.arstechnica.com/arstechnica/index",
+      "parser": "rss",
+      "enabled": true,
+      "trust_level": "high"
+    },
+    {
+      "stream": "intl-news",
+      "name": "venturebeat",
+      "url": "https://venturebeat.com/feed/",
+      "parser": "rss",
+      "enabled": true,
+      "trust_level": "medium"
+    },
+    {
+      "stream": "intl-news",
+      "name": "techcrunch-intl",
+      "url": "https://techcrunch.com/feed/",
+      "parser": "rss",
+      "enabled": true,
+      "trust_level": "medium"
+    },
+    {
+      "stream": "intl-news",
+      "name": "huanqiu",
+      "url": "https://rss.huanqiu.com/world.xml",
+      "parser": "rss",
+      "enabled": false,
+      "trust_level": "medium"
+    },
+    {
+      "stream": "intl-news",
+      "name": "chinanews",
+      "url": "https://www.chinanews.com.cn/rss/importnews.xml",
+      "parser": "rss",
+      "enabled": true,
+      "trust_level": "medium"
+    },
+
+    {
+      "stream": "cn-news",
+      "name": "chinanews",
+      "url": "https://www.chinanews.com.cn/rss/importnews.xml",
+      "parser": "rss",
+      "enabled": true,
+      "trust_level": "high"
+    },
+    {
+      "stream": "cn-news",
+      "name": "ithome",
+      "url": "https://www.ithome.com/rss/",
+      "parser": "rss",
+      "enabled": true,
+      "trust_level": "high"
+    },
+    {
+      "stream": "cn-news",
+      "name": "solidot",
+      "url": "https://www.solidot.org/index.rss",
+      "parser": "rss",
+      "enabled": true,
+      "trust_level": "medium"
+    },
+    {
+      "stream": "cn-news",
+      "name": "36kr",
+      "url": "https://36kr.com/feed",
+      "parser": "rss",
+      "enabled": false,
+      "trust_level": "medium"
+    },
+    {
+      "stream": "cn-news",
+      "name": "huanqiu",
+      "url": "https://rss.huanqiu.com/world.xml",
+      "parser": "rss",
+      "enabled": false,
+      "trust_level": "medium"
+    },
+
+    {
+      "stream": "ent-news",
+      "name": "variety",
+      "url": "https://variety.com/feed/",
+      "parser": "rss",
+      "enabled": true,
+      "trust_level": "high"
+    },
+    {
+      "stream": "ent-news",
+      "name": "hollywood-reporter",
+      "url": "https://www.hollywoodreporter.com/feed/",
+      "parser": "rss",
+      "enabled": true,
+      "trust_level": "high"
+    },
+    {
+      "stream": "ent-news",
+      "name": "ithome-ent",
+      "url": "https://www.ithome.com/rss/",
+      "parser": "rss",
+      "enabled": true,
+      "trust_level": "low"
+    },
+
     {
       "stream": "github",
       "name": "github-trending",
