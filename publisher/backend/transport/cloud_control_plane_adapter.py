@@ -73,17 +73,20 @@ class CloudControlPlaneAdapter(BaseTransport):
                 if target.exists() and compute_file_sha256(target) == asset["sha256"]:
                     continue
                 target.parent.mkdir(parents=True, exist_ok=True)
-                dl = await client.get(self.base_url + f"/api/v1/packages/{pkg_id}/assets/{asset['path'].replace('/', '%2F')}")
+                # 元数据请求（control plane）与内容请求（GCS）分开建 client，重试也建新 client，
+                # 避免跨 host 的连接复用被中间代理断开
+                async with httpx.AsyncClient(timeout=self.timeout_sec, headers=self._headers) as c_meta:
+                    dl = await c_meta.get(self.base_url + f"/api/v1/packages/{pkg_id}/assets/{asset['path'].replace('/', '%2F')}")
                 if dl.status_code != 200:
                     logger.error(f"[CloudCP] asset 下载失败 {asset['path']} HTTP {dl.status_code}")
                     return False
                 signed = dl.json()["data"]["url"]
-                # GCS 驱动返回绝对 signed URL；memory 驱动返回相对路径 → 需拼接
                 blob_url = signed if signed.startswith("http") else (self.base_url + signed)
                 blob = None
                 for attempt in range(3):
                     try:
-                        blob = await client.get(blob_url)
+                        async with httpx.AsyncClient(timeout=self.timeout_sec, headers=self._headers) as c_blob:
+                            blob = await c_blob.get(blob_url)
                         if blob.status_code == 200:
                             break
                     except Exception as e:  # noqa: BLE001
