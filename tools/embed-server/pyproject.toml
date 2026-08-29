@@ -1,0 +1,13 @@
+[project]
+name = "embed-server"
+version = "0.1.0"
+description = "Qwen3-Embedding-4B 常驻推理服务（127.0.0.1:8765）— 四方向工作流向量层"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi>=0.110",
+    "uvicorn>=0.29",
+    "sentence-transformers>=3.0",
+]
+
+[tool.uv]
+package = false

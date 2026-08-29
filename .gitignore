@@ -24,9 +24,14 @@ __pycache__/
 publisher/data/
 *.db
 
-# ===== vido 视频生产流水线 =====
+# ===== vido 视频生产流水�? =====
 # 本地工具与账号凭据（绝不提交 Cookie/登录态）
-tools/
+tools/*
+# Phase 4/5 self-built tools (embed-server vector inference + video-analyzer)
+!tools/embed-server/
+!tools/video-analyzer/
+tools/embed-server/.venv/
+tools/video-analyzer/.venv/
 
 # 渲染产物与工作目录（out/research/hyperframes 生成物）
 producer/out/
@@ -38,7 +43,7 @@ producer/public/voiceover/
 producer/public/timeline.json
 producer/dashboard/registry.json
 
-# 大文件/临时
+# 大文�?/临时
 *.mp4
 *.wav
 *.srt
@@ -51,7 +56,7 @@ dist/
 projects/
 test_tts.mp3
 
-# producer run artifacts & media (双运行面重构后)
+# producer run artifacts & media (双运行面重构�?)
 producer/runs/
 producer/media/
 producer/config/content.json
