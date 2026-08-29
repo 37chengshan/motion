@@ -1,0 +1,27 @@
+{
+  "project": "校园招新（测试 fixture）",
+  "srt_path": "校园招新.srt",
+  "srt_encoding": "utf-8-sig",
+  "output_dir": "tests/fixtures/good",
+  "storyboard_path": "storyboard.md",
+
+  "style_id": "S17",
+  "style_locked": true,
+  "aspect": "16:9",
+  "text_density": "standard",
+  "beginner": true,
+  "clip_limits": [4, 6, 8, 10],
+  "platform": { "image": "ChatGPT Images", "video": "Google Flow", "edit": "剪映" },
+
+  "total_shots": 3,
+  "shot_types": { "explain": 3, "display": 0 },
+  "split_shots": [],
+  "bridge_frames": [],
+  "scale": { "reference_images": 3, "clips": 3, "calls": 6 },
+  "delta_rate": 0.071,
+
+  "batch_size": 5,
+  "shots_done": [1, 2, 3],
+  "next_batch": [],
+  "open_issues": []
+}

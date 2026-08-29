@@ -29,14 +29,14 @@ publisher/data/
 tools/
 
 # æ¸²æŸ“äº§ç‰©ä¸å·¥ä½œç›®å½•ï¼ˆout/research/hyperframes ç”Ÿæˆç‰©ï¼‰
-vido/out/
-vido/research/
-vido/hyperframes/*/assets/
-vido/hyperframes/*/snapshots/
-vido/repost/inbox/
-vido/public/voiceover/
-vido/public/timeline.json
-vido/dashboard/registry.json
+producer/out/
+producer/research/
+producer/hyperframes/*/assets/
+producer/hyperframes/*/snapshots/
+producer/repost/inbox/
+producer/public/voiceover/
+producer/public/timeline.json
+producer/dashboard/registry.json
 
 # å¤§æ–‡ä»¶/ä¸´æ—¶
 *.mp4
@@ -50,3 +50,14 @@ dist/
 # EduEvidence ¶ÀÁ¢ÏîÄ¿£¨ÓÃ»§¹¤×÷Çø£¬²»Èë¿â£©
 projects/
 test_tts.mp3
+
+# producer run artifacts & media (åŒè¿è¡Œé¢é‡æ„å)
+producer/runs/
+producer/media/
+producer/config/content.json
+producer/selection.json
+producer/video-spec.md
+contracts/keys/
+
+# weekly own-project input (user-provided, per-week)
+producer/weekly/

@@ -1,0 +1,39 @@
+# ===== 生成产物（skill 的输出目录，不应进仓库）=====
+state.json
+storyboard.md
+01_提示词/
+02_参考图/
+03_生成视频/
+04_成片/
+*_reference.png
+*_clip.mp4
+
+# tests/fixtures/ 下的同名目录是校验器的测试 fixture，必须进仓库——
+# 用 ! 前缀把上面几条模式在 tests/fixtures/ 下重新打开。
+# 只白名单 fixtures 内容，不白名单整个 tests/，否则未来 tests/ 下冒出的
+# *_reference.png / *_clip.mp4 / *.log 会被误纳入版本控制。
+!tests/fixtures/
+!tests/fixtures/**
+
+# 任意用户在本地跑出来的产物目录（保险兜底）
+prompt-pack/
+output/
+renders/
+
+# ===== 操作系统 / 编辑器垃圾 =====
+.DS_Store
+Thumbs.db
+desktop.ini
+ehthumbs.db
+
+# 编辑器
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ===== 临时与日志 =====
+*.log
+*.tmp
+__pycache__/
+node_modules/

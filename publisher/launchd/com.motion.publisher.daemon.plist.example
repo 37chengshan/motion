@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>com.motion.publisher.daemon</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/bin/python3</string>
+    <string>-m</string>
+    <string>backend.daemon.publisher_daemon</string>
+  </array>
+  <key>WorkingDirectory</key><string>/Users/USER/motion/publisher</string>
+  <key>RunAtLoad</key><true/>
+  <key>KeepAlive</key><true/>
+  <key>ProcessType</key><string>Interactive</string>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PUBLISHER_DATA_DIR</key><string>/Users/USER/motion/publisher/data</string>
+    <key>PUBLISHER_PUBLIC_KEY_PATH</key><string>/Users/USER/motion/contracts/keys/test-ed25519-public.pem</string>
+    <key>CONTROL_PLANE_URL</key><string>https://YOUR_DOMAIN</string>
+    <key>MAC_DEVICE_TOKEN</key><string>YOUR_MAC_TOKEN</string>
+    <key>PUBLISHER_PROXY</key><string>http://127.0.0.1:7890</string>
+    <key>OPERATOR_GROUPS</key><string>staff,admin</string>
+  </dict>
+  <key>StandardOutPath</key><string>/Users/USER/motion/publisher/data/logs/daemon.out.log</string>
+  <key>StandardErrorPath</key><string>/Users/USER/motion/publisher/data/logs/daemon.err.log</string>
+</dict>
+</plist>

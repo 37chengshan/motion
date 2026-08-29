@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "install_root": ".agents/skills",
+  "lock_file": "skills.lock.json",
+  "sources": [
+    {
+      "source": "feicaiclub/video-spec-builder",
+      "kind": "remote",
+      "skills": [{ "name": "video-spec-builder", "path": "SKILL.md" }]
+    },
+    {
+      "source": "bradautomates/claude-video",
+      "kind": "remote",
+      "skills": [{ "name": "watch", "path": "skills/watch/SKILL.md" }]
+    },
+    {
+      "source": "geeklee/srt-vox-director",
+      "kind": "remote",
+      "skills": [{ "name": "srt-vox-director", "path": "SKILL.md" }]
+    },
+    {
+      "source": "geeklee/srt-whiteboard-animation",
+      "kind": "remote",
+      "skills": [{ "name": "srt-whiteboard-animation", "path": "SKILL.md" }]
+    },
+    {
+      "source": "geeklee/whiteboard-stream-animation",
+      "kind": "remote",
+      "skills": [{ "name": "whiteboard-stream-animation", "path": "SKILL.md" }]
+    },
+    {
+      "source": "Pluviobyte/video-production-skills",
+      "kind": "remote",
+      "skills": [
+        { "name": "ai-motion-director", "path": "ai-motion-director/SKILL.md" },
+        { "name": "reference-video-replica-qc", "path": "reference-video-replica-qc/SKILL.md" }
+      ]
+    },
+    {
+      "source": "iart-ai/motion-design-skills",
+      "kind": "remote",
+      "skills": [
+        { "name": "animation-principles", "path": "skills/animation-principles/SKILL.md" },
+        { "name": "shot-composition", "path": "skills/shot-composition/SKILL.md" },
+        { "name": "motion-art-direction", "path": "skills/motion-art-direction/SKILL.md" },
+        { "name": "beat-sync-editing", "path": "skills/beat-sync-editing/SKILL.md" },
+        { "name": "remotion-video", "path": "skills/remotion-video/SKILL.md" }
+      ]
+    },
+    {
+      "source": "iart-ai/web-animation-skills",
+      "kind": "remote",
+      "skills": [
+        { "name": "gsap-web", "path": "skills/gsap-web/SKILL.md" },
+        { "name": "60fps-animation", "path": "skills/60fps-animation/SKILL.md" },
+        { "name": "svg-animation", "path": "skills/svg-animation/SKILL.md" },
+        { "name": "lottie-animation", "path": "skills/lottie-animation/SKILL.md" }
+      ]
+    }
+  ],
+  "local_locked": [
+    { "name": "hyperframes", "local_dir": "~/.claude/skills/hyperframes" },
+    { "name": "hyperframes-core", "local_dir": "~/.claude/skills/hyperframes-core" },
+    { "name": "hyperframes-animation", "local_dir": "~/.claude/skills/hyperframes-animation" },
+    { "name": "hyperframes-keyframes", "local_dir": "~/.claude/skills/hyperframes-keyframes" },
+    { "name": "hyperframes-creative", "local_dir": "~/.claude/skills/hyperframes-creative" },
+    { "name": "hyperframes-cli", "local_dir": "~/.claude/skills/hyperframes-cli" },
+    { "name": "media-use", "local_dir": "~/.claude/skills/media-use" },
+    { "name": "hyperframes-audio", "local_dir": "~/.claude/skills/hyperframes-audio" },
+    { "name": "hyperframes-registry", "local_dir": "~/.claude/skills/hyperframes-registry" }
+  ]
+}

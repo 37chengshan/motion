@@ -1,0 +1,21 @@
+{
+  "name": "control-plane",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Cloud Run 公网控制面：包索引与对象中转（不执行视频生产）",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/server.js",
+    "dev": "node --watch src/server.ts",
+    "test": "node --test \"src/*.test.ts\"",
+    "device-token": "node ../tools/device-token.ts"
+  },
+  "dependencies": {
+    "@google-cloud/firestore": "^7.11.6",
+    "@google-cloud/storage": "^7.22.0"
+  }
+}
