@@ -19,7 +19,16 @@ blindtest:
 
 ## 一、信源表（三层）
 
-### 直连层（免代理，优先采集）
+### 主方案层（用户定：AIHOT 为主要信息来源）
+
+| 信源 | 端点 | parser | 说明 |
+|---|---|---|---|
+| **AIHOT 精选（主源）** | `https://aihot.virxact.com/api/v1/items?mode=selected&window=24h&limit=50` | `aihot-json` | 中文 AI 精选（评分+推荐理由+分类），匿名免 key；已接入 daily-research 实测 8 条 |
+| **AIHOT 模型榜** | `https://aihot.virxact.com/leaderboard` | html | 10 个权威榜加权共识分，排行榜配图/数据来源 |
+
+> 精选条件请求：`If-None-Match` 用 ETag，间隔按 `s-maxage`（items 60s）；429 按 `Retry-After` 退避。
+
+### 直连层（补充采集）
 
 | 信源 | 端点 | parser | 说明 |
 |---|---|---|---|
@@ -28,7 +37,6 @@ blindtest:
 | Google AI Blog | `https://blog.google/technology/ai/rss/` | rss | |
 | IT之家 | `https://www.ithome.com/rss/` | rss | 国内科技快讯 |
 | 量子位 | `https://www.qbitai.com/feed` | rss | 国内 AI 垂直 |
-| Artificial Analysis | changelog | rss | 独立评测与排行榜更新 |
 | HuggingFace Trending | `https://hf-mirror.com/models?sort=likes30d` | html | 国内镜像，免代理 |
 | GitHub | `https://api.github.com/search/repositories` | github-search | REST 直调 + topic/stars 过滤 |
 
@@ -88,9 +96,23 @@ https://api.github.com/search/repositories?q=<topic>+created:>{date}+stars:>=5&s
 - 走 REST API 而非 `gh` CLI（后者实锤丢弃 `created:` 限定符）
 - 需配 `GITHUB_TOKEN`：未认证 60 次/时 → 认证 5000 次/时（83 倍）
 
-## 三、降级链
+## 二点五、配图与素材策略（用户定：增强可信度）
 
-| 层 | 主方案 | 降级 1 | 降级 2 | 终点 |
+素材取图优先级（`media` 字段落 run 目录 `media/b<idx>-<kind>.png`）：
+
+| 场景 | 素材来源 | media.kind | 说明 |
+|---|---|---|---|
+| 厂商官方发布/功能更新 | **X 官方帖截图**（厂商/官方员工账号） | `screenshot` | 一手证据，配图可信度最高 |
+| 榜单/评测 | AIHOT 模型榜 / leaderboard 高亮截图 | `leaderboard` | 共识分可视化 |
+| 官方研究/论文 | 论文架构图/结果图 | `figure` | |
+| 生成能力演示 | 模型输出帧 | `output-frame` | |
+| 无素材 | 卡片页（不强行配图） | — | 降级为纯文字卡 |
+
+- **截图机制**：headless 浏览器（`.remotion/chrome-headless-shell` 或 Playwright）抓官方帖/榜单页 → 落 `runs/<date>/<run>/media/`
+- **配图规则**：官方发布→X 帖截图；榜单→leaderboard 高亮；论文→架构图；无素材→卡片页
+- X 截图需能访问 x.com（已确认）；微博官方发文截图策略见 cn-news 手册
+
+## 三、降级链| 层 | 主方案 | 降级 1 | 降级 2 | 终点 |
 |---|---|---|---|---|
 | X | twscrape(cookie) | 中文日报聚合 | — | 空 + 标注「X 不可用」 |
 | 直连 RSS | 原端点 | 备用镜像 | — | 空 + 记入 source-health |

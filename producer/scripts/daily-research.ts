@@ -278,6 +278,34 @@ async function fetchByParser(
     if (!items.length) throw new Error("empty github results");
     return items;
   }
+  if (entry.parser === "aihot-json") {
+    // AIHOT 匿名只读 API v1（免 key）：中文精选带评分+推荐理由，AI 方向高质量备援
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 12000);
+    let res: Response;
+    try {
+      res = await fetch(url, {
+        signal: controller.signal,
+        headers: { "User-Agent": "aihot-api/1.0 vido-research" },
+      });
+    } finally {
+      clearTimeout(timer);
+    }
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const data = (await res.json()) as { items: any[] };
+    const items = (data.items ?? []).slice(0, limit).map((it: any) => ({
+      id: "aihot-" + it.id,
+      title: (it.title ?? "").slice(0, 200),
+      url: it.links?.original ?? it.links?.aihot ?? "",
+      source: it.source?.name ?? "AIHOT",
+      publishedAt: it.publishedAt ?? new Date().toISOString(),
+      category,
+      summary: it.summary ?? undefined,
+      score: it.score ?? 0,
+    }));
+    if (!items.length) throw new Error("empty aihot results");
+    return items;
+  }
   throw new Error("未知 parser：" + entry.parser);
 }
 

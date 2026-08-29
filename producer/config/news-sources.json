@@ -5,6 +5,14 @@
   "sources": [
     {
       "stream": "ai-news",
+      "name": "aihot",
+      "url": "https://aihot.virxact.com/api/v1/items?mode=selected&window=24h&limit=50",
+      "parser": "aihot-json",
+      "enabled": true,
+      "trust_level": "high"
+    },
+    {
+      "stream": "ai-news",
       "name": "openai-blog",
       "url": "https://openai.com/blog/rss.xml",
       "parser": "rss",
