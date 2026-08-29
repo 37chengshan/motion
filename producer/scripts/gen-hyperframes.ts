@@ -143,6 +143,14 @@ const THEMES: Record<string, Theme> = {
   },
 };
 
+/** 方向 Tab 标签（tab-nav 用） */
+const TAB_LABEL: Record<string, string> = {
+  "ai-news": "AI",
+  "intl-news": "国际",
+  "cn-news": "国内",
+  "ent-news": "娱乐",
+};
+
 function resolveTheme(styleName: string | undefined, cliStyle: string | undefined): Theme {
   const name = cliStyle ?? (styleName === "dark" ? "dark" : "claude");
   return THEMES[name] ?? THEMES.claude;
@@ -188,6 +196,8 @@ export async function generateHyperframes(job: HyperframesJob): Promise<Hyperfra
   const audios: string[] = [];
   const tweens: string[] = [];
   const subtitleBars: string[] = [];
+  const tabDirs = new Set<string>(); // 视频实际出现的方向（tab-nav 用）
+  const tabTweens: string[] = [];
   const bgmTweens: string[] = [];
   const voiceoverFiles: string[] = [];
   let bgmSrc = "";
@@ -379,6 +389,20 @@ export async function generateHyperframes(job: HyperframesJob): Promise<Hyperfra
             );
           }
         }
+        // ── 方向 Tab 高亮（仅 opacity/背景色切换，不重建 DOM，seek-safe）──
+        const dirOf = (s: string): string | null =>
+          s === "ai-news" || s === "review-ai" ? "ai-news"
+          : s === "intl-news" ? "intl-news"
+          : s === "cn-news" ? "cn-news"
+          : s === "ent-news" ? "ent-news" : null;
+        const dir = dirOf(block.section ?? "");
+        if (dir) {
+          tabDirs.add(dir);
+          tabTweens.push(
+            // 进入该条目：全部 tab 熄 → 当前 tab 亮
+            'tl.to(["#tab-' + dir + '"], { opacity: 1, backgroundColor: "' + T.accentDark + '", color: "' + T.hlText + '", duration: 0.25 }, ' + start + ' + 0.1);'
+          );
+        }
         break;
       }
       default: {
@@ -453,6 +477,9 @@ export async function generateHyperframes(job: HyperframesJob): Promise<Hyperfra
     '      .footer { position: absolute; bottom: ' + px(18) + 'px; left: 0; right: 0; text-align: center; font-size: ' + px(17) + 'px; color: ' + T.muted + '; letter-spacing: 1px; z-index: 40; }\n' +
     // 内嵌字幕条：底部安全区上方，随主题配色（竖屏宽88%+底部8%安全区 / 横屏居中上限宽1200px）
     '      .subtitle-bar { position: absolute; left: 50%; transform: translateX(-50%); bottom: ' + px(72) + 'px; width: 88%; max-width: ' + (orientation === "long" ? 1200 : 880) + 'px; background: rgba(0,0,0,0.72); color: #fff; font-size: ' + px(24) + 'px; line-height: 1.4; text-align: center; padding: ' + px(10) + 'px ' + px(18) + 'px; border-radius: ' + px(10) + 'px; z-index: 45; opacity: 0; font-family: "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif; }\n' +
+    // 方向 Tab 导航（顶部固定元素，随主题配色；竖屏顶部安全区下方）
+    '      .tab-nav { position: absolute; top: ' + px(40) + 'px; left: 50%; transform: translateX(-50%); display: flex; gap: ' + px(10) + 'px; z-index: 48; font-family: "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif; }\n' +
+    '      .tab-item { font-size: ' + px(20) + 'px; font-weight: 700; padding: ' + px(8) + 'px ' + px(20) + 'px; border-radius: ' + px(20) + 'px; background: ' + T.panel + '; color: ' + T.muted + '; opacity: 0.35; border: 1px solid ' + T.border + '; }\n' +
     '    </style>\n' +
     '  </head>\n' +
     '  <body>\n' +
@@ -462,6 +489,11 @@ export async function generateHyperframes(job: HyperframesJob): Promise<Hyperfra
     sections.join("\n") + "\n" +
     audios.join("\n") + "\n" +
     '      <div class="gprog"><div class="gprog-fill" id="' + compId + '-gprog"></div></div>\n' +
+    (tabDirs.size
+      ? '      <div class="tab-nav">' +
+        [...tabDirs].map((d) => '<div class="tab-item" id="tab-' + d + '">' + TAB_LABEL[d] + "</div>").join("\n") +
+        "</div>\n"
+      : "") +
     subtitleBars.join("\n") + "\n" +
     '      <div class="footer">' + esc(config.footer ?? "") + '</div>\n' +
     '    </div>\n' +
