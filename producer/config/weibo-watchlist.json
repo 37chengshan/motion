@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "updated_at": "2026-08-29",
+  "note": "微博中国官方重点发文账号白名单（cn-news 配图/素材源）。官方发文截图增强可信度。仿冒账号高发，截图后须核验账号认证信息（黄V/蓝V+机构认证）。",
+  "accounts": [
+    { "name": "国资小新", "handle": "guozixiaoxin", "org": "国务院国资委", "official": true, "note": "央企动态/国资政策" },
+    { "name": "工信微报", "handle": "miit_gov", "org": "工业和信息化部", "official": true, "note": "工信政策/产业发布" },
+    { "name": "网信中国", "handle": "cac_china", "org": "国家互联网信息办公室", "official": true, "note": "网信政策/监管" },
+    { "name": "国家发改委", "handle": "ndrc_news", "org": "国家发展改革委", "official": true, "note": "宏观政策/规划" },
+    { "name": "科技日报", "handle": "kjrb", "org": "科技日报社", "official": true, "note": "科技政策/成果" },
+    { "name": "人民日报", "handle": "rmrb", "org": "人民日报社", "official": true, "note": "官方口径综合" },
+    { "name": "新华社", "handle": "xinhuashe", "org": "新华通讯社", "official": true, "note": "官方口径综合" },
+    { "name": "央视新闻", "handle": "cctvnewscenter", "org": "中央广播电视总台", "official": true, "note": "官方口径综合" },
+    { "name": "环球时报", "handle": "huanqiushibao", "org": "环球时报社", "official": true, "note": "国际国内综合" },
+    { "name": "中国信通院", "handle": "caict", "org": "中国信息通信研究院", "official": true, "note": "行业报告/白皮书" }
+  ]
+}
