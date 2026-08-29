@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "updated_at": "2026-08-29",
+  "editions": {
+    "morning": { "style": "claude" },
+    "evening": { "style": "dark" }
+  },
+  "streams": ["ai-news", "intl-news", "cn-news", "ent-news"],
+  "quota": {
+    "ai-news": 3,
+    "intl-news": 3,
+    "cn-news": 2,
+    "ent-news": 3,
+    "total_range": [9, 11]
+  },
+  "orientations": ["short", "long"],
+  "subtitle_rules": {
+    "min_chars": 10,
+    "max_chars": 28,
+    "fewer_items_bonus": 4
+  },
+  "agent": {
+    "timeout_min": 12,
+    "degraded": "score-fallback"
+  },
+  "tts": {
+    "ai-news": { "voice": "male-cal", "rate": 0, "desc": "沉稳男声标准速" },
+    "intl-news": { "voice": "male-news", "rate": -5, "desc": "播报腔 rate -5%" },
+    "cn-news": { "voice": "male-official", "rate": 0, "desc": "标准官播" },
+    "ent-news": { "voice": "female-bright", "rate": 5, "desc": "明快女声 rate +5%" }
+  },
+  "design": {
+    "ai-news": { "style": "claude|dark", "note": "用户既定：claude 暖米白 / dark 黑底青绿" },
+    "intl-news": { "style": "paper", "note": "通讯社腔，报纸头版式" },
+    "cn-news": { "style": "official", "note": "官方发布腔，庄重" },
+    "ent-news": { "style": "vivid", "note": "轻快，高饱和渐变" }
+  }
+}

@@ -55,8 +55,21 @@ async function main() {
     console.error("[pipeline] 必须提供 --date YYYY-MM-DD");
     process.exit(1);
   }
-  const streams = get("--streams", "ai-news,world-news").split(",").filter(Boolean);
-  const editions = get("--editions", "morning,evening").split(",").filter(Boolean);
+  // 默认四方向：ai-news 早晚双场，其余三方向每天单场（morning）。
+  // 场次分配与配额以 config/pipeline.json 为单一真相源；--streams/--editions 可显式覆盖。
+  const DEFAULT_STREAMS = ["ai-news", "intl-news", "cn-news", "ent-news"];
+  const DEFAULT_EDITIONS: Record<string, string[]> = {
+    "ai-news": ["morning", "evening"],
+    "intl-news": ["morning"],
+    "cn-news": ["morning"],
+    "ent-news": ["morning"],
+  };
+  const streams = get("--streams", DEFAULT_STREAMS.join(",")).split(",").filter(Boolean);
+  const editionsOverride = get("--editions", "");
+  const editionsFor = (s: string) =>
+    editionsOverride
+      ? editionsOverride.split(",").filter(Boolean)
+      : (DEFAULT_EDITIONS[s] ?? ["morning"]);
   const githubCount = parseInt(get("--github-count", "1"), 10);
   if (githubCount !== 1 && githubCount !== 2) {
     console.error("[pipeline] --github-count 只允许 1|2");
@@ -75,7 +88,7 @@ async function main() {
   // ── 阶段 1 + 2：四日报 + GitHub 候选，全部并行 ──
   const newsJobs: Promise<BranchResult>[] = [];
   for (const stream of streams) {
-    for (const edition of editions) {
+    for (const edition of editionsFor(stream)) {
       const runId = stream + "-" + edition + "-" + date;
       newsJobs.push(
         (async () => {
@@ -160,7 +173,7 @@ async function main() {
   if (withContent) {
     const contentJobs: Promise<BranchResult>[] = [];
     for (const stream of streams) {
-      for (const edition of editions) {
+      for (const edition of editionsFor(stream)) {
         const runId = stream + "-" + edition + "-" + date;
         const runDir = path.join(runDirBase, stream + "-" + edition);
         contentJobs.push(
