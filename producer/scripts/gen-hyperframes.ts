@@ -236,6 +236,31 @@ export async function generateHyperframes(job: HyperframesJob): Promise<Hyperfra
       }
     }
 
+    // ── 素材图本地化 ──
+    // 契约：media.src 为 run 相对路径（runs/<date>/<run>/media/<file>），禁止绝对路径。
+    // 复制到 <outDir>/assets/media/，与 voiceover/bgm 同机制。
+    // 用 basename 防路径穿越，同时缩短文件名以规避 Windows 260 长路径限制。
+    let mediaSrc = "";
+    if (block.media?.src) {
+      if (path.isAbsolute(block.media.src)) {
+        console.warn("[hyperframes] 素材图禁止绝对路径，已忽略:", block.media.src);
+      } else {
+        const baseName = path.basename(block.media.src);
+        const dstName = entry.blockIndex + "-" + baseName;
+        const srcAbs = path.resolve(ROOT, job.runDir, "media", baseName);
+        const dst = path.join(outDir, "assets", "media", dstName);
+        await mkdir(path.dirname(dst), { recursive: true });
+        const ok = await copyFile(srcAbs, dst)
+          .then(() => true)
+          .catch(() => false);
+        if (ok) {
+          mediaSrc = "assets/media/" + dstName;
+        } else {
+          console.warn("[hyperframes] 素材图不存在，降级为无素材页:", block.media.src);
+        }
+      }
+    }
+
     let inner = "";
     switch (kind) {
       case "title": {
