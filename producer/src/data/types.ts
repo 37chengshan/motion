@@ -94,17 +94,34 @@ export interface VideoBlock {
   disclaimer?: string;
   /** 关键数字/数据点（如 "12.3k stars"，用于画面高亮） */
   highlight?: string;
-  /** 内容分区标记：新闻（总评双评+双半场）或科普叙事（problem=有无对比页） */
+  /** 内容分区标记：新闻（总评双评+双半场）或科普叙事（problem=有无对比页）
+   *  四方向新增 intl-news / cn-news / ent-news（与 StreamId 对应）
+   */
   section?:
     | "review-ai"
     | "review-other"
     | "ai-news"
+    | "intl-news"
+    | "cn-news"
+    | "ent-news"
     | "other-news"
     | "problem"
     | "features"
     | "architecture"
     | "hands-on"
     | "outro";
+  /** 方向徽章（四方向主题色）：ai-news / intl-news / cn-news / ent-news */
+  tag?: string;
+  /** 素材图（素材页用）。src 为 run 相对路径，禁止绝对路径 */
+  media?: {
+    kind: "screenshot" | "leaderboard" | "figure" | "illustration" | "output-frame";
+    src: string;
+    caption?: string;
+    credit?: string;
+    query?: string;
+  };
+  /** 内嵌字幕条文本（画面元素，10-28 字压缩；缺失时 fallback narration.slice(0,28)） */
+  subtitle?: string;
 }
 
 /** 新闻流标识（四方向）

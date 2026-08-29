@@ -18,6 +18,10 @@ import path from "node:path";
 
 const ROOT = process.cwd();
 
+/** 渲染端精简接口（与 src/data/types.ts 的 VideoBlock 保持字段同步）
+ *  四方向新增：tag（方向徽章）/ media（素材图）/ subtitle（内嵌字幕条）
+ *  —— 本接口若漏写，渲染端将读不到这些字段
+ */
 interface VideoBlockLite {
   type: string;
   content: string;
@@ -31,6 +35,15 @@ interface VideoBlockLite {
   summary?: string;
   points?: string[];
   stats?: { label: string; value: string }[];
+  tag?: string;
+  media?: {
+    kind: string;
+    src: string;
+    caption?: string;
+    credit?: string;
+    query?: string;
+  };
+  subtitle?: string;
 }
 
 interface TimelineEntry {
@@ -160,11 +173,16 @@ export async function generateHyperframes(job: HyperframesJob): Promise<Hyperfra
   const duration = timeline.totalDurationSec;
   const fps = timeline.fps;
 
-  const newsIdx: Record<string, number> = { "ai-news": 0, "other-news": 0 };
-  const newsTotal: Record<string, number> = {
-    "ai-news": config.blocks.filter((b) => b.section === "ai-news" && b.url).length,
-    "other-news": config.blocks.filter((b) => b.section === "other-news" && b.url).length,
-  };
+  // 动态统计全部 section 的新闻卡数量（四方向扩展：不再硬编码 ai-news/other-news，
+  // 否则 intl-news/cn-news/ent-news 会出现「n / 0」进度错误）
+  const newsTotal: Record<string, number> = {};
+  const newsIdx: Record<string, number> = {};
+  for (const b of config.blocks) {
+    if (b.section && b.url) {
+      newsTotal[b.section] = (newsTotal[b.section] ?? 0) + 1;
+      newsIdx[b.section] ??= 0;
+    }
+  }
 
   const sections: string[] = [];
   const audios: string[] = [];
