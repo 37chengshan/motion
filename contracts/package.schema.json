@@ -44,8 +44,12 @@
     },
     "stream": {
       "type": "string",
+      "description": "四方向新闻流 + 非新闻流。world-news 为 deprecated 兼容值（由 intl-news 取代），旧包仍可解析。",
       "enum": [
         "ai-news",
+        "intl-news",
+        "cn-news",
+        "ent-news",
         "world-news",
         "github-daily",
         "github-weekly",

@@ -2,7 +2,8 @@
   "schema_version": 1,
   "install_date": "2026-08-28T02:58:07.795Z",
   "cli": {
-    "node": "v24.14.0"
+    "node": "v24.14.0",
+    "hyperframes": "0.8.14"
   },
   "skills": [
     {
@@ -187,9 +188,13 @@
       "kind": "local_locked",
       "local_dir": "~/.claude/skills/hyperframes",
       "source_tree_digest": "aedfa5a4550f60465b074629cde1a5c90d1538a19ed9ac24fc51fa7ff712d154",
-      "sk_md_digest": "3f1e57ac7071e91629133651250bd5d9d60ce8119faa318a5be2cba6d375c793",
+      "sk_md_digest": "c5999476d9ea10e1cd7fbee0f7781ff9c94e7e87d14d262b020dfa230647e76d",
       "entry_path": "SKILL.md",
-      "installed_at": "2026-08-28T02:59:29.865Z"
+      "installed_at": "2026-08-28T02:59:29.865Z",
+      "previous_sk_md_digest": "3f1e57ac7071e91629133651250bd5d9d60ce8119faa318a5be2cba6d375c793",
+      "digest_updated_at": "2026-08-29T10:19:36.161Z",
+      "cli_version": "0.8.14",
+      "source_tree_digest_stale": true
     },
     {
       "skill": "hyperframes-core",
@@ -197,9 +202,13 @@
       "kind": "local_locked",
       "local_dir": "~/.claude/skills/hyperframes-core",
       "source_tree_digest": "edf225b3a4fd3a791fddf7e890fb03fcdf971ec40859304bb13fefebe956796c",
-      "sk_md_digest": "4ab1e4d7f1ac9111b5a5a1502410a76db3367ecf95cd14bae62429135a28856a",
+      "sk_md_digest": "689de1f94e682ee31d1f22cf196040e8f24fdaee5fbf75a832fd890f1a27a2b7",
       "entry_path": "SKILL.md",
-      "installed_at": "2026-08-28T02:59:29.869Z"
+      "installed_at": "2026-08-28T02:59:29.869Z",
+      "previous_sk_md_digest": "4ab1e4d7f1ac9111b5a5a1502410a76db3367ecf95cd14bae62429135a28856a",
+      "digest_updated_at": "2026-08-29T10:19:36.161Z",
+      "cli_version": "0.8.14",
+      "source_tree_digest_stale": true
     },
     {
       "skill": "hyperframes-animation",
@@ -207,9 +216,13 @@
       "kind": "local_locked",
       "local_dir": "~/.claude/skills/hyperframes-animation",
       "source_tree_digest": "656f702e30ad88a81867682072307b3781353746dc959f9101eda195692b6006",
-      "sk_md_digest": "69a9903796e65c66edbe9ec9621eca8953c7cc2a93a718687306891daf0463d4",
+      "sk_md_digest": "785cacfa594627f4f030edda802edbfd2d08f2653811cbce7ab1da8f0e7f93b0",
       "entry_path": "SKILL.md",
-      "installed_at": "2026-08-28T02:59:29.888Z"
+      "installed_at": "2026-08-28T02:59:29.888Z",
+      "previous_sk_md_digest": "69a9903796e65c66edbe9ec9621eca8953c7cc2a93a718687306891daf0463d4",
+      "digest_updated_at": "2026-08-29T10:19:36.161Z",
+      "cli_version": "0.8.14",
+      "source_tree_digest_stale": true
     },
     {
       "skill": "hyperframes-keyframes",
@@ -219,7 +232,8 @@
       "source_tree_digest": "74e65767b2017991aa99bc6234236b7b7f6f0556fdc4914b2567e7aef385eafa",
       "sk_md_digest": "924d038dc7eb20d16e05fa0e9837fa50bdcac0ce131aee80ebd8188cb67110d1",
       "entry_path": "SKILL.md",
-      "installed_at": "2026-08-28T02:59:29.889Z"
+      "installed_at": "2026-08-28T02:59:29.889Z",
+      "cli_version": "0.8.14"
     },
     {
       "skill": "hyperframes-creative",
@@ -227,9 +241,13 @@
       "kind": "local_locked",
       "local_dir": "~/.claude/skills/hyperframes-creative",
       "source_tree_digest": "afa407dc2720d27fc3980bb894d7ce315d02d413c42ee9620343acb812dadc08",
-      "sk_md_digest": "488782fc741a43e002b5c6ac0da69cc2b12abaa42b6c0056df2aa53bea553c16",
+      "sk_md_digest": "8b104a3928473f3ea683510c377e0ea65d41d3472e80e2983629cca09ff736b3",
       "entry_path": "SKILL.md",
-      "installed_at": "2026-08-28T02:59:29.906Z"
+      "installed_at": "2026-08-28T02:59:29.906Z",
+      "previous_sk_md_digest": "488782fc741a43e002b5c6ac0da69cc2b12abaa42b6c0056df2aa53bea553c16",
+      "digest_updated_at": "2026-08-29T10:19:36.161Z",
+      "cli_version": "0.8.14",
+      "source_tree_digest_stale": true
     },
     {
       "skill": "hyperframes-cli",
@@ -237,9 +255,13 @@
       "kind": "local_locked",
       "local_dir": "~/.claude/skills/hyperframes-cli",
       "source_tree_digest": "66ab0ebeac9e94a44b58cb15b749917e56ee54338dcf4a1fbcd138fe71d7aaa4",
-      "sk_md_digest": "1ea0ee445a628d1f7e8308b9b44ffdf9cd6b012d352476443afdbf26f02db093",
+      "sk_md_digest": "a0f191590e8363292a8a89680737de6181992e5753ca2f3d6f7a7661d3d66d50",
       "entry_path": "SKILL.md",
-      "installed_at": "2026-08-28T02:59:29.908Z"
+      "installed_at": "2026-08-28T02:59:29.908Z",
+      "previous_sk_md_digest": "1ea0ee445a628d1f7e8308b9b44ffdf9cd6b012d352476443afdbf26f02db093",
+      "digest_updated_at": "2026-08-29T10:19:36.161Z",
+      "cli_version": "0.8.14",
+      "source_tree_digest_stale": true
     },
     {
       "skill": "media-use",
@@ -247,9 +269,13 @@
       "kind": "local_locked",
       "local_dir": "~/.claude/skills/media-use",
       "source_tree_digest": "b70eec5ca7f6e8442d1cd34395dd5b31bca92228721029b352ab7deaaab3b5a2",
-      "sk_md_digest": "1301ea7cb53a0a44f5c7d62c34cba7e00b9e69b31bed57dc8d645417cea0da7c",
+      "sk_md_digest": "139ac9d653450bab3652ec3b9ae43620fb60ff68237f4fd6953b1a578928e075",
       "entry_path": "SKILL.md",
-      "installed_at": "2026-08-28T02:59:29.935Z"
+      "installed_at": "2026-08-28T02:59:29.935Z",
+      "previous_sk_md_digest": "1301ea7cb53a0a44f5c7d62c34cba7e00b9e69b31bed57dc8d645417cea0da7c",
+      "digest_updated_at": "2026-08-29T10:19:36.161Z",
+      "cli_version": "0.8.14",
+      "source_tree_digest_stale": true
     },
     {
       "skill": "hyperframes-audio",
@@ -257,9 +283,13 @@
       "kind": "local_locked",
       "local_dir": "~/.claude/skills/hyperframes-audio",
       "source_tree_digest": "4516d584ec4489622879f16912a5e3c890614d0c36882c9710370d5a67f4896f",
-      "sk_md_digest": "78f60bc28fc11ed214248b49f767f9571088fc209cb15c97b1d12abcf4526eac",
+      "sk_md_digest": "b87290893abdafc28f26c18e362c069501ffbffd5027e793d4bd9731f68465f3",
       "entry_path": "SKILL.md",
-      "installed_at": "2026-08-28T02:59:29.937Z"
+      "installed_at": "2026-08-28T02:59:29.937Z",
+      "previous_sk_md_digest": "78f60bc28fc11ed214248b49f767f9571088fc209cb15c97b1d12abcf4526eac",
+      "digest_updated_at": "2026-08-29T10:19:36.161Z",
+      "cli_version": "0.8.14",
+      "source_tree_digest_stale": true
     },
     {
       "skill": "hyperframes-registry",
@@ -267,9 +297,73 @@
       "kind": "local_locked",
       "local_dir": "~/.claude/skills/hyperframes-registry",
       "source_tree_digest": "4dbbd7c20701067b66d3959861c958a54cd9edadbe06a635c3ac5cbc3a273a5e",
-      "sk_md_digest": "9bb3d0f74b47bf7fe93208228d4bd4431538bff9440d074271a4b413a9f6cc3d",
+      "sk_md_digest": "1abaa095aae1b680b5b6e80032e66694fc401ccbfea9526aabcf727c841c9012",
       "entry_path": "SKILL.md",
-      "installed_at": "2026-08-28T02:59:29.939Z"
+      "installed_at": "2026-08-28T02:59:29.939Z",
+      "previous_sk_md_digest": "9bb3d0f74b47bf7fe93208228d4bd4431538bff9440d074271a4b413a9f6cc3d",
+      "digest_updated_at": "2026-08-29T10:19:36.161Z",
+      "cli_version": "0.8.14",
+      "source_tree_digest_stale": true
+    },
+    {
+      "skill": "hyperframes-media",
+      "repo_url": null,
+      "kind": "local_locked",
+      "path": "SKILL.md",
+      "source_tree_digest": "b7ebe5a1171e96f067514845910fa85d1e7987cb712117f6470e2b2a7b27e378",
+      "source_tree_digest_algorithm": "motion-tree-v1 (relpath+content-sha256 chain)",
+      "sk_md_digest": "2427217105228e80c326fabea4e7e74a91f31536345cc35f1285ef510ba26323",
+      "entry_path": "SKILL.md",
+      "installed_at": "2026-08-29T10:19:36.161Z",
+      "local_dir": "~/.claude/skills/hyperframes-media",
+      "note": "HeyGen 官方原子技能（TTS/BGM/SFX 音频引擎，含 scripts/audio.mjs）；被 hyperframes-core/cli/animation 等 6 处引用，不可改名"
+    },
+    {
+      "skill": "motion-design",
+      "repo_url": null,
+      "kind": "project",
+      "path": "SKILL.md",
+      "source_tree_digest": "100a6244a5c469a58b6bf86b8c6dbd5b7353d8c8e724d75d8f969329378349ac",
+      "source_tree_digest_algorithm": "motion-tree-v1 (relpath+content-sha256 chain)",
+      "sk_md_digest": "0235be0ba82a12d81391a937ec6565095972764914e2ecd1aa94e778150b9f5f",
+      "entry_path": "SKILL.md",
+      "installed_at": "2026-08-29T10:19:36.161Z",
+      "local_dir": ".agents/skills/motion-design",
+      "note": "项目内编排技能：镜头到动效的映射"
+    },
+    {
+      "skill": "video-agency-roles",
+      "repo_url": null,
+      "kind": "project",
+      "path": "SKILL.md",
+      "source_tree_digest": "3f393b371751d87d81536188135b3e8ca6a659c25163a6ae752a1637d25bc391",
+      "source_tree_digest_algorithm": "motion-tree-v1 (relpath+content-sha256 chain)",
+      "sk_md_digest": "1d4cc38bf0514373997dd84c02cb772e6441d33693d6833489ecb47764208320",
+      "entry_path": "SKILL.md",
+      "installed_at": "2026-08-29T10:19:36.161Z",
+      "local_dir": ".agents/skills/video-agency-roles",
+      "note": "项目内编排技能：选题到成片的七层质量门"
+    },
+    {
+      "skill": "motion-media-handoff",
+      "repo_url": null,
+      "kind": "project",
+      "path": "SKILL.md",
+      "source_tree_digest": "0e314912b229f3617618bde0fc43612045c72b136614b204afa0ca3667321818",
+      "source_tree_digest_algorithm": "motion-tree-v1 (relpath+content-sha256 chain)",
+      "sk_md_digest": "e7698180984b27a898f74fde70066cc479bc16d923bd16ac1012d7032aeadaa0",
+      "entry_path": "SKILL.md",
+      "installed_at": "2026-08-29T10:19:36.161Z",
+      "local_dir": ".agents/skills/hyperframes-media",
+      "note": "项目内编排技能：素材/音频/字幕/渲染交接门。原名 hyperframes-media，因与官方同名原子技能冲突而改名",
+      "source_sk_md_digest": "1d5fd333fc74bd8b7a7b65058459355749ee87dde428fcb5e354c4a88233b227",
+      "install_transform": "frontmatter name 由 hyperframes-media 改为 motion-media-handoff（避免与官方原子技能重名）"
     }
-  ]
+  ],
+  "digest_algorithm": {
+    "sk_md_digest": "sha256( SKILL.md bytes after BOM-strip and CRLF->LF normalization )",
+    "source_tree_digest": "CLI 原生算法，未公开；本文件新增条目改用 motion-tree-v1"
+  },
+  "last_updated_at": "2026-08-29T10:19:36.161Z",
+  "last_updated_reason": "同步 WorkBuddy 安装：hyperframes CLI 由 v0.8.10 升级至 v0.8.14，8 个上游 skill 文档随之演进；补录官方 hyperframes-media 与 3 个项目内编排 skill（motion-design / video-agency-roles / motion-media-handoff）"
 }

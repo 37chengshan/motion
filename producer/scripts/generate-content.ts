@@ -41,9 +41,28 @@ import { runDirPaths } from "../src/data/timeline.ts";
 
 const ROOT = process.cwd();
 
+/** 四方向 section 白名单（Phase 0.4）
+ *  - ai-news: AI 新闻（全球 AI 动态）
+ *  - intl-news: 国际新闻
+ *  - cn-news: 国内新闻
+ *  - ent-news: 娱乐新闻
+ *  - world-news: deprecated 兼容旧值，映射同 intl-news
+ */
 const NEWS_SECTIONS: Record<StreamId, string[]> = {
   "ai-news": ["ai-news", "review-ai"],
+  "intl-news": ["intl-news", "review-other"],
+  "cn-news": ["cn-news", "review-other"],
+  "ent-news": ["ent-news", "review-other"],
   "world-news": ["other-news", "review-other"],
+};
+
+/** 方向中文名（标题/章节用） */
+const STREAM_LABEL: Record<StreamId, string> = {
+  "ai-news": "AI 新闻",
+  "intl-news": "国际新闻",
+  "cn-news": "国内新闻",
+  "ent-news": "娱乐新闻",
+  "world-news": "国际新闻",
 };
 const VALID_STYLES: VideoStyle[] = [
   "minimal-tech",
@@ -468,7 +487,7 @@ async function main() {
     "每个 block 是 JSON 对象，字段：type(title|text|list|chart)、content（标题/主文案）、summary（2-4 句摘要）、",
     "facts（3-6 条事实，每条必须能在对应快照中找到依据）、points（3-5 条要点）、",
     "stats（数字卡，label/value 字符串；无数字可用 highlight 字段单条）、highlight（关键数字原样，如 \"12.3k stars\"）、",
-    "narration（1-2 句口语化旁白，供 TTS）、disclaimer（一句声明）、section（仅 ai-news: ai-news|review-ai；world-news: other-news|review-other）、",
+    "narration（1-2 句口语化旁白，供 TTS）、disclaimer（一句声明）、section（ai-news: ai-news|review-ai；intl-news: intl-news|review-other；cn-news: cn-news|review-other；ent-news: ent-news|review-other）、",
     "url（必须原样使用下方提供的来源 URL，不得拼接或发明）、sourceSnapshotHash（必须原样使用下方提供且与该 URL 配对的 hash）。",
     "开场 title block 不需要 url/sourceSnapshotHash。输出必须是单个 JSON 数组，禁止 Markdown 代码块或多余文字，",
     "禁止编造快照中不存在的事实。",
@@ -514,7 +533,8 @@ async function main() {
   // 7) 组装 VideoConfig
   const blocks: VideoBlock[] = parsed.map((b) => {
     const item = b.url ? urlToItem.get(b.url) : undefined;
-    const section = b.section ?? (stream === "ai-news" ? "ai-news" : "other-news");
+    // 默认 section 按方向取首选项（ai-news→ai-news；intl/cn/ent→各自方向；world-news 兼容→other-news）
+    const section = b.section ?? NEWS_SECTIONS[stream]?.[0] ?? "other-news";
     const stats = (b.stats ?? []).map((s) => ({
       label: s.label ?? "",
       value: s.value ?? "",
@@ -538,17 +558,18 @@ async function main() {
     } satisfies VideoBlock;
   });
 
+  // 四方向标题：仅 AI 方向走早晚双场，其余方向每天单场（不带场次后缀）
+  const streamLabel = STREAM_LABEL[stream] ?? "新闻";
+  const editionSuffix = stream === "ai-news" ? " " + (edition === "morning" ? "早场" : "晚场") : "";
+
   const config: VideoConfig = {
     type: stream,
     style,
-    title: get(
-      "--title",
-      (stream === "ai-news" ? "AI 新闻" : "世界新闻") + "日报 · " + date + " " + (edition === "morning" ? "早场" : "晚场")
-    ),
+    title: get("--title", streamLabel + "日报 · " + date + editionSuffix),
     subtitle: (edition === "morning" ? "早" : "晚") + "间速览 · 每一条均有原文快照",
     engine: "hyperframes",
     template: "news-slideshow",
-    chapters: [{ start: "00:00", title: (stream === "ai-news" ? "AI 新闻" : "世界新闻") + " " + edition }],
+    chapters: [{ start: "00:00", title: streamLabel }],
     blocks,
     workflowId: "news-daily",
     runId,

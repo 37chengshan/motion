@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "build": "npx remotion render",
+    "verify": "node scripts/run-verification.mjs",
     "render:all": "node scripts/render-batch.ts",
     "login": "node scripts/platform-login.ts",
     "login:check": "node scripts/platform-login.ts --check",
@@ -57,7 +58,8 @@
     "remotion-animated": "^1.0.0",
     "rough-notation": "^0.5.1",
     "tailwindcss": "^4.0.0",
-    "three": "^0.170.0"
+    "three": "^0.170.0",
+    "undici": "^8.10.0"
   },
   "devDependencies": {
     "@remotion/bundler": "^4.0.0",

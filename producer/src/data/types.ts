@@ -8,8 +8,11 @@ export type VideoStyle =
   | "journal"; // #9 手账日记
 
 export type ContentType =
-  | "ai-news" // A. AI 新闻日报（HyperFrames 引擎）
-  | "world-news" // A2. 世界新闻日报（HyperFrames 引擎，独立 stream）
+  | "ai-news" // A. AI 新闻日报（全球 AI 动态，HyperFrames 引擎，早晚双场）
+  | "intl-news" // A2. 国际新闻（HyperFrames 引擎）
+  | "cn-news" // A3. 国内新闻（HyperFrames 引擎）
+  | "ent-news" // A4. 娱乐新闻（国内外，HyperFrames 引擎）
+  | "world-news" // 兼容旧值（deprecated）：原世界新闻，已由 intl-news 取代
   | "github-daily" // B1. 每日 GitHub 项目介绍（HyperFrames project-spotlight）
   | "github-weekly" // B2. 每周 GitHub 精品项目（Remotion 定制）
   | "own-project-weekly" // C. 每周自有项目宣传（Remotion 定制）
@@ -104,7 +107,19 @@ export interface VideoBlock {
     | "outro";
 }
 
-export type StreamId = "ai-news" | "world-news";
+/** 新闻流标识（四方向）
+ *  - ai-news: AI 新闻（全球 AI 动态，早晚双场）
+ *  - intl-news: 国际新闻（取代原 world-news）
+ *  - cn-news: 国内新闻
+ *  - ent-news: 娱乐新闻（国内外）
+ *  - world-news: 兼容旧值（deprecated），发布链仍可解析，新产出统一用 intl-news
+ */
+export type StreamId =
+  | "ai-news"
+  | "intl-news"
+  | "cn-news"
+  | "ent-news"
+  | "world-news";
 export type EditionId = "morning" | "evening";
 export type Cadence = "daily" | "weekly";
 
