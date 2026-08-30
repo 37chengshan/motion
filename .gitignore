@@ -32,6 +32,9 @@ tools/*
 !tools/video-analyzer/
 tools/embed-server/.venv/
 tools/video-analyzer/.venv/
+tools/embed-server/.venv3/
+tools/embed-server/testdata/
+tools/embed-server/__pycache__/
 
 # 渲染产物与工作目录（out/research/hyperframes 生成物）
 producer/out/
@@ -64,5 +67,12 @@ producer/selection.json
 producer/video-spec.md
 contracts/keys/
 
+# 大模型与向量数据库（朜�讻�/评估甼�不入库）
+models/
+data/
+.pip-wheels/
+.pip-cache/
+
 # weekly own-project input (user-provided, per-week)
 producer/weekly/
+.secrets/
