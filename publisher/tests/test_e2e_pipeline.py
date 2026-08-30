@@ -66,7 +66,9 @@ class FakePlatformAdapter:
 def build_signed_manifest(package_id: str, targets: list) -> dict:
     video_bytes = b"FAKE_VIDEO_CONTENT_DATA_STREAM"
     import hashlib
+    from datetime import datetime, timedelta, timezone
     sha = hashlib.sha256(video_bytes).hexdigest()
+    now = datetime.now(timezone.utc)
     m = {
         "schema_version": 1,
         "package_id": package_id,
@@ -75,8 +77,8 @@ def build_signed_manifest(package_id: str, targets: list) -> dict:
         "stream": "ai-news",
         "edition": "morning",
         "cadence": "daily",
-        "created_at": "2026-08-28T00:30:00Z",
-        "expires_at": "2026-08-30T00:30:00Z",
+        "created_at": (now - timedelta(hours=2)).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "expires_at": (now + timedelta(hours=1)).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "producer_commit": "0000000000000000000000000000000000000000",
         "package_state": "READY_FOR_PUBLISH",
         "assets": [
