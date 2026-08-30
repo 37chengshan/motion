@@ -204,17 +204,25 @@ async function main() {
   try {
     raw = JSON.parse(await readFile(rawPath, "utf-8"));
   } catch {
-    // 无 raw.json（仅跑 x-watch 的 run）→ 回退用 x-watch 作为输入
-    try {
-      const xw = JSON.parse(await readFile(xwatchPath, "utf-8")) as {
-        items?: RawItem[]; business_date?: string; source_unavailable?: boolean;
-      };
-      raw = { items: xw.items ?? [], business_date: xw.business_date, source_unavailable: xw.source_unavailable };
-      console.log("[score] raw.json 缺失，回退使用 x-watch.json 作为输入（" + raw.items.length + " 条）");
-    } catch {
+    // 无 raw.json（仅跑 x-watch/weibo-watch 的 run）→ 回退用 watch 文件作为输入
+    let fallback: { items?: RawItem[]; business_date?: string; source_unavailable?: boolean } | null = null;
+    for (const wf of [xwatchPath, path.join(researchDir, "weibo-watch.json")]) {
+      try {
+        const parsed = JSON.parse(await readFile(wf, "utf-8")) as {
+          items?: RawItem[]; business_date?: string; source_unavailable?: boolean;
+        };
+        if (parsed.items?.length) {
+          console.log(`[score] raw.json 缺失，回退使用 ${path.basename(wf)} 作为输入（${parsed.items.length} 条）`);
+          fallback = parsed;
+          break;
+        }
+      } catch { /* 尝试下一个 */ }
+    }
+    if (!fallback) {
       console.error("[score] 无法读取 raw.json：" + rawPath);
       process.exit(1);
     }
+    raw = { items: fallback!.items ?? [], business_date: fallback!.business_date, source_unavailable: fallback!.source_unavailable };
   }
   if (raw.source_unavailable) {
     console.error("[score] raw.json 标记 source_unavailable，禁止进入评分（先修研究阶段）");
@@ -236,21 +244,26 @@ async function main() {
     console.warn("[score] news-sources.json 读取失败，sourceQuality 回退默认值");
   }
 
-  // 合并 x-watch 官方账号动作（若存在）：官方一手信号 → 高可信选题
+  // 合并 x-watch / weibo-watch 官方账号动作（若存在）：官方一手信号 → 高可信选题
   const allRaw: RawItem[] = [...(raw.items ?? [])];
-  try {
-    const xwatch = JSON.parse(await readFile(xwatchPath, "utf-8")) as {
-      items?: (RawItem & { official?: boolean; handle?: string })[];
-    };
-    if (xwatch.items?.length) {
-      const before = allRaw.length;
-      for (const it of xwatch.items) {
-        allRaw.push({ ...it, category: it.category ?? "ai", official: it.official ?? true });
+  for (const [watchFile, label] of [
+    [xwatchPath, "x-watch"],
+    [path.join(researchDir, "weibo-watch.json"), "weibo-watch"],
+  ] as const) {
+    try {
+      const watch = JSON.parse(await readFile(watchFile, "utf-8")) as {
+        items?: (RawItem & { official?: boolean; handle?: string })[];
+      };
+      if (watch.items?.length) {
+        const before = allRaw.length;
+        for (const it of watch.items) {
+          allRaw.push({ ...it, category: it.category ?? "ai", official: it.official ?? true });
+        }
+        console.log(`[score] 合并 ${label} 官方动作 ${allRaw.length - before} 条`);
       }
-      console.log(`[score] 合并 x-watch 官方动作 ${allRaw.length - before} 条`);
+    } catch {
+      /* 无该 watch 文件（未采集）则跳过 */
     }
-  } catch {
-    /* 无 x-watch.json（未采集 X）则跳过 */
   }
 
   const prelim: ScoredItem[] = allRaw.map((item) => {
