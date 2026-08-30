@@ -43,6 +43,8 @@ interface RawItem {
   pushedAt?: string;
   readmeUrl?: string;
   description?: string;
+  official?: boolean; // x-watch 官方账号动作（Phase 3）
+  handle?: string;
 }
 
 interface ScoredItem extends RawItem {
@@ -117,9 +119,11 @@ function timelinessSignal(item: RawItem): number {
 }
 
 /** 信源质量：配置驱动（trust_level: high=8 / medium=6.5 / 未配置=3.5）
- *  依赖调用方从 news-sources.json 构建 trust 映射；四方向信源只在配置里维护
+ *  依赖调用方从 news-sources.json 构建 trust 映射；四方向信源只在配置里维护。
+ *  x-watch 官方账号动作（official=true）为最高可信一手信号 → 10 分
  */
 function sourceQualitySignal(item: RawItem, trust: Map<string, string>): number {
+  if (item.official) return 10;
   const level = trust.get(item.source);
   if (level === "high") return 8;
   if (level === "medium") return 6.5;
@@ -194,13 +198,23 @@ async function main() {
   const limit = parseInt(get("--limit", ""), 10);
   const researchDir = path.join(runDir, "research");
   const rawPath = path.join(researchDir, "raw.json");
+  const xwatchPath = path.join(researchDir, "x-watch.json");
 
   let raw: { items: RawItem[]; source_unavailable?: boolean; business_date?: string; timezone?: string };
   try {
     raw = JSON.parse(await readFile(rawPath, "utf-8"));
   } catch {
-    console.error("[score] 无法读取 raw.json：" + rawPath);
-    process.exit(1);
+    // 无 raw.json（仅跑 x-watch 的 run）→ 回退用 x-watch 作为输入
+    try {
+      const xw = JSON.parse(await readFile(xwatchPath, "utf-8")) as {
+        items?: RawItem[]; business_date?: string; source_unavailable?: boolean;
+      };
+      raw = { items: xw.items ?? [], business_date: xw.business_date, source_unavailable: xw.source_unavailable };
+      console.log("[score] raw.json 缺失，回退使用 x-watch.json 作为输入（" + raw.items.length + " 条）");
+    } catch {
+      console.error("[score] 无法读取 raw.json：" + rawPath);
+      process.exit(1);
+    }
   }
   if (raw.source_unavailable) {
     console.error("[score] raw.json 标记 source_unavailable，禁止进入评分（先修研究阶段）");
@@ -222,7 +236,24 @@ async function main() {
     console.warn("[score] news-sources.json 读取失败，sourceQuality 回退默认值");
   }
 
-  const prelim: ScoredItem[] = (raw.items ?? []).map((item) => {
+  // 合并 x-watch 官方账号动作（若存在）：官方一手信号 → 高可信选题
+  const allRaw: RawItem[] = [...(raw.items ?? [])];
+  try {
+    const xwatch = JSON.parse(await readFile(xwatchPath, "utf-8")) as {
+      items?: (RawItem & { official?: boolean; handle?: string })[];
+    };
+    if (xwatch.items?.length) {
+      const before = allRaw.length;
+      for (const it of xwatch.items) {
+        allRaw.push({ ...it, category: it.category ?? "ai", official: it.official ?? true });
+      }
+      console.log(`[score] 合并 x-watch 官方动作 ${allRaw.length - before} 条`);
+    }
+  } catch {
+    /* 无 x-watch.json（未采集 X）则跳过 */
+  }
+
+  const prelim: ScoredItem[] = allRaw.map((item) => {
     const heat = heatSignal(item, false);
     const timeliness = timelinessSignal(item);
     const sourceQuality = sourceQualitySignal(item, trustBySource);
