@@ -211,16 +211,45 @@ async function main() {
   // 落盘 runs/<date>/<stream>/research/x-watch.json
   const outDir = path.join(runDir, "research");
   const outPath = path.join(outDir, "x-watch.json");
+  // --handles 补采模式：合并已有采集结果，避免覆盖
+  let prevItems: XWatchItem[] = [];
+  let prevFailed: { handle: string; error: string }[] = [];
+  if (handlesArg && existsSync(outPath)) {
+    try {
+      const prev = JSON.parse(readFileSync(outPath, "utf-8"));
+      prevItems = prev.items ?? [];
+      prevFailed = prev.failed ?? [];
+    } catch {
+      /* 旧文件损坏则忽略 */
+    }
+  }
+  const mergedItems = [...prevItems];
+  const seen = new Set(mergedItems.map((it) => it.id));
+  for (const it of items) {
+    if (!seen.has(it.id)) {
+      mergedItems.push(it);
+      seen.add(it.id);
+    }
+  }
+  const mergedFailed = [...prevFailed];
+  const failedSet = new Set(mergedFailed.map((f) => f.handle));
+  for (const f of failed) {
+    if (!failedSet.has(f.handle)) {
+      mergedFailed.push(f);
+      failedSet.add(f.handle);
+    }
+  }
+
   const out = {
     schema_version: 1,
     business_date: date,
     stream,
     collected_at: new Date().toISOString(),
-    total: items.length,
+    total: mergedItems.length,
     accounts_ok: accounts.length - failed.length,
-    accounts_failed: failed.length,
-    failed,
-    items,
+    accounts_failed: mergedFailed.length,
+    failed: mergedFailed,
+    items: mergedItems,
   };
   await mkdir(outDir, { recursive: true });
   await writeFile(outPath, JSON.stringify(out, null, 2), "utf-8");
