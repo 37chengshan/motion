@@ -54,6 +54,7 @@ function blobToVec(b: Buffer | Uint8Array): number[] {
 }
 
 function cosine(a: number[], b: number[]): number {
+  if (a.length !== b.length || a.length === 0) return Number.NEGATIVE_INFINITY; // 维度不匹配 → 排最后
   let dot = 0, na = 0, nb = 0;
   for (let i = 0; i < a.length; i++) {
     dot += a[i] * b[i];
@@ -61,7 +62,8 @@ function cosine(a: number[], b: number[]): number {
     nb += b[i] * b[i];
   }
   if (na === 0 || nb === 0) return 0;
-  return dot / (Math.sqrt(na) * Math.sqrt(nb));
+  const s = dot / (Math.sqrt(na) * Math.sqrt(nb));
+  return Number.isFinite(s) ? s : Number.NEGATIVE_INFINITY;
 }
 
 export class VectorDB {
