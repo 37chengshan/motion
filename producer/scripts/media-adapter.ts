@@ -67,7 +67,9 @@ async function saveManifest(m: MediaManifest): Promise<void> {
 }
 
 interface ProbeModel {
-  name: string;
+  /** AIPING /models 返回 id 字段（OpenAI 兼容）；旧接口可能用 name */
+  id?: string;
+  name?: string;
   sizes?: string[];
 }
 
@@ -101,9 +103,16 @@ export async function probeModel(model: string, size?: string): Promise<{ ok: bo
   } catch (e) {
     return { ok: false, reason: "provider probe 失败：" + (e as Error).message };
   }
-  const hit = models.find((m) => m.name === model);
+  const hit = models.find(
+    (m) => String(m.id ?? m.name ?? "").trim().toLowerCase() === model.trim().toLowerCase()
+  );
   if (!hit) {
-    return { ok: false, reason: "模型不存在（provider 列表无 " + model + "），不静默切换模型" };
+    const known = models.map((m) => m.id ?? m.name).join(", ");
+    return {
+      ok: false,
+      reason:
+        "模型不存在（provider 列表无 " + model + "；已知 " + (known.slice(0, 200) || "(空)") + "），不静默切换模型",
+    };
   }
   if (size && hit.sizes && hit.sizes.length > 0 && !hit.sizes.includes(size)) {
     return { ok: false, reason: "模型不支持尺寸 " + size + "（支持：" + hit.sizes.join(", ") + "）" };

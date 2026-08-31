@@ -118,7 +118,10 @@ export interface VideoBlock {
     src: string;
     caption?: string;
     credit?: string;
+    /** 截图搜索词（screenshot 用）；AI 生图画面描述（illustration/figure/leaderboard 用） */
     query?: string;
+    /** AI 生图提示词（illustration/figure/leaderboard 用；与 query 二选一，优先 prompt） */
+    prompt?: string;
   };
   /** 内嵌字幕条文本（画面元素，10-28 字压缩；缺失时 fallback narration.slice(0,28)） */
   subtitle?: string;

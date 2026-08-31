@@ -111,6 +111,14 @@ interface GeneratedBlock {
   section?: string;
   url?: string;
   sourceSnapshotHash?: string;
+  /** 素材需求（三轨）：illustration=AI底图 / screenshot=官方截图 / figure|leaderboard=数据可视化 */
+  media?: {
+    kind?: string;
+    src?: string;
+    caption?: string;
+    query?: string;
+    prompt?: string;
+  };
 }
 
 interface SnapshotInfo {
@@ -277,6 +285,7 @@ async function callProvider(
           model: provider.model,
           messages,
           temperature: 0.4,
+          max_tokens: 8192,
         }),
       });
       if (!res.ok) {
@@ -330,6 +339,8 @@ async function callProvider(
 interface Bindings {
   urlToHash: Map<string, string>;
   urlToItem: Map<string, ScoredItem>;
+  /** url → 原文快照文本（判断快照是否含数字，做数字提取质量门） */
+  urlToSnapshot?: Map<string, string>;
 }
 
 function validateBlocks(
@@ -339,6 +350,9 @@ function validateBlocks(
 ): { out: GeneratedBlock[]; errors: string[] } {
   const errors: string[] = [];
   const { urlToHash } = bindings;
+
+  const MEDIA_KINDS = ["illustration", "screenshot", "figure", "leaderboard"];
+  let mediaCount = 0;
 
   if (!Array.isArray(blocks) || blocks.length === 0) {
     return { out: [], errors: ["模型输出为空或不是数组"] };
@@ -353,7 +367,7 @@ function validateBlocks(
     const content = (b.content ?? "").trim();
     const narration = (b.narration ?? "").trim();
     if (!content) errors.push(label + " 缺少 content");
-    if (!narration) errors.push(label + " 缺少 narration");
+    if (!narration && b.type !== "title") errors.push(label + " 缺少 narration");
 
     if (b.type === "title" || b.type === "divider") return; // 开场/转场块不要求来源绑定
 
@@ -374,7 +388,15 @@ function validateBlocks(
     }
     const hasStats = Array.isArray(b.stats) && b.stats.length > 0;
     const hasHighlight = Boolean((b.highlight ?? "").trim());
-    if (!hasStats && !hasHighlight) errors.push(label + " 缺少数字（stats[] 或 highlight）");
+    if (!hasStats && !hasHighlight) {
+      // 数字提取质量门：快照含"独立数字"但模型未提取 → 失败；快照无独立数字 → 放行
+      // 独立数字：非字母开头（排除 H3/V3 等型号名），且不在 "X-123" 连字符组合里（排除 GPT-4o 等）
+      const snapText = (url && bindings.urlToSnapshot?.get(url)) ?? "";
+      const hasIndependentDigits = /(?<![A-Za-z])\d/.test(snapText) && !/-\d/.test(snapText);
+      if (hasIndependentDigits) {
+        errors.push(label + " 快照含独立数字但未提取到 stats[] 或 highlight（数字提取质量门）");
+      }
+    }
     if (b.stats) {
       b.stats.forEach((s, k) => {
         if (!(s.label ?? "").trim() || !(s.value ?? "").trim()) {
@@ -384,6 +406,25 @@ function validateBlocks(
     }
     if (!(b.disclaimer ?? "").trim()) errors.push(label + " 缺少 disclaimer（声明）");
 
+    // media（视觉三轨需求）：kind 白名单 + 生图类必须 prompt / 截图类必须 query + 全篇预算
+    if (b.media) {
+      if (typeof b.media !== "object" || b.media === null) {
+        errors.push(label + " media 不是对象");
+      } else {
+        mediaCount++;
+        if (!MEDIA_KINDS.includes(b.media.kind ?? "")) {
+          errors.push(label + " media.kind 必须为 " + MEDIA_KINDS.join("|") + "，收到：" + b.media.kind);
+        }
+        if ((b.media.kind === "illustration" || b.media.kind === "figure" || b.media.kind === "leaderboard") &&
+            !(b.media.prompt ?? "").trim()) {
+          errors.push(label + " media[" + b.media.kind + "] 缺少 prompt（AI 生图提示词）");
+        }
+        if (b.media.kind === "screenshot" && !(b.media.query ?? "").trim()) {
+          errors.push(label + " media[screenshot] 缺少 query（官方页面搜索词）");
+        }
+      }
+    }
+
     // section 必须与 stream 匹配
     if (b.section) {
       const allowed = NEWS_SECTIONS[stream];
@@ -392,6 +433,8 @@ function validateBlocks(
       }
     }
   });
+
+  if (mediaCount > 3) errors.push("media 需求全篇超过 3 个预算（收到 " + mediaCount + " 个）");
 
   return {
     out: blocks,
@@ -479,6 +522,7 @@ async function main() {
   }
   const urlToHash = new Map(snapshots.map((s) => [s.url, s.sha256]));
   const urlToItem = new Map(items.map((it) => [it.url, it]));
+  const urlToSnapshot = new Map(snapshots.map((s) => [s.url, s.content]));
 
   // 5) 调用文本模型生成 blocks
   const provider = providerConfig();
@@ -486,9 +530,16 @@ async function main() {
     "你是每日新闻视频的内容编辑。根据给定的已核实新闻快照，生成视频 config 的 blocks 数组。",
     "每个 block 是 JSON 对象，字段：type(title|text|list|chart)、content（标题/主文案）、summary（2-4 句摘要）、",
     "facts（3-6 条事实，每条必须能在对应快照中找到依据）、points（3-5 条要点）、",
-    "stats（数字卡，label/value 字符串；无数字可用 highlight 字段单条）、highlight（关键数字原样，如 \"12.3k stars\"）、",
+    "stats（数字卡，label/value 字符串；快照中出现的每个数字——日期/价格/数量/百分比/版本号——都必须提取进 stats，禁止遗漏；快照确实无数字时才用 highlight 单条）、highlight（关键数字原样，如 \"12.3k stars\"；若 stats 已覆盖可留空）、",
+    "data（仅 type=chart 时必填：[{label, value}] 数字数组，3-6 条，用于渲染柱状图；value 必须为数字）、",
     "narration（1-2 句口语化旁白，供 TTS）、disclaimer（一句声明）、section（ai-news: ai-news|review-ai；intl-news: intl-news|review-other；cn-news: cn-news|review-other；ent-news: ent-news|review-other）、",
     "url（必须原样使用下方提供的来源 URL，不得拼接或发明）、sourceSnapshotHash（必须原样使用下方提供且与该 URL 配对的 hash）。",
+    "media（可选，每条内容块最多 1 个，全篇最多 3 个）：{kind, prompt, caption, query}。",
+    "  kind 四选一：illustration（AI 底图/主视觉插画）、screenshot（官方页面截图）、figure（数据可视化图）、leaderboard（榜单/排名图）。",
+    "  illustration/figure/leaderboard 必须给 prompt（中文画面描述，具体到主体/场景/构图/文字标注，供 AI 生图）；screenshot 必须给 query（官方页面搜索词，如「OpenAI 官方发布页」）。",
+    "  caption 为该图在片中的文字标注（≤20 字，可选）。",
+    "  选择规则：有明确官方视觉/产品页的条目优先 screenshot；数据/榜单类条目优先 figure 或 leaderboard；其余新闻类条目可给 illustration；",
+    "  数字清晰度优先（AI 生图不适合密集文字，数据图 prompt 里写清 3-5 个关键数字与柱/线形态）。",
     "开场 title block 不需要 url/sourceSnapshotHash。输出必须是单个 JSON 数组，禁止 Markdown 代码块或多余文字，",
     "禁止编造快照中不存在的事实。",
   ].join("\n");
@@ -523,10 +574,14 @@ async function main() {
   }
 
   // 6) 严格校验来源绑定
-  const { errors } = validateBlocks(parsed, { urlToHash, urlToItem }, stream);
+  const { errors } = validateBlocks(parsed, { urlToHash, urlToItem, urlToSnapshot }, stream);
   if (errors.length > 0) {
     console.error("[generate-content] 校验失败，不生成 config：");
     for (const e of errors) console.error("  - " + e);
+    if (has("--debug")) {
+      console.error("--- 模型原始输出（parsed）---");
+      console.error(JSON.stringify(parsed, null, 2));
+    }
     process.exit(1);
   }
 
@@ -555,6 +610,17 @@ async function main() {
       sourceSnapshotHash: b.url ? urlToHash.get(b.url) : undefined,
       disclaimer: (b.disclaimer ?? "").trim() || DEFAULT_DISCLAIMER,
       section: section as VideoBlock["section"],
+      media: b.media
+        ? {
+            kind: (["illustration", "screenshot", "figure", "leaderboard"].includes(b.media.kind ?? "")
+              ? (b.media.kind as NonNullable<VideoBlock["media"]>["kind"])
+              : "illustration"),
+            src: b.media.src ?? "",
+            caption: b.media.caption,
+            query: b.media.query,
+            prompt: b.media.prompt,
+          }
+        : undefined,
     } satisfies VideoBlock;
   });
 

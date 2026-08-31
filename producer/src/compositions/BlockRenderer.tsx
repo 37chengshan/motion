@@ -211,16 +211,86 @@ export const BlockRenderer: React.FC<Props> = ({ block, config }) => {
         </AbsoluteFill>
       );
 
-    case "chart":
+    case "chart": {
+      const data = block.data ?? [];
+      if (data.length === 0) {
+        return (
+          <AbsoluteFill
+            style={{ justifyContent: "center", padding: 60 }}
+          >
+            <div style={{ color: theme.muted, fontSize: 32 }}>
+              图表: {block.content}
+            </div>
+          </AbsoluteFill>
+        );
+      }
+      const max = Math.max(...data.map((d) => d.value));
+      const rowH = 76;
+      const labelW = 260;
       return (
         <AbsoluteFill
           style={{ justifyContent: "center", padding: 60 }}
         >
-          <div style={{ color: theme.muted, fontSize: 32 }}>
-            图表: {block.content}
-          </div>
+          <Card pad={48}>
+            <div
+              style={{
+                fontSize: 40,
+                fontWeight: 700,
+                marginBottom: 28,
+                color: theme.text,
+              }}
+            >
+              {block.content}
+            </div>
+            <div style={{ width: "100%" }}>
+              {data.map((d, i) => (
+                <div
+                  key={i}
+                  style={{ display: "flex", alignItems: "center", height: rowH }}
+                >
+                  <div
+                    style={{
+                      width: labelW,
+                      fontSize: 26,
+                      color: theme.muted,
+                      textAlign: "right",
+                      paddingRight: 24,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {d.label}
+                  </div>
+                  <div style={{ flex: 1, display: "flex", alignItems: "center" }}>
+                    <div
+                      style={{
+                        width: max > 0 ? `${(d.value / max) * 100}%` : "0%",
+                        height: 38,
+                        background: theme.accent,
+                        borderRadius: 8,
+                        minWidth: 10,
+                      }}
+                    />
+                  </div>
+                  <div
+                    style={{
+                      marginLeft: 18,
+                      fontSize: 28,
+                      fontWeight: 700,
+                      color: theme.text,
+                      minWidth: 90,
+                    }}
+                  >
+                    {d.value.toLocaleString("en-US")}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
         </AbsoluteFill>
       );
+    }
 
     default:
       return (
