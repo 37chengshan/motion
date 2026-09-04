@@ -4,6 +4,7 @@
 → 本地验包（与 LocalWatch 同一 validate_package_manifest 门）→ 完成后回执 POST（幂等键）。
 支持指数退避重试（由调用方传入 attempt 决定 sleep）。白天离线/晚间联网场景由 daemon 轮询驱动。
 """
+import asyncio
 import json
 import logging
 import time
@@ -72,14 +73,27 @@ class CloudControlPlaneAdapter(BaseTransport):
                 if target.exists() and compute_file_sha256(target) == asset["sha256"]:
                     continue
                 target.parent.mkdir(parents=True, exist_ok=True)
-                dl = await client.get(self.base_url + f"/api/v1/packages/{pkg_id}/assets/{asset['path'].replace('/', '%2F')}")
+                # 元数据请求（control plane）与内容请求（GCS）分开建 client，重试也建新 client，
+                # 避免跨 host 的连接复用被中间代理断开
+                async with httpx.AsyncClient(timeout=self.timeout_sec, headers=self._headers) as c_meta:
+                    dl = await c_meta.get(self.base_url + f"/api/v1/packages/{pkg_id}/assets/{asset['path'].replace('/', '%2F')}")
                 if dl.status_code != 200:
                     logger.error(f"[CloudCP] asset 下载失败 {asset['path']} HTTP {dl.status_code}")
                     return False
                 signed = dl.json()["data"]["url"]
-                blob = await client.get(self.base_url + signed)
-                if blob.status_code != 200:
-                    logger.error(f"[CloudCP] asset 内容下载失败 {asset['path']} HTTP {blob.status_code}")
+                blob_url = signed if signed.startswith("http") else (self.base_url + signed)
+                blob = None
+                for attempt in range(3):
+                    try:
+                        async with httpx.AsyncClient(timeout=self.timeout_sec, headers=self._headers) as c_blob:
+                            blob = await c_blob.get(blob_url)
+                        if blob.status_code == 200:
+                            break
+                    except Exception as e:  # noqa: BLE001
+                        logger.warning(f"[CloudCP] asset 下载第 {attempt + 1} 次失败: {e}")
+                        await asyncio.sleep(2 ** attempt)
+                if blob is None or blob.status_code != 200:
+                    logger.error(f"[CloudCP] asset 内容下载失败 {asset['path']} (retry exhausted)")
                     return False
                 target.write_bytes(blob.content)
         errors = validate_package_manifest(dest / "manifest.json", self.public_key_pem)

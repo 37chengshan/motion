@@ -24,7 +24,7 @@ __pycache__/
 code/publisher/data/
 *.db
 
-# ===== vido 视频生产流水�? =====
+# ===== vido 视频生产流水线 =====
 # 本地工具与账号凭据（绝不提交 Cookie/登录态）
 code/tools/*
 # Phase 4/5 self-built tools (embed-server vector inference + video-analyzer)
@@ -46,7 +46,7 @@ code/producer/public/voiceover/
 code/producer/public/timeline.json
 code/producer/dashboard/registry.json
 
-# 大文�?/临时
+# 大文件/临时
 *.mp4
 *.wav
 *.srt
@@ -55,11 +55,11 @@ cookies/
 dist/
 .vite/
 
-# EduEvidence ������Ŀ���û�������������⣩
+# EduEvidence 独立项目（用户指定不入库，见 .gitignore 历史）
 project/
 code/eduevidence/
 
-# producer run artifacts & media (双运行面重构�?)
+# producer run artifacts & media (双运行面重构后)
 code/producer/runs/
 code/producer/media/
 code/producer/config/content.json
@@ -67,7 +67,7 @@ code/producer/selection.json
 code/producer/video-spec.md
 code/contracts/keys/
 
-# 大模型与向量数据库（朜�讻�/评估甼�不入库）
+# 大模型与向量数据库（模型权重/评估产物不入库）
 models/
 data/
 !code/producer/src/data/
@@ -76,7 +76,10 @@ data/
 
 # weekly own-project input (user-provided, per-week)
 code/producer/weekly/
+producer/weekly/
 .secrets/
+publisher/launchd/com.motion.publisher.daemon.plist
+code/publisher/launchd/com.motion.publisher.daemon.plist
 
 # agent/tool 缓存目录（不入库）
 .cache/

@@ -26,6 +26,13 @@
 3. **真实平台发布**：publisher 平台适配器目前返回 `provider_unavailable`；接入真实 B站/抖音/小红书等需要账号 Cookie/profile 与登录态（只在 Mac 本地管理，不提交）。
 4. **周更定时**：`weekly-pipeline.ts` 周六/周日节奏已实现，但无 cron/launchd 定时器接入生产（Mac 有 launchd 示例待配置真实账号与 token）。
 5. **DNS/域名**：已生效；若换子域或证书到期需在 Cloudflare/GCP 维护（`cloud/infra/lb-dns.md`）。
+
+## 运行实况（2026-08-29）
+
+- 控制面：https://citygenius.top（revision 00009，限流 600/min 按真实客户端 IP）
+- Mac daemon：launchd `com.motion.publisher.daemon` 已加载运行（PID 见 `launchctl list`），Cloud + 本地双通道，15s 轮询；`MAC_DEVICE_TOKEN` 已填入 plist（明文仅 `~/.dsh/secret/mac-device-token.txt` 与 plist）
+- Mac 侧 `CloudControlPlaneAdapter` 已对线上控制面实测拉包（空列表正常）
+- 生产密钥**已部署**：`contracts/keys/prod-*.pem` 已就位（私钥仅 Windows/`~/.dsh/secret`，不入仓库）；云端 public-key secret = 生产公钥（revision 00013）；Mac daemon plist 已指向 prod 公钥。剩余：Windows 确认用 `prod-ed25519-private.pem` 签名（create-package --key ../contracts/keys/prod-ed25519-private.pem --key-id prod-key-1）
 6. **沙箱环境注意事项**：本开发沙箱出口代理拦截字面路径 `/healthz`（应用本地 200）与 LB IP 直连；真实验证请从用户网络执行。
 
 ## 关键操作

@@ -276,3 +276,12 @@ class MasterPublisherDaemon:
             except Exception as e:  # noqa: BLE001
                 logger.error(f"[PublisherDaemon] 轮询异常: {e}")
             await asyncio.sleep(interval_sec)
+
+if __name__ == "__main__":
+    import asyncio
+
+    async def _main() -> None:
+        daemon = MasterPublisherDaemon()
+        await daemon.start_loop(interval_sec=15)
+
+    asyncio.run(_main())

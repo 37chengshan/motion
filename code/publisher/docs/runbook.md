@@ -8,7 +8,7 @@
 
 ## 传输通道（优先级）
 
-1. Cloud Control Plane（`CONTROL_PLANE_URL` + `MAC_DEVICE_TOKEN`）：白天离线、晚间联网后优先拉取
+1. Cloud Control Plane（`CONTROL_PLANE_URL=https://citygenius.top` + `MAC_DEVICE_TOKEN`=~/.dsh/secret/mac-device-token.txt，已实测 readyz 200）：白天离线、晚间联网后优先拉取
    `GET /api/v1/packages?consumer=mac&state=ready` → 下载 → 验包 → 回执（幂等键）；
 2. 本地 watch（`data/incoming/<package-id>/`）：仅处理带 `.transfer-complete` 标记且验签通过的包；
    Cloud 失败自动回退本地扫描。
@@ -32,3 +32,14 @@
 
 `cp launchd/com.motion.publisher.daemon.plist.example ~/Library/LaunchAgents/`（替换 USER/域名/token），
 `launchctl load ~/Library/LaunchAgents/com.motion.publisher.daemon.plist`。
+
+## Windows 生产签名（生产密钥已部署）
+
+```bash
+cd producer && node scripts/create-package.ts \
+  --run-dir runs/YYYY-MM-DD/<run> \
+  --key ../contracts/keys/prod-ed25519-private.pem --key-id prod-key-1
+```
+
+- 云端/Mac 已切生产公钥（revision 00013+）；mac 设备 token 已接通。
+- 私钥仅存 Windows（本机 `~/.dsh/secret/prod-ed25519-private.pem` 与 `contracts/keys/` 为工作副本，gitignore，不入仓库）。
