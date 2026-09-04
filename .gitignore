@@ -76,3 +76,11 @@ data/
 # weekly own-project input (user-provided, per-week)
 code/producer/weekly/
 .secrets/
+
+# agent/tool 缓存目录（不入库）
+.cache/
+.ccg/
+.qoder/
+.omp/
+.remotion/
+.workbuddy/
