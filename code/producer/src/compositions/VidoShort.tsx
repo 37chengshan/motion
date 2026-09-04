@@ -7,6 +7,7 @@ import { CharacterProgressBar } from "../components/effects/CharacterProgressBar
 import { BgmAudio } from "../components/effects/BgmAudio";
 import { BlockRenderer } from "./BlockRenderer";
 import { ProjectSpotlight } from "../components/templates/ProjectSpotlight";
+import { NewsPaperTemplate } from "./news-paper/NewsPaper";
 import { StyleProvider } from "./styles/StyleProvider";
 
 export type TimelineEntries = {
@@ -52,7 +53,14 @@ export const VidoShort: React.FC<Props> = (props) => {
         <BgmAudio src={config.bgm} entries={hasTimeline} />
       ) : null}
       <StyleProvider style={config.style} orientation="short">
-        {config.template === "project-spotlight" ? (
+        {config.template === "news-paper" ? (
+          <NewsPaperTemplate
+            config={config}
+            timelineEntries={hasTimeline}
+            fps={30}
+            voiceoverRoot={voiceoverRoot}
+          />
+        ) : config.template === "project-spotlight" ? (
           <ProjectSpotlight config={config} timelineEntries={hasTimeline} fps={30} />
         ) : (
           <AbsoluteFill style={{ padding: 80, paddingBottom: 140 }}>

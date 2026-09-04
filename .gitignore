@@ -70,6 +70,7 @@ code/contracts/keys/
 # 大模型与向量数据库（朜�讻�/评估甼�不入库）
 models/
 data/
+!code/producer/src/data/
 .pip-wheels/
 .pip-cache/
 

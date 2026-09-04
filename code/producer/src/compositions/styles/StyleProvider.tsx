@@ -6,6 +6,7 @@ import { WhiteboardBackground } from "./WhiteboardNotes";
 import { StickyNotesBackground } from "./StickyNotes";
 import { NewspaperBackground } from "./Newspaper";
 import { JournalBackground } from "./Journal";
+import { NewsPaperBackground } from "../news-paper/NewsPaper";
 
 export interface StyleTheme {
   /** 主背景色 */
@@ -70,6 +71,26 @@ export const styleThemes: Record<VideoStyle, StyleTheme> = {
     fontFamily: "'Xingkai SC', 'KaiTi', 'STKaiti', cursive",
     titleFont: "'Xingkai SC', 'KaiTi', 'STKaiti', cursive",
   },
+  // 聚合页纸媒（对标《AI早报/晚报》，2026-09-04 逆向；细粒度 token 见 compositions/news-paper/tokens.ts）
+  // StyleProvider 只提供粗粒度主题（bg 供背景层），NewsPaper 模板内部用 resolvePaperTokens 双皮肤
+  "news-paper": {
+    background: "#FBF8F2",
+    text: "#1F1F1F",
+    accent: "#C0392B",
+    muted: "#7A7A7A",
+    panel: "#FFFFFF",
+    fontFamily: "Inter, 'PingFang SC', 'Microsoft YaHei', sans-serif",
+    titleFont: "Inter, 'PingFang SC', 'Microsoft YaHei', sans-serif",
+  },
+  "news-paper-dark": {
+    background: "#101018",
+    text: "#F5F1E8",
+    accent: "#D14545",
+    muted: "#9A97A8",
+    panel: "#1A1A24",
+    fontFamily: "Inter, 'PingFang SC', 'Microsoft YaHei', sans-serif",
+    titleFont: "Inter, 'PingFang SC', 'Microsoft YaHei', sans-serif",
+  },
   // TODO(dark-tech): 对标 Milvus 天花板 #0B1220/#22D3EE，见 vido/docs/styles.md §6
   // 需新增 "dark-tech": { background: "#0B1220", text: "#F9FAFB", accent: "#22D3EE", muted: "#1A2332", panel: "#111827", fontFamily: "Inter, 'PingFang SC', sans-serif", titleFont: "Inter, 'PingFang SC', sans-serif" }
   // 并新建 vido/src/compositions/styles/DarkTechBackground.tsx（网格+渐变+光晕），在 StyleProvider 背景分发处加 case "dark-tech"
@@ -112,7 +133,9 @@ export const StyleProvider: React.FC<Props> = ({
           ? StickyNotesBackground
           : style === "newspaper"
             ? NewspaperBackground
-            : JournalBackground;
+            : style === "news-paper" || style === "news-paper-dark"
+              ? NewsPaperBackground
+              : JournalBackground;
 
   return (
     <StyleContext.Provider value={{ theme, orientation }}>
