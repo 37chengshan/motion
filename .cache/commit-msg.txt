@@ -1,0 +1,12 @@
+feat(cloud): 生产密钥轮换配套 + 日报渲染修复
+
+- cloud/tools/device-token.ts：补齐 README 引用但从未入库的设备 token
+  管理工具（add/list/revoke，sha256(pepper+token) 哈希存储）
+- cloud/deploy.sh：修复两处坑
+  - 去掉 --allow-unauthenticated=false（带值会报错，默认即拒绝）
+  - --memory 256Mi → 512Mi（--no-cpu-throttling 要求 ≥512Mi）
+- producer/scripts/gen-hyperframes.ts：音频 clip 的 data-duration 用
+  音频实际时长而非含段尾缓冲的槽位时长（修复 check --strict 因
+  clip_media_fit 警告失败）
+- CLAUDE.md：密钥轮换标记完成；新增第 0 优先级待办「AI 新闻内容
+  侧大改重构（搜索+视频）」

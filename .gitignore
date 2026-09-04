@@ -8,7 +8,7 @@ skills/remotion-koubo/
 skills/remotion-best-practices-cn/
 
 # screencast frame temp output
-tools/out/
+code/tools/out/
 webrec/out/
 
 # misc
@@ -21,32 +21,32 @@ __pycache__/
 *.pyc
 .pytest_cache/
 .venv/
-publisher/data/
+code/publisher/data/
 *.db
 
-# ===== vido 视频生产流水�? =====
+# ===== vido 视频生产流水�? =====
 # 本地工具与账号凭据（绝不提交 Cookie/登录态）
-tools/*
+code/tools/*
 # Phase 4/5 self-built tools (embed-server vector inference + video-analyzer)
-!tools/embed-server/
-!tools/video-analyzer/
-tools/embed-server/.venv/
-tools/video-analyzer/.venv/
-tools/embed-server/.venv3/
-tools/embed-server/testdata/
-tools/embed-server/__pycache__/
+!code/tools/embed-server/
+!code/tools/video-analyzer/
+code/tools/embed-server/.venv/
+code/tools/video-analyzer/.venv/
+code/tools/embed-server/.venv3/
+code/tools/embed-server/testdata/
+code/tools/embed-server/__pycache__/
 
 # 渲染产物与工作目录（out/research/hyperframes 生成物）
-producer/out/
-producer/research/
-producer/hyperframes/*/assets/
-producer/hyperframes/*/snapshots/
-producer/repost/inbox/
-producer/public/voiceover/
-producer/public/timeline.json
-producer/dashboard/registry.json
+code/producer/out/
+code/producer/research/
+code/producer/hyperframes/*/assets/
+code/producer/hyperframes/*/snapshots/
+code/producer/repost/inbox/
+code/producer/public/voiceover/
+code/producer/public/timeline.json
+code/producer/dashboard/registry.json
 
-# 大文�?/临时
+# 大文�?/临时
 *.mp4
 *.wav
 *.srt
@@ -55,24 +55,24 @@ cookies/
 dist/
 .vite/
 
-# EduEvidence ������Ŀ���û�������������⣩
-projects/
-test_tts.mp3
+# EduEvidence ������Ŀ���û�������������⣩
+project/
+code/eduevidence/
 
-# producer run artifacts & media (双运行面重构�?)
-producer/runs/
-producer/media/
-producer/config/content.json
-producer/selection.json
-producer/video-spec.md
-contracts/keys/
+# producer run artifacts & media (双运行面重构�?)
+code/producer/runs/
+code/producer/media/
+code/producer/config/content.json
+code/producer/selection.json
+code/producer/video-spec.md
+code/contracts/keys/
 
-# 大模型与向量数据库（朜�讻�/评估甼�不入库）
+# 大模型与向量数据库（朜�讻�/评估甼�不入库）
 models/
 data/
 .pip-wheels/
 .pip-cache/
 
 # weekly own-project input (user-provided, per-week)
-producer/weekly/
+code/producer/weekly/
 .secrets/

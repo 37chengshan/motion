@@ -1,0 +1,10 @@
+feat(publisher): 本地加固落位新路径 + 旧路径冲突文件移除
+
+- publisher_daemon: 接入 PUBLISHER_AUTO_PUBLISH 人审闸门（默认人审，
+  显式开启时 daemon 自签并审计留痕，与 operator nonce 授权并存）
+- local_watch_adapter: acknowledge 回写 package_id 白名单 + resolve 锚定防穿越
+- lease_manager: 删除 store/consume_authorization（上游 OperatorAuthorizationService
+  统一负责，避免双实现）
+- tests/test_e2e_pipeline: WAL checkpoint 清理防 Windows 文件锁
+- docs(producer): models.md 中 vido/ 旧路径更正为 producer/
+- 验证：pytest 24/24 通过

@@ -1,0 +1,185 @@
+{
+ "rows": [
+  {
+   "dir": "60fps-animation",
+   "name": "60fps-animation",
+   "desc": true,
+   "match": true
+  },
+  {
+   "dir": "ai-motion-director",
+   "name": "ai-motion-director",
+   "desc": true,
+   "match": true
+  },
+  {
+   "dir": "animation-principles",
+   "name": "animation-principles",
+   "desc": true,
+   "match": true
+  },
+  {
+   "dir": "beat-sync-editing",
+   "name": "beat-sync-editing",
+   "desc": true,
+   "match": true
+  },
+  {
+   "dir": "gsap-web",
+   "name": "gsap-web",
+   "desc": true,
+   "match": true
+  },
+  {
+   "dir": "hyperframes",
+   "name": "hyperframes",
+   "desc": true,
+   "match": true
+  },
+  {
+   "dir": "hyperframes-animation",
+   "name": "hyperframes-animation",
+   "desc": true,
+   "match": true
+  },
+  {
+   "dir": "hyperframes-audio",
+   "name": "hyperframes-audio",
+   "desc": true,
+   "match": true
+  },
+  {
+   "dir": "hyperframes-cli",
+   "name": "hyperframes-cli",
+   "desc": true,
+   "match": true
+  },
+  {
+   "dir": "hyperframes-core",
+   "name": "hyperframes-core",
+   "desc": true,
+   "match": true
+  },
+  {
+   "dir": "hyperframes-creative",
+   "name": "hyperframes-creative",
+   "desc": true,
+   "match": true
+  },
+  {
+   "dir": "hyperframes-keyframes",
+   "name": "hyperframes-keyframes",
+   "desc": true,
+   "match": true
+  },
+  {
+   "dir": "hyperframes-media",
+   "name": "hyperframes-media",
+   "desc": true,
+   "match": true
+  },
+  {
+   "dir": "hyperframes-registry",
+   "name": "hyperframes-registry",
+   "desc": true,
+   "match": true
+  },
+  {
+   "dir": "lottie-animation",
+   "name": "lottie-animation",
+   "desc": true,
+   "match": true
+  },
+  {
+   "dir": "media-use",
+   "name": "media-use",
+   "desc": true,
+   "match": true
+  },
+  {
+   "dir": "motion-art-direction",
+   "name": "motion-art-direction",
+   "desc": true,
+   "match": true
+  },
+  {
+   "dir": "motion-design",
+   "name": "motion-design",
+   "desc": true,
+   "match": true
+  },
+  {
+   "dir": "motion-media-handoff",
+   "name": "motion-media-handoff",
+   "desc": true,
+   "match": true
+  },
+  {
+   "dir": "reference-video-replica-qc",
+   "name": "reference-video-replica-qc",
+   "desc": true,
+   "match": true
+  },
+  {
+   "dir": "remotion-video",
+   "name": "remotion-video",
+   "desc": true,
+   "match": true
+  },
+  {
+   "dir": "shot-composition",
+   "name": "shot-composition",
+   "desc": true,
+   "match": true
+  },
+  {
+   "dir": "srt-vox-director",
+   "name": "srt-vox-director",
+   "desc": true,
+   "match": true
+  },
+  {
+   "dir": "srt-whiteboard-animation",
+   "name": "srt-whiteboard-animation",
+   "desc": true,
+   "match": true
+  },
+  {
+   "dir": "svg-animation",
+   "name": "svg-animation",
+   "desc": true,
+   "match": true
+  },
+  {
+   "dir": "sync-skills-to-workbuddy",
+   "name": "sync-skills-to-workbuddy",
+   "desc": true,
+   "match": true
+  },
+  {
+   "dir": "video-agency-roles",
+   "name": "video-agency-roles",
+   "desc": true,
+   "match": true
+  },
+  {
+   "dir": "video-spec-builder",
+   "name": "video-spec-builder",
+   "desc": true,
+   "match": true
+  },
+  {
+   "dir": "watch",
+   "name": "watch",
+   "desc": true,
+   "match": true
+  },
+  {
+   "dir": "whiteboard-stream-animation",
+   "name": "whiteboard-stream-animation",
+   "desc": true,
+   "match": true
+  }
+ ],
+ "issues": []
+}

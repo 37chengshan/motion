@@ -1,0 +1,21 @@
+{
+  "id": "review-project-audit",
+  "title": "帮我多审查一下这个项目 - 全量代码审查",
+  "status": "completed",
+  "strategy": "review-audit",
+  "currentPhase": "3",
+  "nextAction": "已完成全量审计 + P0 全部修复 (8/8 pytest green) — 待用户验收",
+  "gate": "review完成·P0已修复·待用户确认",
+  "branch": "main",
+  "scope": "review-project-audit",
+  "createdAt": "2026-08-27T13:55:34Z",
+  "completedAt": "2026-08-27T14:20:00Z",
+  "summary": {
+    "critical": 6,
+    "warning": 10,
+    "info": 7,
+    "fixed": 12,
+    "tests": "8 passed (was 2 passed)",
+    "specs": ["backend/safety-gate.md", "backend/lease-fencing.md", "audit/hash-chain.md", "transport/path-security.md"]
+  }
+}

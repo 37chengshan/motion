@@ -1,0 +1,12 @@
+{
+  "id": "milvus-video-ai-analysis",
+  "title": "解析B站Milvus科普视频(BV19v8x6uEh8)AI制作全流程并输出完整报告",
+  "status": "completed",
+  "strategy": "deep-research",
+  "currentPhase": "4-discuss",
+  "nextAction": "研究完成，可实施推荐方案：用Vido复刻中间件科普模板",
+  "gate": null,
+  "branch": "main",
+  "scope": "milvus-video-ai-analysis",
+  "createdAt": "2026-08-27T21:40:00+08:00"
+}

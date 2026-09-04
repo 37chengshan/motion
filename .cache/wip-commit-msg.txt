@@ -1,0 +1,10 @@
+wip: publisher 并发加固 + vido 三轨视觉文档（重构前保底快照）
+
+- conf.py: _clamp_int 环境变量钳制 + 代理格式校验
+- hash_chain/session_guard/scheduler/lease_manager: SQLite WAL/busy_timeout/
+  BEGIN IMMEDIATE 防哈希链并发分叉、连接关闭卫生、原子 claim_version 递增
+- publisher_daemon: PUBLISHER_AUTO_PUBLISH 人审闸门（默认停在 READY_TO_REVIEW）
+- policy.py: 授权过期时区安全解析 + nonce 持久化（上游 authorization.py 覆盖后可弃）
+- dashboard/server.ts: Bearer Token 鉴权
+- vido: VIDO.md 三轨视觉、effects/styles.md 重写、BlockRenderer/StyleProvider 注释
+- 新增 vido/.env.example、vido/docs/models.md（aiping 模型选型实测）

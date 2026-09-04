@@ -1,0 +1,31 @@
+{
+ "ok": [
+  "video-spec-builder",
+  "watch",
+  "srt-vox-director",
+  "srt-whiteboard-animation",
+  "whiteboard-stream-animation",
+  "ai-motion-director",
+  "reference-video-replica-qc",
+  "animation-principles",
+  "shot-composition",
+  "motion-art-direction",
+  "beat-sync-editing",
+  "remotion-video",
+  "gsap-web",
+  "60fps-animation",
+  "svg-animation",
+  "lottie-animation",
+  "hyperframes-keyframes"
+ ],
+ "drifted": [
+  "hyperframes",
+  "hyperframes-core",
+  "hyperframes-animation",
+  "hyperframes-creative",
+  "hyperframes-cli",
+  "media-use",
+  "hyperframes-audio",
+  "hyperframes-registry"
+ ]
+}
