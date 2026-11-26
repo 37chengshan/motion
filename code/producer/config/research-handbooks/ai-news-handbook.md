@@ -1,7 +1,7 @@
 ---
 name: ai-news-handbook
-version: 1
-updated_at: 2026-08-29
+version: 2
+updated_at: 2026-11-26
 status: draft
 proxy_required: []
 blindtest:
@@ -23,8 +23,8 @@ blindtest:
 
 | 信源 | 端点 | parser | 说明 |
 |---|---|---|---|
-| **AIHOT 精选（主源）** | `https://aihot.virxact.com/api/v1/items?mode=selected&window=24h&limit=50` | `aihot-json` | 中文 AI 精选（评分+推荐理由+分类），匿名免 key；已接入 daily-research 实测 8 条 |
-| **AIHOT 模型榜** | `https://aihot.virxact.com/leaderboard` | html | 10 个权威榜加权共识分，排行榜配图/数据来源 |
+| **AIHOT 精选（主源）** | `https://aihot.news/api/v1/items?mode=selected&window=24h&limit=50` | `aihot-json` | 中文 AI 精选（评分+推荐理由+分类），匿名免 key；已接入 daily-research 实测 8 条 |
+| **AIHOT 模型榜** | `https://aihot.news/leaderboard` | html | 10 个权威榜加权共识分，排行榜配图/数据来源 |
 
 > 精选条件请求：`If-None-Match` 用 ETag，间隔按 `s-maxage`（items 60s）；429 按 `Retry-After` 退避。
 
@@ -140,6 +140,7 @@ total = heat * 0.4 + timeliness * 0.3 + sourceQuality * 0.3
 | 日期 | 手册版本 | 参考条目数 | 命中 | 半命中 | 命中率 | 备注 |
 |---|---|---|---|---|---|---|
 | — | v1 | — | — | — | — | 初始版本，未盲测 |
+| 2026-11-26 | v2 | — | — | — | — | 迁移 AIHOT 域名，精选接口已连通；未重跑选题盲测 |
 
 **定稿规则**：连续 3 天 `hit_rate >= 0.80` 且覆盖 ≥2 个不同工作日 → `status: stable`；
 定稿后降频每周 1 次回归，连续 2 周跌破 70% 触发手册重开修订。
